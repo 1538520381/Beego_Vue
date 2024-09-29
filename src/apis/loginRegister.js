@@ -21,7 +21,7 @@ export function register(registerForm) {
 
 export function sendEmailVerifyCode(email) {
     return request({
-        url: '/user/send/email', method: 'post', data: {
+        url: '/user/send/email', method: 'post', params: {
             email: email,
         }
     })

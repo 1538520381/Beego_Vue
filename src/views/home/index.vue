@@ -182,7 +182,9 @@ export default {
   created() {
     this.createChatClock1();
   },
-
+  unmounted() {
+    clearInterval(this.chatClock);
+  },
   methods: {
     initLoginForm() {
       this.loginForm = {

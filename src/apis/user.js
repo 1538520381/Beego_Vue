@@ -26,3 +26,9 @@ export function sendEmailVerifyCode(email) {
         }
     })
 }
+
+export function getUserByToken() {
+    return request({
+        url: '/user/token', method: 'post'
+    })
+}

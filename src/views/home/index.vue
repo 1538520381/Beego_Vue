@@ -77,7 +77,7 @@
 import logo from '@/assets/pictures/logo.png'
 import {isEmpty, sleep} from "@/utils/common";
 import {isEmail, isPassword} from "@/utils/validate";
-import {login, register, sendEmailVerifyCode} from "@/apis/loginRegister";
+import {login, register, sendEmailVerifyCode} from "@/apis/user";
 
 export default {
   name: "Home",
@@ -228,7 +228,8 @@ export default {
           } else {
             this.$message.error(res.data.message)
           }
-        }).catch(() => {
+        }).catch((err) => {
+          console.log(err)
           this.$message.error('系统异常，请联系管理员')
         })
       }
@@ -257,7 +258,8 @@ export default {
           } else {
             this.$message.error(res.data.message)
           }
-        }).catch(() => {
+        }).catch((err) => {
+          console.log(err)
           this.$message.error('系统异常，请联系管理员')
         })
       }
@@ -284,7 +286,8 @@ export default {
             } else {
               this.$message.error(res.data.message)
             }
-          }).catch(() => {
+          }).catch((err) => {
+            console.log(err)
             this.$message.error('系统异常，请联系管理员')
           })
         }

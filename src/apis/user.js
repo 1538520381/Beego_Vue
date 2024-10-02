@@ -11,10 +11,8 @@ export function login(loginForm) {
 export function register(registerForm) {
     return request({
         url: '/user/register', method: 'post', data: {
-            email: registerForm.email,
-            user_name: registerForm.userName,
-            password: registerForm.password,
-            user_verify_code: registerForm.verifyCode,
+            email: registerForm.email, // user_name: registerForm.userName,
+            password: registerForm.password, user_verify_code: registerForm.verifyCode,
         }
     })
 }

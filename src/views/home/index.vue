@@ -1,10 +1,16 @@
 <template>
   <div id='home'>
-    <div class='header'>
-      <el-button class="login linkButton" link @click="openTabsDialog('0')">登录</el-button>
-      <el-button class="register linkButton" link @click="openTabsDialog('1')">注册</el-button>
+    <div class='header' :class="{'gaussianBlur':tabsDialogVis}">
+      <div class="leftHeader">
+        <el-image class="bee" :src="bee" fit="contain"></el-image>
+        <div class="slogan">B E E G O · 必 过</div>
+      </div>
+      <div class="rightHeader">
+        <el-button class="loginButton button" @click="openTabsDialog('0')">登录</el-button>
+        <el-button class="registerButton button" @click="openTabsDialog('1')">注册</el-button>
+      </div>
     </div>
-    <div class="main">
+    <div class="main" :class="{'gaussianBlur':tabsDialogVis}">
       <el-image class="logo" :src="logo" fit="contain"/>
       <div class="example">
         <svg-icon class="chatSvg" icon-class="chat"></svg-icon>
@@ -45,15 +51,16 @@
               <el-input class="verifyCodeInput" size="large" v-model="registerForm.verifyCode"
                         placeholder="请输入验证码">
               </el-input>
-              <el-button class="verifyCodeButton" type="primary" link @click="sendEmailVerifyCode">{{
+              <el-button class="verifyCodeButton" type="primary" link @click="sendEmailVerifyCode">
+                {{
                   verifyCodeFlag ? "获取验证码" : verifyCodeTimer + "秒后重试"
                 }}
               </el-button>
             </el-form-item>
-            <el-form-item class="formItem" prop="userName">
-              <el-input class="formInput" size="large" v-model="registerForm.userName"
-                        placeholder="请输入用户名"></el-input>
-            </el-form-item>
+            <!--            <el-form-item class="formItem" prop="userName">-->
+            <!--              <el-input class="formInput" size="large" v-model="registerForm.userName"-->
+            <!--                        placeholder="请输入用户名"></el-input>-->
+            <!--            </el-form-item>-->
             <el-form-item class="formItem" prop="password">
               <el-input class="formInput" size="large" type="password" show-password
                         v-model="registerForm.password" placeholder="请输入密码"></el-input>
@@ -70,11 +77,25 @@
         </el-tab-pane>
       </el-tabs>
     </el-dialog>
+
+    <!--    <el-dialog class="personalInformationDialog" v-model="personalInformationDialogVis" title="个人信息完善"-->
+    <!--               width="500">-->
+    <!--      <el-form class="form" :model="personalInformationForm" label-width="80px">-->
+    <!--        <el-form-item class="formItem" label="昵称">-->
+    <!--          <el-input class="formInput" v-model="personalInformationForm.userName"></el-input>-->
+    <!--        </el-form-item>-->
+    <!--        <el-form-item label="联系方式">-->
+    <!--          <el-input class="formInput" v-model="personalInformationForm.userName"></el-input>-->
+    <!--        </el-form-item>-->
+    <!--      </el-form>-->
+    <!--    </el-dialog>-->
   </div>
 </template>
 
 <script>
+import bee from '@/assets/pictures/bee.png'
 import logo from '@/assets/pictures/logo.png'
+
 import {isEmpty, sleep} from "@/utils/common";
 import {isEmail, isPassword} from "@/utils/validate";
 import {login, register, sendEmailVerifyCode} from "@/apis/user";
@@ -105,6 +126,7 @@ export default {
     }
 
     return {
+      bee: bee,
       logo: logo,
 
       loginForm: {
@@ -113,13 +135,21 @@ export default {
       },
       registerForm: {
         email: "",
-        userName: "",
+        // userName: "",
         password: "",
         passwordAgain: "",
         verifyCode: "",
       },
+      // personalInformationForm: {
+      //   userName: "",
+      //   phone: "",
+      //   school: "",
+      //   major: "",
+      //   enrollmentYear: ""
+      // },
 
       tabsDialogVis: false,
+      // personalInformationDialogVis: true,
 
       loginRules: {
         email: [{
@@ -241,9 +271,11 @@ export default {
         this.$message.error('请输入合法的邮箱地址')
       } else if (isEmpty(this.registerForm.verifyCode)) {
         this.$message.error('请输入验证码')
-      } else if (isEmpty(this.registerForm.userName)) {
-        this.$message.error('请输入用户名')
-      } else if (isEmpty(this.registerForm.password)) {
+      }
+          // else if (isEmpty(this.registerForm.userName)) {
+          //   this.$message.error('请输入用户名')
+      // }
+      else if (isEmpty(this.registerForm.password)) {
         this.$message.error('请输入密码')
       } else if (!isPassword(this.registerForm.password)) {
         this.$message.error('请输入包含英文字母和数字的8-30位密码')
@@ -327,20 +359,52 @@ export default {
 }
 
 #home .header {
+  display: flex;
+
+  justify-content: space-between;
+
   padding: 5px 10px 0 10px;
+
+  height: 50px;
 
   text-align: right;
 }
 
-#home .header .linkButton {
+#home .header .leftHeader .bee {
+  display: inline-block;
+
+  width: 50px;
+  height: 50px;
+}
+
+#home .header .leftHeader .slogan {
+  display: inline-block;
+
+  vertical-align: top;
+
+  height: 100%;
+  line-height: 50px;
+
+  font-size: 20px;
+}
+
+#home .header .rightHeader .button {
+  vertical-align: top;
+
   margin: 5px 10px 5px 10px;
+  padding: 0 0 0 0;
+
+  width: 80px;
+  height: calc(100% - 5px * 2);
+
+  border-radius: 20px;
 
   outline: none;
 
   font-size: 20px;
 }
 
-#home .header .linkButton:hover {
+#home .header .rightHeader .button:hover {
   color: #46A2FF;
 }
 
@@ -421,5 +485,9 @@ export default {
 
 #home .tabsDialog .tabs .tabPane .form .formItem .verifyCodeButton {
   margin: 0 0 0 10px;
+}
+
+#home .gaussianBlur {
+  filter: blur(10px);
 }
 </style>

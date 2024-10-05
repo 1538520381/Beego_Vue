@@ -1,6 +1,6 @@
 <template>
   <div id='home'>
-    <div class='header' :class="{'gaussianBlur':tabsDialogVis}">
+    <div class='header' :class="{'gaussianBlur':tabsDialogVis || personalInformationDialogVis}">
       <div class="leftHeader">
         <el-image class="bee" :src="bee" fit="contain"></el-image>
         <div class="slogan">B E E G O · 必 过</div>
@@ -10,7 +10,7 @@
         <el-button class="registerButton button" @click="openTabsDialog('1')">注册</el-button>
       </div>
     </div>
-    <div class="main" :class="{'gaussianBlur':tabsDialogVis}">
+    <div class="main" :class="{'gaussianBlur':tabsDialogVis || personalInformationDialogVis}">
       <el-image class="logo" :src="logo" fit="contain"/>
       <div class="example">
         <svg-icon class="chatSvg" icon-class="chat"></svg-icon>
@@ -78,17 +78,29 @@
       </el-tabs>
     </el-dialog>
 
-    <!--    <el-dialog class="personalInformationDialog" v-model="personalInformationDialogVis" title="个人信息完善"-->
-    <!--               width="500">-->
-    <!--      <el-form class="form" :model="personalInformationForm" label-width="80px">-->
-    <!--        <el-form-item class="formItem" label="昵称">-->
-    <!--          <el-input class="formInput" v-model="personalInformationForm.userName"></el-input>-->
-    <!--        </el-form-item>-->
-    <!--        <el-form-item label="联系方式">-->
-    <!--          <el-input class="formInput" v-model="personalInformationForm.userName"></el-input>-->
-    <!--        </el-form-item>-->
-    <!--      </el-form>-->
-    <!--    </el-dialog>-->
+    <el-dialog class="personalInformationDialog" v-model="personalInformationDialogVis" title="个人信息完善"
+               width="360">
+      <el-form class="form" :model="personalInformationForm" label-width="80px">
+        <el-form-item class="formItem" prop="userName" label="昵称">
+          <el-input class="formInput" v-model="personalInformationForm.userName"></el-input>
+        </el-form-item>
+        <el-form-item class="formItem" prop="phone" label="联系方式">
+          <el-input class="formInput" v-model="personalInformationForm.phone"></el-input>
+        </el-form-item>
+        <el-form-item class="formItem" prop="school" label="所在院校">
+          <el-input class="formInput" v-model="personalInformationForm.school"></el-input>
+        </el-form-item>
+        <el-form-item class="formItem" prop="major" label="所在专业">
+          <el-input class="formInput" v-model="personalInformationForm.major"></el-input>
+        </el-form-item>
+        <el-form-item class="formItem" prop="enterTime" label="入学年份">
+          <el-input class="formInput" v-model="personalInformationForm.enterTime"></el-input>
+        </el-form-item>
+      </el-form>
+      <div class="control">
+        <el-button type="primary">确定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -140,16 +152,16 @@ export default {
         passwordAgain: "",
         verifyCode: "",
       },
-      // personalInformationForm: {
-      //   userName: "",
-      //   phone: "",
-      //   school: "",
-      //   major: "",
-      //   enrollmentYear: ""
-      // },
+      personalInformationForm: {
+        userName: "",
+        phone: "",
+        school: "",
+        major: "",
+        enterTime: "",
+      },
 
       tabsDialogVis: false,
-      // personalInformationDialogVis: true,
+      personalInformationDialogVis: true,
 
       loginRules: {
         email: [{
@@ -171,11 +183,11 @@ export default {
           trigger: 'blur',
           validator: validateEmail
         }],
-        userName: [{
-          required: true,
-          trigger: 'blur',
-          message: '用户名不能为空'
-        }],
+        // userName: [{
+        //   required: true,
+        //   trigger: 'blur',
+        //   message: '用户名不能为空'
+        // }],
         password: [{
           required: true,
           trigger: 'blur',
@@ -485,6 +497,14 @@ export default {
 
 #home .tabsDialog .tabs .tabPane .form .formItem .verifyCodeButton {
   margin: 0 0 0 10px;
+}
+
+#home .personalInformationDialog .control {
+  text-align: right;
+}
+
+#home .personalInformationDialog .form .formItem .formInput {
+  width: 200px;
 }
 
 #home .gaussianBlur {

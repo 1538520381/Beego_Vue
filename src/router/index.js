@@ -7,7 +7,9 @@ const routes = [{
 }, {
     path: '/workbench', name: 'Workbench', component: () => import('@/views/workbench')
 }, {
-    path: '/learningCorner', name: 'LearningCorner', component: () => import('@/views/learningCorner')
+    path: '/learningCornerBook', name: 'LearningCornerBook', component: () => import('@/views/learningCornerBook')
+}, {
+    path: '/learningCornerChat', name: 'LearningCornerChat', component: () => import('@/views/learningCornerChat')
 }]
 
 const router = createRouter({

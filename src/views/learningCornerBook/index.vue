@@ -1,5 +1,5 @@
 <template>
-  <div id="learningCorner">
+  <div id="learningCornerBook">
     <el-menu class="firstMenu" default-active="0">
       <div class="firstMenuTitle">大类</div>
       <div class="search">
@@ -47,7 +47,7 @@
         </div>
       </div>
       <div class="thirdMenu">
-        <div class="thirdMenuItem" v-for="(item,index) in thirdMenuItems">
+        <div class="thirdMenuItem" v-for="(item,index) in thirdMenuItems" @click="toLearningCornerChat">
           <svg-icon class="bookIcon" icon-class="book"></svg-icon>
           <div class="bookName">{{ item.name }}</div>
         </div>
@@ -64,7 +64,7 @@ import {ArrowLeftBold, ArrowRightBold} from '@element-plus/icons-vue'
 import SvgIcon from "@/components/svgIcon/index.vue";
 
 export default {
-  name: 'LearningCorner',
+  name: 'LearningCornerBook',
   components: {SvgIcon},
   data() {
     return {
@@ -105,18 +105,21 @@ export default {
 
     toWorkbench() {
       this.$router.push('/workbench')
+    },
+    toLearningCornerChat() {
+      this.$router.push('/learningCornerChat')
     }
   }
 }
 </script>
 
 <style scoped>
-#learningCorner {
+#learningCornerBook {
   width: 100%;
   height: 100%;
 }
 
-#learningCorner .firstMenu {
+#learningCornerBook .firstMenu {
   display: inline-block;
 
   vertical-align: top;
@@ -129,7 +132,7 @@ export default {
   background: #E6E6E6;
 }
 
-#learningCorner .firstMenu .firstMenuTitle {
+#learningCornerBook .firstMenu .firstMenuTitle {
   margin: 10px 10px 0 10px;
 
   width: calc(100% - 10px * 2 - 4px * 2);
@@ -147,7 +150,7 @@ export default {
   line-height: 40px;
 }
 
-#learningCorner .firstMenu .search {
+#learningCornerBook .firstMenu .search {
   margin: 10px 10px 0 10px;
 
   width: calc(100% - 10px * 2);
@@ -158,7 +161,7 @@ export default {
   background: #CBCBCB;
 }
 
-#learningCorner .firstMenu .search .searchIcon {
+#learningCornerBook .firstMenu .search .searchIcon {
   display: inline-block;
 
   vertical-align: top;
@@ -169,7 +172,7 @@ export default {
   height: 30px;
 }
 
-#learningCorner .firstMenu .search .searchInput {
+#learningCornerBook .firstMenu .search .searchInput {
   display: inline-block;
 
   vertical-align: top;
@@ -188,12 +191,12 @@ export default {
   background: #CBCBCB;
 }
 
-#learningCorner .firstMenu .firstMenuScrollbar {
+#learningCornerBook .firstMenu .firstMenuScrollbar {
   width: 100%;
   height: calc(100% - 120px - 10px - 40px - 10px - 40px - 8px);
 }
 
-#learningCorner .firstMenu .firstMenuScrollbar .firstMenuItem .firstMenuItemName {
+#learningCornerBook .firstMenu .firstMenuScrollbar .firstMenuItem .firstMenuItemName {
   width: 100%;
   height: 40px;
 
@@ -209,7 +212,7 @@ export default {
   font-size: 20px;
 }
 
-#learningCorner .firstMenu .slogan {
+#learningCornerBook .firstMenu .slogan {
   padding: 20px 0 0 0;
 
   height: calc(120px - 20px);
@@ -220,7 +223,7 @@ export default {
   font-weight: bold;
 }
 
-#learningCorner .secondMenu {
+#learningCornerBook .secondMenu {
   display: inline-block;
 
   vertical-align: top;
@@ -233,7 +236,7 @@ export default {
   background: #CBCBCB;
 }
 
-#learningCorner .secondMenu .secondMenuTitle {
+#learningCornerBook .secondMenu .secondMenuTitle {
   margin: 10px 10px 0 10px;
 
   width: calc(100% - 10px * 2 - 4px * 2);
@@ -251,12 +254,12 @@ export default {
   line-height: 40px;
 }
 
-#learningCorner .secondMenu .secondMenuScrollbar {
+#learningCornerBook .secondMenu .secondMenuScrollbar {
   width: 100%;
   height: calc(100% - 120px - 10px - 40px - 8px);
 }
 
-#learningCorner .secondMenu .secondMenuScrollbar .secondMenuItem .secondMenuItemName {
+#learningCornerBook .secondMenu .secondMenuScrollbar .secondMenuItem .secondMenuItemName {
   width: 100%;
   height: 40px;
 
@@ -272,7 +275,7 @@ export default {
   font-size: 20px;
 }
 
-#learningCorner .secondMenu .slogan {
+#learningCornerBook .secondMenu .slogan {
   height: 120px;
 
   text-align: center;
@@ -281,7 +284,7 @@ export default {
   font-weight: bold;
 }
 
-#learningCorner .secondMenu .user {
+#learningCornerBook .secondMenu .user {
   margin: 30px 0 30px 0;
 
   width: 100%;
@@ -290,7 +293,7 @@ export default {
   text-align: center;
 }
 
-#learningCorner .secondMenu .user .userAvatar {
+#learningCornerBook .secondMenu .user .userAvatar {
   display: inline-block;
 
   vertical-align: top;
@@ -301,7 +304,7 @@ export default {
   border-radius: 50%;
 }
 
-#learningCorner .secondMenu .user .userName {
+#learningCornerBook .secondMenu .user .userName {
   display: inline-block;
 
   vertical-align: top;
@@ -315,7 +318,7 @@ export default {
   line-height: 60px;
 }
 
-#learningCorner .secondMenuControllerButton {
+#learningCornerBook .secondMenuControllerButton {
   position: absolute;
 
   width: 30px;
@@ -324,17 +327,17 @@ export default {
   z-index: 1;
 }
 
-#learningCorner .secondMenuControllerButtonClose {
+#learningCornerBook .secondMenuControllerButtonClose {
   top: calc(50% - 30px / 2);
   left: calc(180px - 30px / 2);
 }
 
-#learningCorner .secondMenuControllerButtonOpen {
+#learningCornerBook .secondMenuControllerButtonOpen {
   top: calc(50% - 30px / 2);
   left: calc(180px + 180px - 30px / 2);
 }
 
-#learningCorner .mainContainer {
+#learningCornerBook .mainContainer {
   display: inline-flex;
   flex-flow: column;
 
@@ -345,22 +348,22 @@ export default {
   height: 100%;
 }
 
-#learningCorner .mainContainerShort {
+#learningCornerBook .mainContainerShort {
   width: calc(100% - 180px - 180px);
 }
 
-#learningCorner .mainContainerLong {
+#learningCornerBook .mainContainerLong {
   width: calc(100% - 180px);
 }
 
-#learningCorner .mainContainer .patterns {
+#learningCornerBook .mainContainer .patterns {
   position: relative;
 
   width: 100%;
   height: 60px;
 }
 
-#learningCorner .mainContainer .patterns .pattern1 {
+#learningCornerBook .mainContainer .patterns .pattern1 {
   position: absolute;
 
   top: -1px;
@@ -375,7 +378,7 @@ export default {
   cursor: pointer;
 }
 
-#learningCorner .mainContainer .patterns .pattern1:before {
+#learningCornerBook .mainContainer .patterns .pattern1:before {
   content: '';
 
   position: absolute;
@@ -391,17 +394,17 @@ export default {
   transform-origin: left;
 }
 
-#learningCorner .mainContainer .patterns .pattern1active {
+#learningCornerBook .mainContainer .patterns .pattern1active {
   padding: 0 0 0 30%;
 
   width: calc(70% - 30%);
 }
 
-#learningCorner .mainContainer .patterns .pattern1active:before {
+#learningCornerBook .mainContainer .patterns .pattern1active:before {
   z-index: -1;
 }
 
-#learningCorner .mainContainer .patterns .pattern2 {
+#learningCornerBook .mainContainer .patterns .pattern2 {
   position: absolute;
 
   top: 1px;
@@ -416,7 +419,7 @@ export default {
   cursor: pointer;
 }
 
-#learningCorner .mainContainer .patterns .pattern2:before {
+#learningCornerBook .mainContainer .patterns .pattern2:before {
   content: '';
 
   position: absolute;
@@ -432,22 +435,22 @@ export default {
   transform-origin: right;
 }
 
-#learningCorner .mainContainer .patterns .pattern2unactive {
+#learningCornerBook .mainContainer .patterns .pattern2unactive {
   padding: 0 0 0 52%;
 
   width: calc(70% - 52%);
 }
 
-#learningCorner .mainContainer .patterns .pattern2unactive:before {
+#learningCornerBook .mainContainer .patterns .pattern2unactive:before {
   z-index: -2;
 }
 
-#learningCorner .thirdMenu {
+#learningCornerBook .thirdMenu {
   width: 100%;
   height: calc(100% - 60px);
 }
 
-#learningCorner .thirdMenu .thirdMenuItem {
+#learningCornerBook .thirdMenu .thirdMenuItem {
   display: inline-block;
 
   margin: 10px 10px 10px 10px;
@@ -459,7 +462,7 @@ export default {
   cursor: pointer;
 }
 
-#learningCorner .thirdMenu .thirdMenuItem .bookIcon {
+#learningCornerBook .thirdMenu .thirdMenuItem .bookIcon {
   display: inline-block;
 
   vertical-align: top;
@@ -468,7 +471,7 @@ export default {
   height: 80px;
 }
 
-#learningCorner .thirdMenu .thirdMenuItem .bookName {
+#learningCornerBook .thirdMenu .thirdMenuItem .bookName {
   display: inline-block;
 
   vertical-align: top;

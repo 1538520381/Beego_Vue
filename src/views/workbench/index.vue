@@ -34,7 +34,7 @@
 
     <div class="mainContainer" :class="{mainContainerShort:sessionMenuShow,mainContainerLong:!sessionMenuShow}">
       <div class="patterns">
-        <div class="pattern1 pattern1unactive" @click="toLearningCorner">
+        <div class="pattern1 pattern1unactive" @click="toLearningCornerBook">
           学习角
         </div>
         <div class="pattern2 pattern2active">
@@ -230,8 +230,8 @@ export default {
       this.sessionMenuShow = true
     },
 
-    toLearningCorner() {
-      this.$router.push("/learningCorner")
+    toLearningCornerBook() {
+      this.$router.push("/learningCornerBook")
     },
 
     selectRobotMenu(index) {

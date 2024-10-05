@@ -1,5 +1,5 @@
 <template>
-  <div id="chat">
+  <div id="workbench">
     <el-menu class="robotMenu" default-active="0" @select="selectRobotMenu">
       <el-scrollbar class="robotMenuScrollbar">
         <el-menu-item class="robotMenuItem" v-for="(item,value) in robots" :index="String(value)">
@@ -11,7 +11,6 @@
       </el-scrollbar>
       <div class="logo">
         <el-image class="logoImage" :src="test" fit="fill"/>
-        <div></div>
       </div>
     </el-menu>
 
@@ -34,19 +33,11 @@
 
 
     <div class="mainContainer" :class="{mainContainerShort:sessionMenuShow,mainContainerLong:!sessionMenuShow}">
-      <div class="patterns" v-if="patternActive === 1">
-        <div class="pattern2 pattern2unactive" @click="selectPattern(2)">
-          工作台
-        </div>
-        <div class="pattern1 pattern1active" @click="selectPattern(1)">
+      <div class="patterns">
+        <div class="pattern1 pattern1unactive" @click="toLearningCorner">
           学习角
         </div>
-      </div>
-      <div class="patterns" v-else>
-        <div class="pattern1 pattern1unactive" @click="selectPattern(1)">
-          学习角
-        </div>
-        <div class="pattern2 pattern2active" @click="selectPattern(2)">
+        <div class="pattern2 pattern2active">
           工作台
         </div>
       </div>
@@ -97,10 +88,11 @@ import {ArrowLeftBold, ArrowRightBold, Folder} from '@element-plus/icons-vue'
 import {getRobotList} from "@/apis/chat";
 import {isEmpty} from "@/utils/common";
 import {getUserByToken} from "@/apis/user";
+
 import SvgIcon from "@/components/svgIcon/index.vue";
 
 export default {
-  name: 'Chat',
+  name: 'Workbench',
   components: {SvgIcon},
   data() {
     return {
@@ -238,8 +230,8 @@ export default {
       this.sessionMenuShow = true
     },
 
-    selectPattern(patternActive) {
-      this.patternActive = patternActive
+    toLearningCorner() {
+      this.$router.push("/learningCorner")
     },
 
     selectRobotMenu(index) {
@@ -254,12 +246,12 @@ export default {
 </script>
 
 <style>
-#chat {
+#workbench {
   width: 100%;
   height: 100%;
 }
 
-#chat .robotMenu {
+#workbench .robotMenu {
   display: inline-block;
 
   vertical-align: top;
@@ -272,23 +264,23 @@ export default {
   background: #E6E6E6;
 }
 
-#chat .robotMenu .robotMenuScrollbar {
+#workbench .robotMenu .robotMenuScrollbar {
   width: 100%;
   height: calc(100% - 120px);
 }
 
-#chat .robotMenu .robotMenuScrollbar .robotMenuItem {
+#workbench .robotMenu .robotMenuScrollbar .robotMenuItem {
   height: auto;
 
   padding: 5px 20px 5px 20px;
 }
 
-#chat .robotMenu .robotMenuScrollbar .robotMenuItem .robotMenuItemContainer .robotMenuItemImage {
+#workbench .robotMenu .robotMenuScrollbar .robotMenuItem .robotMenuItemContainer .robotMenuItemImage {
   width: 80px;
   height: 80px;
 }
 
-#chat .robotMenu .robotMenuScrollbar .robotMenuItem .robotMenuItemContainer .robotMenuItemTitle {
+#workbench .robotMenu .robotMenuScrollbar .robotMenuItem .robotMenuItemContainer .robotMenuItemTitle {
   height: 30px;
 
   line-height: 30px;
@@ -296,18 +288,18 @@ export default {
   text-align: center;
 }
 
-#chat .robotMenu .logo {
+#workbench .robotMenu .logo {
   margin: 20px 0 20px 0;
 
   text-align: center;
 }
 
-#chat .robotMenu .logo .logoImage {
+#workbench .robotMenu .logo .logoImage {
   width: 80px;
   height: 80px;
 }
 
-#chat .sessionMenu {
+#workbench .sessionMenu {
   display: inline-block;
 
   vertical-align: top;
@@ -322,12 +314,12 @@ export default {
   background: #C9C9C9;
 }
 
-#chat .sessionMenu .sessionMenuScrollbar {
+#workbench .sessionMenu .sessionMenuScrollbar {
   width: 100%;
   height: calc(100% - 60px - 120px);
 }
 
-#chat .sessionMenu .addSessionButton {
+#workbench .sessionMenu .addSessionButton {
   margin: 10px 0 0 0;
 
   width: 80%;
@@ -338,7 +330,7 @@ export default {
   font-size: 20px;
 }
 
-#chat .sessionMenuControllerButton {
+#workbench .sessionMenuControllerButton {
   position: absolute;
 
   width: 30px;
@@ -347,24 +339,24 @@ export default {
   z-index: 1;
 }
 
-#chat .sessionMenuControllerButtonClose {
+#workbench .sessionMenuControllerButtonClose {
   top: calc(50% - 30px / 2);
   left: calc(120px - 30px / 2);
 }
 
-#chat .sessionMenuControllerButtonOpen {
+#workbench .sessionMenuControllerButtonOpen {
   top: calc(50% - 30px / 2);
   left: calc(120px + 200px - 30px / 2);
 }
 
-#chat .sessionMenu .user {
+#workbench .sessionMenu .user {
   margin: 30px 0 30px 0;
 
   width: 100%;
   height: 60px;
 }
 
-#chat .sessionMenu .user .userAvatar {
+#workbench .sessionMenu .user .userAvatar {
   display: inline-block;
 
   vertical-align: top;
@@ -375,7 +367,7 @@ export default {
   border-radius: 50%;
 }
 
-#chat .sessionMenu .userName {
+#workbench .sessionMenu .user .userName {
   display: inline-block;
 
   vertical-align: top;
@@ -389,7 +381,7 @@ export default {
   line-height: 60px;
 }
 
-#chat .mainContainer {
+#workbench .mainContainer {
   display: inline-flex;
   flex-flow: column;
 
@@ -400,22 +392,22 @@ export default {
   height: 100%;
 }
 
-#chat .mainContainerShort {
+#workbench .mainContainerShort {
   width: calc(100% - 120px - 200px);
 }
 
-#chat .mainContainerLong {
+#workbench .mainContainerLong {
   width: calc(100% - 120px);
 }
 
-#chat .mainContainer .patterns {
+#workbench .mainContainer .patterns {
   position: relative;
 
   width: 100%;
   height: 60px;
 }
 
-#chat .mainContainer .patterns .pattern1 {
+#workbench .mainContainer .patterns .pattern1 {
   position: absolute;
 
   top: -1px;
@@ -426,9 +418,11 @@ export default {
   font-size: 24px;
 
   line-height: 60px;
+
+  cursor: pointer;
 }
 
-#chat .mainContainer .patterns .pattern1:before {
+#workbench .mainContainer .patterns .pattern1:before {
   content: '';
 
   position: absolute;
@@ -444,27 +438,17 @@ export default {
   transform-origin: left;
 }
 
-#chat .mainContainer .patterns .pattern1unactive {
+#workbench .mainContainer .patterns .pattern1unactive {
   padding: 0 0 0 12%;
 
   width: calc(70% - 12%);
 }
 
-#chat .mainContainer .patterns .pattern1active {
-  padding: 0 0 0 30%;
-
-  width: calc(70% - 30%);
-}
-
-#chat .mainContainer .patterns .pattern1unactive:before {
+#workbench .mainContainer .patterns .pattern1unactive:before {
   z-index: -2;
 }
 
-#chat .mainContainer .patterns .pattern1active:before {
-  z-index: -1;
-}
-
-#chat .mainContainer .patterns .pattern2 {
+#workbench .mainContainer .patterns .pattern2 {
   position: absolute;
 
   top: 1px;
@@ -479,7 +463,7 @@ export default {
   cursor: pointer;
 }
 
-#chat .mainContainer .patterns .pattern2:before {
+#workbench .mainContainer .patterns .pattern2:before {
   content: '';
 
   position: absolute;
@@ -495,41 +479,31 @@ export default {
   transform-origin: right;
 }
 
-#chat .mainContainer .patterns .pattern2unactive {
-  padding: 0 0 0 52%;
-
-  width: calc(70% - 52%);
-}
-
-#chat .mainContainer .patterns .pattern2active {
+#workbench .mainContainer .patterns .pattern2active {
   padding: 0 0 0 35%;
 
   width: calc(70% - 35%);
 }
 
-#chat .mainContainer .patterns .pattern2unactive:before {
-  z-index: -2;
-}
-
-#chat .mainContainer .patterns .pattern2active:before {
+#workbench .mainContainer .patterns .pattern2active:before {
   z-index: -1;
 }
 
-#chat .mainContainer .chatArea {
+#workbench .mainContainer .chatArea {
   flex: 1;
 }
 
-#chat .mainContainer .chatArea .chatAreaInner .chatRow {
+#workbench .mainContainer .chatArea .chatAreaInner .chatRow {
   padding: 15px 20px 15px 20px;
 
   width: calc(100% - 20px * 2);
 }
 
-#chat .mainContainer .chatArea .chatAreaInner .chatRow .chatRobot {
+#workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatRobot {
   text-align: left;
 }
 
-#chat .mainContainer .chatArea .chatAreaInner .chatRow .chatRobot .chatRobotAvatar {
+#workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatRobot .chatRobotAvatar {
   display: inline-block;
 
   vertical-align: top;
@@ -540,7 +514,7 @@ export default {
   border-radius: 50%;
 }
 
-#chat .mainContainer .chatArea .chatAreaInner .chatRow .chatRobot .chatRobotMessage {
+#workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatRobot .chatRobotMessage {
   display: inline-block;
 
   vertical-align: top;
@@ -555,11 +529,11 @@ export default {
   background: #F2F2F2;
 }
 
-#chat .mainContainer .chatArea .chatAreaInner .chatRow .chatUser {
+#workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatUser {
   text-align: right;
 }
 
-#chat .mainContainer .chatArea .chatAreaInner .chatRow .chatUser .chatUserAvatar {
+#workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatUser .chatUserAvatar {
   display: inline-block;
 
   vertical-align: top;
@@ -570,7 +544,7 @@ export default {
   border-radius: 50%;
 }
 
-#chat .mainContainer .chatArea .chatAreaInner .chatRow .chatUser .chatUserMessage {
+#workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatUser .chatUserMessage {
   display: inline-block;
 
   vertical-align: top;
@@ -585,7 +559,7 @@ export default {
   background: #F2F2F2;
 }
 
-#chat .mainContainer .inputArea {
+#workbench .mainContainer .inputArea {
   position: relative;
 
   padding: 10px 0 10px 0;
@@ -597,7 +571,7 @@ export default {
   background: red;
 }
 
-#chat .mainContainer .inputArea .fileUploadButton {
+#workbench .mainContainer .inputArea .fileUploadButton {
   position: absolute;
 
   bottom: 20px;
@@ -607,7 +581,7 @@ export default {
   height: 40px;
 }
 
-#chat .mainContainer .inputArea .chatInput {
+#workbench .mainContainer .inputArea .chatInput {
   margin: 0 0 0 100px;
 
   width: calc(100% - 100px - 120px);
@@ -615,7 +589,7 @@ export default {
   font-size: 16px;
 }
 
-#chat .mainContainer .inputArea .sendButton {
+#workbench .mainContainer .inputArea .sendButton {
   position: absolute;
 
   right: 40px;
@@ -629,7 +603,7 @@ export default {
   text-align: center;
 }
 
-#chat .mainContainer .inputArea .sendButton .sendButtonIcon {
+#workbench .mainContainer .inputArea .sendButton .sendButtonIcon {
   width: 24px;
   height: 24px;
 }

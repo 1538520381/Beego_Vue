@@ -5,7 +5,9 @@ const routes = [{
 }, {
     path: '/home', name: 'Home', component: () => import('@/views/home')
 }, {
-    path: '/chat', name: 'Chat', component: () => import('@/views/chat')
+    path: '/workbench', name: 'Workbench', component: () => import('@/views/workbench')
+}, {
+    path: '/learningCorner', name: 'LearningCorner', component: () => import('@/views/learningCorner')
 }]
 
 const router = createRouter({

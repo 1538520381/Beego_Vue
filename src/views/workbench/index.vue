@@ -19,7 +19,7 @@
       <el-scrollbar class="sessionMenuScrollbar">
 
       </el-scrollbar>
-      <div class="user">
+      <div class="user" @click="toPersonalCenter">
         <el-image class="userAvatar" round :src="test"></el-image>
         <div class="userName">{{ user.userName }}</div>
       </div>
@@ -232,6 +232,9 @@ export default {
 
     toLearningCornerBook() {
       this.$router.push("/learningCornerBook")
+    },
+    toPersonalCenter() {
+      this.$router.push('/personalCenter')
     },
 
     selectRobotMenu(index) {

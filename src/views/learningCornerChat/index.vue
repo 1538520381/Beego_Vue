@@ -7,7 +7,7 @@
           <div class="bookMenuItemName">{{ item.name }}</div>
         </el-menu-item>
       </el-scrollbar>
-      <div class="user">
+      <div class="user" @click="toPersonalCenter">
         <el-image class="userAvatar" round :src="test"></el-image>
         <div class="userName">{{ user.userName }}</div>
       </div>
@@ -126,6 +126,9 @@ export default {
     toWorkbench() {
       this.$router.push('/workbench')
     },
+    toPersonalCenter() {
+      this.$router.push('/personalCenter')
+    }
   }
 }
 </script>

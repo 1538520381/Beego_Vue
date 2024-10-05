@@ -25,7 +25,7 @@
           <div class="secondMenuItemName">{{ item.name }}</div>
         </el-menu-item>
       </el-scrollbar>
-      <div class="user">
+      <div class="user" @click="toPersonalCenter">
         <el-image class="userAvatar" round :src="test"></el-image>
         <div class="userName">{{ user.userName }}</div>
       </div>
@@ -108,6 +108,9 @@ export default {
     },
     toLearningCornerChat() {
       this.$router.push('/learningCornerChat')
+    },
+    toPersonalCenter() {
+      this.$router.push('/personalCenter')
     }
   }
 }

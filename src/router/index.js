@@ -10,6 +10,8 @@ const routes = [{
     path: '/learningCornerBook', name: 'LearningCornerBook', component: () => import('@/views/learningCornerBook')
 }, {
     path: '/learningCornerChat', name: 'LearningCornerChat', component: () => import('@/views/learningCornerChat')
+}, {
+    path: '/personalCenter', name: 'PersonalCenter', component: () => import('@/views/personalCenter')
 }]
 
 const router = createRouter({

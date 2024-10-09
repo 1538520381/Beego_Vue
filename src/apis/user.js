@@ -25,8 +25,26 @@ export function sendEmailVerifyCode(email) {
     })
 }
 
+export function improvePersonalInformation(personalInformationForm) {
+    return request({
+        url: '/user/mustInfo', method: 'post', data: {
+            user_name: personalInformationForm.userName,
+            school: personalInformationForm.school,
+            major: personalInformationForm.major,
+            enter_time: personalInformationForm.enterTime,
+            phone: '1111' // TODO 待接口变化后删除
+        }
+    })
+}
+
 export function getUserByToken() {
     return request({
         url: '/user/token', method: 'post'
+    })
+}
+
+export function logout() {
+    return request({
+        url: '/user/logout', method: 'post'
     })
 }

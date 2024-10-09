@@ -1,21 +1,30 @@
 <template>
-  <div id='home'>
+  <div id='home' v-if="initFlag">
     <div class='header' :class="{'gaussianBlur':tabsDialogVis || personalInformationDialogVis}">
       <div class="leftHeader">
         <el-image class="bee" :src="bee" fit="contain"></el-image>
         <div class="slogan">B E E G O · 必 过</div>
       </div>
       <div class="rightHeader">
-        <el-button class="loginButton button" @click="openTabsDialog('0')">登录</el-button>
-        <el-button class="registerButton button" @click="openTabsDialog('1')">注册</el-button>
+        <el-button class="loginButton button" @click="openTabsDialog('0')" v-if="isEmpty(token)">登录</el-button>
+        <el-button class="registerButton button" @click="openTabsDialog('1')" v-if="isEmpty(token)">注册</el-button>
+        <div class="welcome" v-if="!isEmpty(token)">{{
+            "欢迎您," + (isEmpty(user.userName) ? user.email : user.userName)
+          }}
+        </div>
+        <el-button class="logoutButton button" @click="logout" v-if="!isEmpty(token)">注销</el-button>
       </div>
     </div>
     <div class="main" :class="{'gaussianBlur':tabsDialogVis || personalInformationDialogVis}">
       <el-image class="logo" :src="logo" fit="contain"/>
+      <br>
+      <el-button class="experienceNow" @click="isEmpty(token) ? openTabsDialog('0') : toWorkBench() ">立即体验</el-button>
       <div class="example">
-        <svg-icon class="chatSvg" icon-class="chat"></svg-icon>
-        <div class="chatText">{{ chats[chatIndex].substring(0, chatLen) }}</div>
-        <div class="cursor">|</div>
+        <div class="example1">Beego 最懂你的AI学习助手</div>
+        <div class="example2">{{ '我可以帮你' + chats[chatIndex].substring(0, chatLen) + '|' }}</div>
+        <!--        <svg-icon class="chatSvg" icon-class="chat"></svg-icon>-->
+        <!--        <div class="chatText">{{ chats[chatIndex].substring(0, chatLen) }}</div>-->
+        <!--        <div class="cursor">|</div>-->
       </div>
     </div>
 
@@ -79,26 +88,56 @@
     </el-dialog>
 
     <el-dialog class="personalInformationDialog" v-model="personalInformationDialogVis" title="个人信息完善"
-               width="360">
-      <el-form class="form" :model="personalInformationForm" label-width="80px">
-        <el-form-item class="formItem" prop="userName" label="昵称">
-          <el-input class="formInput" v-model="personalInformationForm.userName"></el-input>
+               width="350" :show-close="false" :close-on-click-modal="false">
+      <el-form class="form" :model="personalInformationForm" :rules="personalInformationRules">
+        <el-form-item class="formItem" prop="userName">
+          <el-input class="formInput" size="large" v-model="personalInformationForm.userName"
+                    placeholder="请输入昵称"></el-input>
         </el-form-item>
-        <el-form-item class="formItem" prop="phone" label="联系方式">
-          <el-input class="formInput" v-model="personalInformationForm.phone"></el-input>
+        <el-form-item class="formItem" prop="school">
+          <el-select
+              class="formInput"
+              v-model="personalInformationForm.school"
+              size="large"
+              filterable
+              placeholder="请选择学校"
+          >
+            <el-option
+                v-for="(item,index) in schools"
+                :key="index"
+                :label="item"
+                :value="item"
+            />
+          </el-select>
         </el-form-item>
-        <el-form-item class="formItem" prop="school" label="所在院校">
-          <el-input class="formInput" v-model="personalInformationForm.school"></el-input>
+        <el-form-item class="formItem" prop="major">
+          <el-select
+              class="formInput"
+              v-model="personalInformationForm.major"
+              size="large"
+              filterable
+              placeholder="请选择专业"
+          >
+            <el-option
+                v-for="(item,index) in majors"
+                :key="index"
+                :label="item"
+                :value="item"
+            />
+          </el-select>
         </el-form-item>
-        <el-form-item class="formItem" prop="major" label="所在专业">
-          <el-input class="formInput" v-model="personalInformationForm.major"></el-input>
+        <el-form-item class="formItem" prop="elseMajor" v-if="personalInformationForm.major === '其他'">
+          <el-input class="formInput" size="large" v-model="personalInformationForm.elseMajor"
+                    placeholder="请输入专业"></el-input>
         </el-form-item>
-        <el-form-item class="formItem" prop="enterTime" label="入学年份">
-          <el-input class="formInput" v-model="personalInformationForm.enterTime"></el-input>
+        <el-form-item class="formItem" prop="enterTime">
+          <el-date-picker
+              class="formInput" size="large" v-model="personalInformationForm.enterTime" type="year"
+              placeholder="请选择入学年份"/>
         </el-form-item>
       </el-form>
       <div class="control">
-        <el-button type="primary">确定</el-button>
+        <el-button type="primary" @click="improvePersonalInformation">确定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -110,7 +149,7 @@ import logo from '@/assets/pictures/logo.png'
 
 import {isEmpty, sleep} from "@/utils/common";
 import {isEmail, isPassword} from "@/utils/validate";
-import {login, register, sendEmailVerifyCode} from "@/apis/user";
+import {getUserByToken, improvePersonalInformation, login, logout, register, sendEmailVerifyCode} from "@/apis/user";
 
 export default {
   name: "Home",
@@ -141,27 +180,28 @@ export default {
       bee: bee,
       logo: logo,
 
-      loginForm: {
-        email: "",
-        password: ""
-      },
-      registerForm: {
-        email: "",
-        // userName: "",
-        password: "",
-        passwordAgain: "",
-        verifyCode: "",
-      },
-      personalInformationForm: {
-        userName: "",
-        phone: "",
-        school: "",
-        major: "",
-        enterTime: "",
-      },
+      token: null,
+      user: {},
+
+      schools: [
+        "杭电",
+        "浙大",
+        "浙工大",
+      ],
+      majors: [
+        "计科",
+        "数媒",
+        "会计",
+        "电子",
+        "其他"
+      ],
+
+      loginForm: {},
+      registerForm: {},
+      personalInformationForm: {},
 
       tabsDialogVis: false,
-      personalInformationDialogVis: true,
+      personalInformationDialogVis: false,
 
       loginRules: {
         email: [{
@@ -183,11 +223,6 @@ export default {
           trigger: 'blur',
           validator: validateEmail
         }],
-        // userName: [{
-        //   required: true,
-        //   trigger: 'blur',
-        //   message: '用户名不能为空'
-        // }],
         password: [{
           required: true,
           trigger: 'blur',
@@ -204,13 +239,40 @@ export default {
           message: '验证码不能为空'
         }]
       },
+      personalInformationRules: {
+        userName: [{
+          required: true,
+          trigger: 'blur',
+          message: '用户名不能为空'
+        }],
+        school: [{
+          required: true,
+          trigger: 'blur',
+          message: '所在学校不能为空'
+        }],
+        major: [{
+          required: true,
+          trigger: 'blur',
+          message: '专业不能为空'
+        }],
+        elseMajor: [{
+          required: true,
+          trigger: 'blur',
+          message: '专业不能为空'
+        }],
+        enterTime: [{
+          required: true,
+          trigger: 'blur',
+          message: '入学年份不能为空'
+        }]
+      },
 
       tabsValue: '0',
 
       chats: [
-        "有哪些常见的机器学习算法？",
-        "假设检验中，第一类错误是什么意思？",
-        "你可以帮我写一篇以文化多元化为主题的调研报告吗？"
+        "查询常见的机器学习算法",
+        "解释第一类错误是什么意思",
+        "写一篇以文化多元化为主题的调研报告"
       ],
       chatIndex: 0,
       chatLen: 0,
@@ -219,10 +281,24 @@ export default {
       verifyCodeFlag: true,
       verifyCodeTimer: 60,
       verifyCodeClock: null,
+
+      initFlag: false
     }
   },
-  created() {
+  async created() {
+    this.token = localStorage.getItem("token");
+
+    if (!isEmpty(this.token)) {
+      await this.getUserByToken()
+    }
+
+    this.initLoginForm()
+    this.initRegisterForm()
+    this.initPersonalInformationForm()
+
     this.createChatClock1();
+
+    this.initFlag = true
   },
   unmounted() {
     clearInterval(this.chatClock);
@@ -243,17 +319,39 @@ export default {
         verifyCode: "",
       }
     },
-
-    openTabsDialog(tabsValue) {
-      this.initLoginForm();
-      this.initRegisterForm();
-      this.tabsValue = tabsValue;
-      this.tabsDialogVis = true;
+    initPersonalInformationForm() {
+      this.personalInformationForm = {
+        userName: "",
+        school: "",
+        major: "",
+        elseMajor: "",
+        enterTime: "",
+      }
     },
-    closeTabsDialog() {
-      this.tabsDialogVis = false;
-    },
 
+    getUserByToken() {
+      console.log(this.token)
+      return getUserByToken().then((res) => {
+        if (res.data.code === 200) {
+          this.user = {
+            id: res.data.data['user_id'],
+            email: res.data.data['email'],
+            userName: res.data.data['user_name']
+          }
+        } else if (res.data.code === 201) {
+          this.initPersonalInformationForm()
+          this.personalInformationDialogVis = true
+        } else {
+          this.token = null
+          this.user = {}
+          localStorage.removeItem("token");
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
     login() {
       if (isEmpty(this.loginForm.email)) {
         this.$message.error("请输入邮箱")
@@ -265,8 +363,10 @@ export default {
         login(this.loginForm).then((res) => {
           if (res.data.code === 200) {
             this.$message.success(res.data.message)
-            localStorage.setItem('token', res.data.data.token)
-            this.$router.push('/chat')
+            this.token = res.data.data.token
+            localStorage.setItem("token", res.data.data.token)
+            this.getUserByToken()
+            this.tabsDialogVis = false
           } else {
             this.$message.error(res.data.message)
           }
@@ -283,11 +383,7 @@ export default {
         this.$message.error('请输入合法的邮箱地址')
       } else if (isEmpty(this.registerForm.verifyCode)) {
         this.$message.error('请输入验证码')
-      }
-          // else if (isEmpty(this.registerForm.userName)) {
-          //   this.$message.error('请输入用户名')
-      // }
-      else if (isEmpty(this.registerForm.password)) {
+      } else if (isEmpty(this.registerForm.password)) {
         this.$message.error('请输入密码')
       } else if (!isPassword(this.registerForm.password)) {
         this.$message.error('请输入包含英文字母和数字的8-30位密码')
@@ -337,6 +433,62 @@ export default {
         }
       }
     },
+    logout() {
+      logout().then((res) => {
+        if (res.data.code === 200) {
+          this.token = null
+          this.user = {}
+          localStorage.removeItem("token");
+          this.$message.success("注销成功");
+        } else {
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
+    improvePersonalInformation() {
+      if (isEmpty(this.personalInformationForm.userName)) {
+        this.$message.error("请输入昵称")
+      } else if (isEmpty(this.personalInformationForm.school)) {
+        this.$message.error("请选择学校")
+      } else if (isEmpty(this.personalInformationForm.major)) {
+        this.$message.error("请选择专业")
+      } else if (this.personalInformationForm.major === '其他' && isEmpty(this.personalInformationForm.elseMajor)) {
+        this.$message.error("请输入专业")
+      } else if (isEmpty(this.personalInformationForm.enterTime)) {
+        this.$message.error("请选择入学年份")
+      } else {
+        improvePersonalInformation({
+          userName: this.personalInformationForm.userName,
+          school: this.personalInformationForm.school,
+          major: this.personalInformationForm.major === '其他' ? this.personalInformationForm.elseMajor : this.personalInformationForm.major,
+          enterTime: this.personalInformationForm.enterTime.getFullYear(),
+        }).then((res) => {
+          if (res.data.code === 200) {
+            this.personalInformationDialogVis = false
+            this.getUserByToken()
+            this.$message.success(res.data.message)
+          } else {
+            this.$message.error(res.data.message)
+          }
+        }).catch((err) => {
+          console.log(err)
+          this.$message.error('系统异常，请联系管理员')
+        })
+      }
+    },
+
+    openTabsDialog(tabsValue) {
+      this.initLoginForm();
+      this.initRegisterForm();
+      this.tabsValue = tabsValue;
+      this.tabsDialogVis = true;
+    },
+    closeTabsDialog() {
+      this.tabsDialogVis = false;
+    },
 
     createChatClock1() {
       this.chatClock = setInterval(async () => {
@@ -358,6 +510,14 @@ export default {
         }
       }, 100)
     },
+
+    toWorkBench() {
+      this.$router.push("/workBench");
+    },
+
+    isEmpty(field) {
+      return isEmpty(field)
+    }
   }
 }
 </script>
@@ -395,6 +555,7 @@ export default {
   vertical-align: top;
 
   height: 100%;
+
   line-height: 50px;
 
   font-size: 20px;
@@ -416,6 +577,16 @@ export default {
   font-size: 20px;
 }
 
+#home .header .rightHeader .welcome {
+  display: inline-block;
+
+  height: 100%;
+
+  line-height: 50px;
+
+  font-size: 20px;
+}
+
 #home .header .rightHeader .button:hover {
   color: #46A2FF;
 }
@@ -425,11 +596,29 @@ export default {
 }
 
 #home .main .logo {
-  margin: 130px 0 0 0;
+  margin: 80px 0 0 0;
 
   height: 300px;
 }
 
+#home .main .experienceNow {
+  width: 200px;
+  height: 40px;
+
+  font-size: 24px;
+}
+
+#home .main .example {
+  margin: 10px 0 0 0;
+
+  font-size: 20px;
+}
+
+#home .main .example2 {
+  margin: 10px 0 0 0;
+}
+
+/*
 #home .main .example {
   margin: 10px auto 0 auto;
 
@@ -474,6 +663,7 @@ export default {
 
   user-select: none;
 }
+*/
 
 #home /deep/ .tabsDialog {
   padding: 0;
@@ -503,8 +693,8 @@ export default {
   text-align: right;
 }
 
-#home .personalInformationDialog .form .formItem .formInput {
-  width: 200px;
+#home .personalInformationDialog .form .formItem /deep/ .formInput {
+  width: 100%;
 }
 
 #home .gaussianBlur {

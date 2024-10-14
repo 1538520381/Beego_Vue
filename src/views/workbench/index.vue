@@ -47,6 +47,7 @@
         <div class="pattern2 pattern2active">
           工作台
         </div>
+        <svg-icon class="shareIcon" icon-class="share" @click="share"></svg-icon>
       </div>
 
       <el-scrollbar class="chatArea" ref="chatArea" label="chatArea" id="chatArea">
@@ -75,7 +76,14 @@
       </el-scrollbar>
 
       <div class="inputArea">
-        <el-button class="fileUploadButton" :icon="Folder" circle></el-button>
+        <el-upload
+            class="upload-demo"
+            action="/api/file/uploadPicture"
+            :show-file-list="false"
+            :on-success="fileUpload"
+        >
+          <el-button class="fileUploadButton" :icon="Folder" circle></el-button>
+        </el-upload>
         <el-input
             class="chatInput"
             v-model="chatInput"
@@ -85,7 +93,7 @@
             resize="none"
             placeholder="开始创作你的提示词吧"
         />
-        <el-button class="sendButton" @click="chat">
+        <el-button class="sendButton" @click="chat(null)">
           <svg-icon class="sendButtonIcon" icon-class="send"></svg-icon>
         </el-button>
       </div>
@@ -134,8 +142,6 @@ export default {
 
       robotActive: 0,
       sessionActive: 0,
-
-      fff: false,
 
       initFlag: false,
     }
@@ -292,7 +298,7 @@ export default {
         this.$message.error('系统异常，请联系管理员')
       })
     },
-    chat() {
+    chat(fileUrl) {
       if (!this.answeringFlag) {
         this.answeringFlag = true
         this.answeringMessage = ""
@@ -317,13 +323,13 @@ export default {
         body: JSON.stringify({
           bot_id: this.robots[this.robotActive].id,
           session_id: this.sessions[this.sessionActive].id,
-          content: this.chatInput,
+          content: isEmpty(fileUrl) ? this.chatInput : "请描述下该文件",
+          file_url: fileUrl
         }),
         signal: ctrl.signal,
         onmessage: (message) => {
           if (message.event === 'conversation') {
-            console.log(message.data)
-            console.log(message.data.length)
+            console.log(new Date().getMilliseconds())
             this.answeringMessage += isEmpty(message.data) ? '\n\n' : message.data
             this.$nextTick(() => {
               this.scrollToBottom()
@@ -349,6 +355,18 @@ export default {
       });
 
       this.chatInput = ""
+    },
+
+    fileUpload(res, file, fileList) {
+      console.log(res)
+      console.log(file)
+      console.log(fileList)
+      this.chat(res.data['min_io_url'])
+    },
+
+    share() {
+      navigator.clipboard.writeText("假装这里有分享链接")
+      this.$message.success("分享链接已复制到剪切板")
     },
 
     closeSessionMenu() {
@@ -516,10 +534,12 @@ export default {
 }
 
 #workbench .sessionMenu .user {
-  margin: 30px 0 30px 0;
+  margin: 30px 0 30px 30px;
 
   width: 100%;
   height: 60px;
+
+  text-align: left;
 }
 
 #workbench .sessionMenu .user .userAvatar {
@@ -663,6 +683,18 @@ export default {
 
 #workbench .mainContainer .patterns .pattern2active:before {
   z-index: -1;
+}
+
+#workbench .mainContainer .patterns .shareIcon {
+  position: absolute;
+
+  top: 5px;
+  right: 5px;
+
+  width: 50px;
+  height: 50px;
+
+  cursor: pointer;
 }
 
 #workbench .mainContainer .chatArea {

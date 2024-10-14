@@ -27,6 +27,7 @@
         <div class="pattern1 pattern1active">
           学习角
         </div>
+        <svg-icon class="shareIcon" icon-class="share" @click="share"></svg-icon>
       </div>
       <div class="studyContainer">
         <el-scrollbar class="catalogueContainer">
@@ -116,6 +117,11 @@ export default {
     }
   },
   methods: {
+    share() {
+      navigator.clipboard.writeText("假装这里有分享链接")
+      this.$message.success("分享链接已复制到剪切板")
+    },
+
     closeBookMenu() {
       this.bookMenuShow = false
     },
@@ -350,6 +356,18 @@ export default {
 
 #learningCornerChat .mainContainer .patterns .pattern2unactive:before {
   z-index: -2;
+}
+
+#learningCornerChat .mainContainer .patterns .shareIcon {
+  position: absolute;
+
+  top: 5px;
+  right: 5px;
+
+  width: 50px;
+  height: 50px;
+
+  cursor: pointer;
 }
 
 #learningCornerChat .mainContainer .studyContainer {

@@ -7,7 +7,7 @@
         <input class="searchInput">
       </div>
       <el-scrollbar class="firstMenuScrollbar">
-        <el-menu-item class="firstMenuItem" v-for="(item,index) in firstMenuItems">
+        <el-menu-item class="firstMenuItem" v-for="(item,index) in firstMenuItems" :index="String(index)">
           <div class="firstMenuItemName">{{ item.name }}</div>
         </el-menu-item>
       </el-scrollbar>
@@ -19,15 +19,19 @@
     </el-menu>
 
     <el-menu class="secondMenu" default-active="0" v-if="secondMenuShow">
-      <div class="secondMenuTitle">细分</div>
+      <div class="secondMenuTitle">收藏夹</div>
       <el-scrollbar class="secondMenuScrollbar">
         <el-menu-item class="secondMenuItem" v-for="(item,index) in secondMenuItems">
-          <div class="secondMenuItemName">{{ item.name }}</div>
+          <div class="secondMenuItemName">{{ item.bookName }}</div>
+          <svg-icon class="secondMenuItemDelete" icon-class="delete" @click="uncollection(item.id)"></svg-icon>
         </el-menu-item>
       </el-scrollbar>
       <div class="user" @click="toPersonalCenter">
         <el-image class="userAvatar" round :src="test"></el-image>
-        <div class="userName">{{ user.userName }}</div>
+        <div class="userInformation">
+          <div class="userId">{{ user.id }}</div>
+          <div class="userName">{{ user.userName }}</div>
+        </div>
       </div>
     </el-menu>
 
@@ -45,13 +49,18 @@
         <div class="pattern1 pattern1active">
           学习角
         </div>
+        <svg-icon class="shareIcon" icon-class="share" @click="share"></svg-icon>
       </div>
-      <div class="thirdMenu">
-        <div class="thirdMenuItem" v-for="(item,index) in thirdMenuItems" @click="toLearningCornerChat">
-          <svg-icon class="bookIcon" icon-class="book"></svg-icon>
-          <div class="bookName">{{ item.name }}</div>
+      <el-scrollbar class="thirdMenu">
+        <div class="thirdMenuItem" v-for="(item,index) in thirdMenuItems">
+          <svg-icon class="bookIcon" icon-class="book" @click="toLearningCornerChat"></svg-icon>
+          <div class="bookName" @click="toLearningCornerChat">{{ item.bookName }}</div>
+          <svg-icon class="uncollectionIcon" icon-class="uncollection" v-if="secondMenuIds.indexOf(item.id) === -1"
+                    @click="collection(item.id)"></svg-icon>
+          <svg-icon class="uncollectionIcon" icon-class="collection" v-if="secondMenuIds.indexOf(item.id) !== -1"
+                    @click="uncollection(item.id)"></svg-icon>
         </div>
-      </div>
+      </el-scrollbar>
     </div>
   </div>
 </template>
@@ -61,11 +70,13 @@ import test from '@/assets/pictures/test.jpg'
 
 import {ArrowLeftBold, ArrowRightBold} from '@element-plus/icons-vue'
 
-import SvgIcon from "@/components/svgIcon/index.vue";
+import {collection, getBookList, getCollectionBookList, uncollection} from "@/apis/book";
+
+import {isEmpty} from "@/utils/common";
+import {getUserByToken} from "@/apis/user";
 
 export default {
   name: 'LearningCornerBook',
-  components: {SvgIcon},
   data() {
     return {
       test: test,
@@ -81,21 +92,117 @@ export default {
         {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"},
         {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"},
       ],
-      secondMenuItems: [
-        {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"},
-        {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"},
-        {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"},
-      ],
-      thirdMenuItems: [
-        {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"},
-        {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"},
-        {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"},
-      ],
+      secondMenuItems: [],
+      secondMenuIds: [],
+      thirdMenuItems: [],
 
       secondMenuShow: true,
     }
   },
+  async created() {
+    this.token = localStorage.getItem("token");
+    if (isEmpty(this.token)) {
+      this.$router.push("/home");
+      this.$message.error("请先登录")
+    }
+
+    await this.getUserByToken()
+    await this.getCollectionBookList()
+    await this.getBookList()
+  },
   methods: {
+    getUserByToken() {
+      return getUserByToken().then((res) => {
+        if (res.data.code === 200) {
+          this.user = {
+            id: res.data.data['user_id'],
+            email: res.data.data['email'],
+            userName: res.data.data['user_name']
+          }
+        } else {
+          this.$router.push("/home");
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
+    getBookList() {
+      return getBookList().then((res) => {
+        if (res.data.code === 200) {
+          this.thirdMenuItems = []
+          for (let i = 0; i < res.data.data.length; i++) {
+            this.thirdMenuItems.push({
+              id: res.data.data[i]['book_id'],
+              bookName: res.data.data[i]['book_name'],
+              bookUrl: res.data.data[i]['book_url'],
+            })
+          }
+        } else {
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
+    getCollectionBookList() {
+      getCollectionBookList().then((res) => {
+        if (res.data.code === 200) {
+          this.secondMenuItems = []
+          this.secondMenuIds = []
+          if (!isEmpty(res.data.data)) {
+            for (let i = 0; i < res.data.data.length; i++) {
+              this.secondMenuItems.push({
+                id: res.data.data[i]['book_id'],
+                bookName: res.data.data[i]['book_name'],
+                bookOutlineUrl: res.data.data[i]['book_outline_url'],
+                book_url: res.data.data[i]['book_url']
+              })
+              this.secondMenuIds.push(res.data.data[i]['book_id'])
+            }
+          }
+        } else {
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
+    collection(id) {
+      collection(id).then((res) => {
+        if (res.data.code === 200) {
+          this.getCollectionBookList()
+          this.$message.success(res.data.message)
+        } else {
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
+    uncollection(id) {
+      uncollection(id).then((res) => {
+        if (res.data.code === 200) {
+          this.getCollectionBookList()
+          this.$message.success(res.data.message)
+        } else {
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
+
+    share() {
+      navigator.clipboard.writeText("假装这里有分享链接")
+      this.$message.success("分享链接已复制到剪切板")
+    },
+
     closeSecondMenu() {
       this.secondMenuShow = false
     },
@@ -263,19 +370,32 @@ export default {
 }
 
 #learningCornerBook .secondMenu .secondMenuScrollbar .secondMenuItem .secondMenuItemName {
-  width: 100%;
+  padding: 0 10px 0 10px;
+
+  width: calc(100% - 10px * 2 - 25px);
   height: 40px;
 
   border: none;
   border-radius: 10px;
 
-  text-align: center;
+  text-align: left;
 
   line-height: 40px;
 
   background: #E7E6E6;
 
-  font-size: 20px;
+  font-size: 15px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+#learningCornerBook .secondMenu .secondMenuScrollbar .secondMenuItem .secondMenuItemDelete {
+  margin: 0 0 0 5px;
+
+  width: 20px;
+  height: 20px;
 }
 
 #learningCornerBook .secondMenu .slogan {
@@ -288,12 +408,12 @@ export default {
 }
 
 #learningCornerBook .secondMenu .user {
-  margin: 30px 0 30px 0;
+  margin: 30px 0 30px 30px;
 
   width: 100%;
   height: 60px;
 
-  text-align: center;
+  text-align: left;
 }
 
 #learningCornerBook .secondMenu .user .userAvatar {
@@ -307,18 +427,28 @@ export default {
   border-radius: 50%;
 }
 
-#learningCornerBook .secondMenu .user .userName {
+#learningCornerBook .secondMenu .user .userInformation {
   display: inline-block;
 
   vertical-align: top;
 
-  padding: 0 10px 0 10px;
+  margin: 0 0 0 20px;
 
   height: 60px;
+}
 
-  font-size: 20px;
+#learningCornerBook .secondMenu .user .userInformation .userId {
+  width: 100%;
+  height: 30px;
 
-  line-height: 60px;
+  line-height: 30px;
+}
+
+#learningCornerBook .secondMenu .user .userInformation .userName {
+  width: 100%;
+  height: 30px;
+
+  line-height: 30px;
 }
 
 #learningCornerBook .secondMenuControllerButton {
@@ -448,6 +578,18 @@ export default {
   z-index: -2;
 }
 
+#learningCornerBook .mainContainer .patterns .shareIcon {
+  position: absolute;
+
+  top: 5px;
+  right: 5px;
+
+  width: 50px;
+  height: 50px;
+
+  cursor: pointer;
+}
+
 #learningCornerBook .thirdMenu {
   width: 100%;
   height: calc(100% - 60px);
@@ -460,7 +602,7 @@ export default {
   padding: 10px 10px 10px 10px;
 
   width: 240px;
-  height: 80px;
+  height: 50px;
 
   cursor: pointer;
 }
@@ -470,8 +612,8 @@ export default {
 
   vertical-align: top;
 
-  width: 80px;
-  height: 80px;
+  width: 50px;
+  height: 50px;
 }
 
 #learningCornerBook .thirdMenu .thirdMenuItem .bookName {
@@ -479,19 +621,26 @@ export default {
 
   vertical-align: top;
 
-  margin: 15px 0 15px 0;
+  margin: 10px 0 10px 0;
   padding: 0 10px 0 10px;
 
-  width: calc(100% - 80px - 10px * 2 - 10px * 2);
-  height: calc(100% - 15px * 2);
+  width: calc(100% - 50px - 10px * 2 - 30px);
+  height: calc(100% - 10px * 2);
 
   border-radius: 10px;
 
   background: #F3F4F3;
 
-  line-height: 50px;
+  line-height: 30px;
 
-  font-size: 20px;
+  font-size: 14px;
   font-weight: bold;
+}
+
+#learningCornerBook .thirdMenu .thirdMenuItem .uncollectionIcon {
+  margin: 13px 0 13px 0;
+
+  width: 24px;
+  height: 24px;
 }
 </style>

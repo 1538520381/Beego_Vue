@@ -2,8 +2,9 @@
   <div id='home' v-if="initFlag">
     <div class='header' :class="{'gaussianBlur':tabsDialogVis || personalInformationDialogVis}">
       <div class="leftHeader">
-        <el-image class="bee" :src="bee" fit="contain"></el-image>
-        <div class="slogan">B E E G O · 必 过</div>
+        <!--        <el-image class="bee" :src="bee" fit="contain"></el-image>-->
+        <!--        <div class="slogan">B E E G O · 必 过</div>-->
+        <el-image class="bee" :src="logo" fit="contain"></el-image>
       </div>
       <div class="rightHeader">
         <el-button class="loginButton button" @click="openTabsDialog('0')" v-if="isEmpty(token)">登录</el-button>
@@ -16,16 +17,23 @@
       </div>
     </div>
     <div class="main" :class="{'gaussianBlur':tabsDialogVis || personalInformationDialogVis}">
-      <el-image class="logo" :src="logo" fit="contain"/>
-      <br>
-      <el-button class="experienceNow" @click="isEmpty(token) ? openTabsDialog('0') : toWorkBench() ">立即体验</el-button>
+      <!--      <el-image class="logo" :src="logo" fit="contain"/>-->
+      <!--      <br>-->
+      <!--      <el-button class="experienceNow" @click="isEmpty(token) ? openTabsDialog('0') : toWorkBench() ">立即体验</el-button>-->
+      <!--      <div class="example">-->
+      <!--        <div class="example1">Beego 最懂你的AI学习助手</div>-->
+      <!--        <div class="example2">{{ '我可以帮你' + chats[chatIndex].substring(0, chatLen) + '|' }}</div>-->
+      <!--        &lt;!&ndash;        <svg-icon class="chatSvg" icon-class="chat"></svg-icon>&ndash;&gt;-->
+      <!--        &lt;!&ndash;        <div class="chatText">{{ chats[chatIndex].substring(0, chatLen) }}</div>&ndash;&gt;-->
+      <!--        &lt;!&ndash;        <div class="cursor">|</div>&ndash;&gt;-->
+      <!--      </div>-->
       <div class="example">
-        <div class="example1">Beego 最懂你的AI学习助手</div>
         <div class="example2">{{ '我可以帮你' + chats[chatIndex].substring(0, chatLen) + '|' }}</div>
-        <!--        <svg-icon class="chatSvg" icon-class="chat"></svg-icon>-->
-        <!--        <div class="chatText">{{ chats[chatIndex].substring(0, chatLen) }}</div>-->
-        <!--        <div class="cursor">|</div>-->
+        <div class="example1">贴合高校使用场景，最懂大学生的AI学习软件</div>
       </div>
+      <el-button class="experienceNow" @click="isEmpty(token) ? openTabsDialog('0') : toWorkBench() ">开始体验，Let's
+        Beego!
+      </el-button>
     </div>
 
     <el-dialog
@@ -144,8 +152,8 @@
 </template>
 
 <script>
-import bee from '@/assets/pictures/bee.png'
-import logo from '@/assets/pictures/logo.png'
+// import bee from '@/assets/pictures/bee.png'
+import logo from '@/assets/pictures/logo.jpg'
 
 import {isEmpty, sleep} from "@/utils/common";
 import {isEmail, isPassword} from "@/utils/validate";
@@ -177,7 +185,7 @@ export default {
     }
 
     return {
-      bee: bee,
+      // bee: bee,
       logo: logo,
 
       token: null,
@@ -527,7 +535,7 @@ export default {
   width: 100%;
   height: 100%;
 
-  background: #F3F5FA;
+  //background: #F3F5FA;
 }
 
 #home .header {
@@ -545,8 +553,8 @@ export default {
 #home .header .leftHeader .bee {
   display: inline-block;
 
-  width: 50px;
-  height: 50px;
+  //width: 100px;
+  height: 100px;
 }
 
 #home .header .leftHeader .slogan {
@@ -602,20 +610,36 @@ export default {
 }
 
 #home .main .experienceNow {
-  width: 200px;
+  margin: 40px 0 0 0;
+
   height: 40px;
 
-  font-size: 24px;
+  border-radius: 20px;
+
+  background: #E7E6E6;
+
+  font-size: 16px;
+
+  color: #000000;
 }
 
 #home .main .example {
   margin: 10px 0 0 0;
-
-  font-size: 20px;
 }
 
 #home .main .example2 {
-  margin: 10px 0 0 0;
+  margin: 160px 0 0 0;
+
+  font-size: 56px;
+  font-family: "Noto Sans SC";
+}
+
+#home .main .example1 {
+  margin: 80px 0 0 0;
+
+  font-size: 30px;
+  font-weight: bold;
+  font-family: "Noto Sans SC";
 }
 
 /*

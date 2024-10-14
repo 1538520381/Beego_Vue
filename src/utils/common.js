@@ -3,5 +3,5 @@ export function sleep(delay) {
 }
 
 export function isEmpty(field) {
-    return field === null || field === undefined || field === '';
+    return field === null || field === undefined || field === '' || field === [] || field === {};
 }

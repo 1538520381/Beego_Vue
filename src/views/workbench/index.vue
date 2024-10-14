@@ -14,14 +14,21 @@
       </div>
     </el-menu>
 
-    <el-menu class="sessionMenu" v-if="sessionMenuShow">
-      <el-button class="addSessionButton" link>新增对话</el-button>
+    <el-menu class="sessionMenu" default-active="0" v-if="sessionMenuShow" @select="selectSessionMenu">
+      <el-button class="addSessionButton" link @click="addSession">新增对话</el-button>
       <el-scrollbar class="sessionMenuScrollbar">
-
+        <el-menu-item class="sessionMenuItem" v-for="(item,value) in sessions" :index="String(value)">
+          <!--          <div class="sessionMenuItemTitle">{{ item.id }}</div>-->
+          <div class="sessionMenuItemTitle">{{ isEmpty(item.message) ? "new Chat" : item.message.content }}</div>
+          <svg-icon class="sessionMenuDeleteIcon" icon-class="delete" @click="deleteSession(value)"></svg-icon>
+        </el-menu-item>
       </el-scrollbar>
       <div class="user" @click="toPersonalCenter">
         <el-image class="userAvatar" round :src="test"></el-image>
-        <div class="userName">{{ user.userName }}</div>
+        <div class="userInformation">
+          <div class="userId">{{ user.id }}</div>
+          <div class="userName">{{ user.userName }}</div>
+        </div>
       </div>
     </el-menu>
 
@@ -44,15 +51,24 @@
 
       <el-scrollbar class="chatArea" ref="chatArea" label="chatArea" id="chatArea">
         <div class="chatAreaInner" ref="chatAreaInner">
-          <div class="chatRow" v-for="(item,index) in chatMessages" v-if="initFlag">
-            <div class="chatRobot" v-if="item.role === 'robot'">
+          <div class="chatRow" v-for="(item,index) in messages">
+            <div class="chatRobot" v-if="item.role === 'assistant'">
               <el-image class="chatRobotAvatar" :src="robots[robotActive].avatar"></el-image>
-              <div class="chatRobotMessage" v-html="markdownToHtml(item.message)"></div>
+              <!--              <div class="chatRobotMessage" v-html="markdownToHtml(item.content)"></div>-->
+              <v-md-preview class="chatRobotMessage chatMessage" :text="item.content"></v-md-preview>
             </div>
 
             <div class="chatUser" v-if="item.role === 'user'">
-              <div class="chatUserMessage" v-html="markdownToHtml(item.message)"></div>
+              <!--              <div class="chatUserMessage" v-html="markdownToHtml(item.content)"></div>-->
+              <v-md-preview class="chatUserMessage chatMessage" :text="item.content"></v-md-preview>
               <el-image class="chatUserAvatar" :src="test"></el-image>
+            </div>
+          </div>
+          <div class="chatRowLoading">
+            <div class="chatRobot" v-if="answeringFlag">
+              <el-image class="chatRobotAvatar" :src="robots[robotActive].avatar"></el-image>
+              <!--              <div class="chatRobotMessage chatMessage" v-html="markdownToHtml(answeringMessage)"></div>-->
+              <v-md-preview class="chatRobotMessage chatMessage" :text="answeringMessage"></v-md-preview>
             </div>
           </div>
         </div>
@@ -69,7 +85,7 @@
             resize="none"
             placeholder="开始创作你的提示词吧"
         />
-        <el-button class="sendButton">
+        <el-button class="sendButton" @click="chat">
           <svg-icon class="sendButtonIcon" icon-class="send"></svg-icon>
         </el-button>
       </div>
@@ -81,11 +97,11 @@
 import test from '@/assets/pictures/test.jpg'
 
 import {ref} from 'vue'
-import {marked} from 'marked';
+import {fetchEventSource} from "@microsoft/fetch-event-source";
 
 import {ArrowLeftBold, ArrowRightBold, Folder} from '@element-plus/icons-vue'
 
-import {getRobotList} from "@/apis/chat";
+import {addSession, deleteSession, getMessageList, getRobotList, getSessionList} from "@/apis/chat";
 import {isEmpty} from "@/utils/common";
 import {getUserByToken} from "@/apis/user";
 
@@ -106,52 +122,22 @@ export default {
       Folder: Folder,
 
       robots: [],
-      chatMessages: [
-        {
-          role: 'robot',
-          message: "看起来你发送了一串数字。如果你有具体的问题或需要讨论的主题，请告诉我！看起来你发送了一串数字。如果你有具体的问题或需要讨论的主题，请告诉我！看起来你发送了一串数字。如果你有具体的问题或需要讨论的主题，请告诉我！看起来你发送了一串数字。如果你有具体的问题或需要讨论的主题，请告诉我！看起来你发送了一串数字。如果你有具体的问题或需要讨论的主题，请告诉我！"
-        },
-        {
-          role: 'user',
-          message: "看起来你发送了一串数字。如果你有具体的问题或需要讨论的主题，请告诉我！"
-        },
-        {
-          role: 'robot',
-          message: "看起来你发送了一串数字。如果你有具体的问题或需要讨论的主题，请告诉我！"
-        },
-        {
-          role: 'user',
-          message: "看起来你发送了一串数字。如果你有具体的问题或需要讨论的主题，请告诉我！"
-        },
-        {
-          role: 'robot',
-          message: "看起来你发送了一串数字。如果你有具体的问题或需要讨论的主题，请告诉我！"
-        },
-        {
-          role: 'user',
-          message: "看起来你发送了一串数字。如果你有具体的问题或需要讨论的主题，请告诉我！"
-        },
-        {
-          role: 'robot',
-          message: "看起来你发送了一串数字。如果你有具体的问题或需要讨论的主题，请告诉我！"
-        },
-        {
-          role: 'user',
-          message: "看起来你发送了一串数字。如果你有具体的问题或需要讨论的主题，请告诉我！"
-        },
-        {
-          role: 'robot',
-          message: "看起来你发送了一串数字。如果你有具体的问题或需要讨论的主题，请告诉我！"
-        }
-      ],
+      sessions: [],
+      messages: [],
 
       chatInput: "",
 
-      sessionMenuShow: true,
-      patternActive: 2,
-      robotActive: 0,
+      answeringFlag: false,
+      answeringMessage: "",
 
-      initFlag: false
+      sessionMenuShow: true,
+
+      robotActive: 0,
+      sessionActive: 0,
+
+      fff: false,
+
+      initFlag: false,
     }
   },
   setup() {
@@ -159,8 +145,12 @@ export default {
     const chatAreaInner = ref(null);
 
     const scrollToBottom = () => {
-      const bottom = chatAreaInner.value.clientHeight; // 获取内容总高度
-      chatArea.value.setScrollTop(bottom); // 滚动到底部
+      try {
+        const bottom = chatAreaInner.value.clientHeight;
+        chatArea.value.setScrollTop(bottom);
+      } catch (err) {
+        console.log(err)
+      }
     };
 
     return {
@@ -178,12 +168,33 @@ export default {
     await this.getRobotList()
 
     this.initFlag = true
-
-    this.$nextTick(() => {
-      this.scrollToBottom()
-    })
   },
   methods: {
+    addSession() {
+      addSession(this.robots[this.robotActive].id).then((res) => {
+        if (res.data.code === 200) {
+          this.sessionActive = 0
+          this.getSessionList()
+        } else {
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
+    deleteSession(index) {
+      deleteSession(this.sessions[index].id).then((res) => {
+        if (res.data.code === 200) {
+          this.getSessionList();
+        } else {
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
     getUserByToken() {
       return getUserByToken().then((res) => {
         if (res.data.code === 200) {
@@ -192,7 +203,6 @@ export default {
             email: res.data.data['email'],
             userName: res.data.data['user_name']
           }
-          console.log(this.user)
         } else {
           this.$router.push("/home");
           this.$message.error(res.data.message)
@@ -214,6 +224,7 @@ export default {
               description: res.data.data[robot]['description'],
             })
           }
+          this.getSessionList()
         } else {
           this.$message.error(res.data.message)
         }
@@ -221,6 +232,123 @@ export default {
         console.log(err)
         this.$message.error('系统异常，请联系管理员')
       })
+    },
+    getSessionList() {
+      return getSessionList(this.robots[this.robotActive].id).then((res) => {
+        if (res.data.code === 200) {
+          if (isEmpty(res.data.data)) {
+            this.addSession()
+          } else {
+            this.sessions = []
+            for (let i in res.data.data) {
+              this.sessions.push({
+                id: res.data.data[i]['session_id'],
+                botId: res.data.data[i]['bot_id'],
+                userId: res.data.data[i]["user_id"],
+                createTime: res.data.data[i]['created_time'],
+                updateTime: res.data.data[i]['updated_time'],
+                message: isEmpty(res.data.data[i]["message"]) ? null : {
+                  id: res.data.data[i]["message"]["message_id"],
+                  sessionId: res.data.data[i]["message"]["session_id"],
+                  role: res.data.data[i]["message"]["role"],
+                  content: res.data.data[i]["message"]["content"],
+                  contentType: res.data.data[i]["message"]["text"],
+                  createTime: res.data.data[i]["message"]["created_time"],
+                }
+              })
+            }
+            this.getMessageList()
+          }
+        } else {
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
+    getMessageList() {
+      return getMessageList(this.sessions[this.sessionActive].id).then((res) => {
+        if (res.data.code === 200) {
+          this.messages = []
+          for (let i in res.data.data) {
+            this.messages.push({
+              id: res.data.data[i]['message_id'],
+              sessionId: res.data.data[i]['session_id'],
+              role: res.data.data[i]['role'],
+              contentType: res.data.data[i]['content_type'],
+              content: res.data.data[i]['content'],
+              createTime: res.data.data[i]['created_time']
+            })
+          }
+          this.$nextTick(() => {
+            this.scrollToBottom()
+          })
+        } else {
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
+    chat() {
+      if (!this.answeringFlag) {
+        this.answeringFlag = true
+        this.answeringMessage = ""
+      }
+
+      this.messages.push({
+        role: "user",
+        contentType: 'text',
+        content: this.chatInput
+      })
+      this.$nextTick(() => {
+        this.scrollToBottom()
+      })
+
+      const ctrl = new AbortController();
+      fetchEventSource('/api/chat/agent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem("token")
+        },
+        body: JSON.stringify({
+          bot_id: this.robots[this.robotActive].id,
+          session_id: this.sessions[this.sessionActive].id,
+          content: this.chatInput,
+        }),
+        signal: ctrl.signal,
+        onmessage: (message) => {
+          if (message.event === 'conversation') {
+            console.log(message.data)
+            console.log(message.data.length)
+            this.answeringMessage += isEmpty(message.data) ? '\n\n' : message.data
+            this.$nextTick(() => {
+              this.scrollToBottom()
+            })
+          } else if (message.event === "done") {
+            this.answeringFlag = false
+            this.messages.push({
+              role: "assistant",
+              contentType: 'text',
+              content: this.answeringMessage
+            })
+            this.$nextTick(() => {
+              this.scrollToBottom()
+            })
+          }
+        },
+        onclose: () => {
+        },
+        onerror: (err) => {
+          console.log(err)
+          this.$message.error('系统异常，请联系管理员')
+        }
+      });
+
+      this.chatInput = ""
     },
 
     closeSessionMenu() {
@@ -239,10 +367,21 @@ export default {
 
     selectRobotMenu(index) {
       this.robotActive = parseInt(index);
+      this.getSessionList()
+    },
+    selectSessionMenu(index) {
+      this.sessionActive = parseInt(index);
+      this.getMessageList()
     },
 
-    markdownToHtml(text) {
-      return marked(text);
+    // markdownToHtml(text) {
+    //   const md = new MarkdownIt();
+    //   md.use(mk);
+    //   return md.render(text)
+    // },
+
+    isEmpty(field) {
+      return isEmpty(field)
     },
   },
 }
@@ -322,6 +461,30 @@ export default {
   height: calc(100% - 60px - 120px);
 }
 
+#workbench .sessionMenu .sessionMenuScrollbar .sessionMenuItem {
+  display: flex;
+
+  justify-content: space-between;
+}
+
+#workbench .sessionMenu .sessionMenuScrollbar .sessionMenuItem .sessionMenuItemTitle {
+  width: calc(100% - 30px);
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+  font-size: 18px;
+}
+
+#workbench .sessionMenu .sessionMenuScrollbar .sessionMenuItem .sessionMenuDeleteIcon {
+  width: 20px;
+  height: 20px;
+}
+
+
 #workbench .sessionMenu .addSessionButton {
   margin: 10px 0 0 0;
 
@@ -370,18 +533,28 @@ export default {
   border-radius: 50%;
 }
 
-#workbench .sessionMenu .user .userName {
+#workbench .sessionMenu .user .userInformation {
   display: inline-block;
 
   vertical-align: top;
 
-  padding: 0 10px 0 10px;
+  margin: 0 0 0 20px;
 
   height: 60px;
+}
 
-  font-size: 20px;
+#workbench .sessionMenu .user .userInformation .userId {
+  width: 100%;
+  height: 30px;
 
-  line-height: 60px;
+  line-height: 30px;
+}
+
+#workbench .sessionMenu .user .userInformation .userName {
+  width: 100%;
+  height: 30px;
+
+  line-height: 30px;
 }
 
 #workbench .mainContainer {
@@ -523,7 +696,6 @@ export default {
   vertical-align: top;
 
   margin: 0 0 0 10px;
-  padding: 0 20px 0 20px;
 
   max-width: calc(80% - 40px - 50px);
 
@@ -553,13 +725,59 @@ export default {
   vertical-align: top;
 
   margin: 0 0 0 10px;
-  padding: 0 20px 0 20px;
 
   max-width: calc(80% - 40px - 50px);
 
   border-radius: 20px;
 
+  text-align: left;
+
   background: #F2F2F2;
+}
+
+#workbench .mainContainer .chatArea .chatAreaInner .chatRowLoading {
+  padding: 15px 20px 15px 20px;
+
+  width: calc(100% - 20px * 2);
+}
+
+#workbench .mainContainer .chatArea .chatAreaInner .chatRowLoading .chatRobot {
+  text-align: left;
+}
+
+#workbench .mainContainer .chatArea .chatAreaInner .chatRowLoading .chatRobot .chatRobotAvatar {
+  display: inline-block;
+
+  vertical-align: top;
+
+  width: 50px;
+  height: 50px;
+
+  border-radius: 50%;
+}
+
+#workbench .mainContainer .chatArea .chatAreaInner .chatRowLoading .chatRobot .chatRobotMessage {
+  display: inline-block;
+
+  vertical-align: top;
+
+  margin: 0 0 0 10px;
+
+  min-width: 30px;
+  max-width: calc(80% - 40px - 50px);
+
+  border-radius: 20px;
+
+  background: #F2F2F2;
+}
+
+#workbench .chatMessage .github-markdown-body {
+  padding: 16px 32px 16px 32px;
+}
+
+
+#workbench .chatMessage .github-markdown-body p {
+  margin-bottom: 0 !important;
 }
 
 #workbench .mainContainer .inputArea {
@@ -570,8 +788,6 @@ export default {
   width: 100%;
   height: auto;
   max-height: 200px;
-
-  background: red;
 }
 
 #workbench .mainContainer .inputArea .fileUploadButton {

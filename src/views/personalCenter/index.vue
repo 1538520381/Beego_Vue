@@ -135,7 +135,8 @@ export default {
   width: calc(50% - 30px * 2);
   height: calc(100% - 40px * 2);
 
-  border-radius: 30px;
+  border-top-right-radius: 30px;
+  border-bottom-right-radius: 30px;
 
   background: #C9C9C9;
 }

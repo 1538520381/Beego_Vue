@@ -27,3 +27,11 @@ export function getCollectionBookList() {
         url: '/user/book/list', method: 'post'
     })
 }
+
+export function getCatalogueByBookId(bookId) {
+    return request({
+        url: '/book/getOutline', method: 'post', data: {
+            book_id: bookId
+        }
+    })
+}

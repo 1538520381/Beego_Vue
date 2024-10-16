@@ -21,7 +21,8 @@
     <el-menu class="secondMenu" default-active="0" v-if="secondMenuShow">
       <div class="secondMenuTitle">收藏夹</div>
       <el-scrollbar class="secondMenuScrollbar">
-        <el-menu-item class="secondMenuItem" v-for="(item,index) in secondMenuItems">
+        <el-menu-item class="secondMenuItem" v-for="(item,index) in secondMenuItems"
+                      @click="toLearningCornerChat(2,item.id)">
           <div class="secondMenuItemName">{{ item.bookName }}</div>
           <svg-icon class="secondMenuItemDelete" icon-class="delete" @click="uncollection(item.id)"></svg-icon>
         </el-menu-item>
@@ -53,8 +54,8 @@
       </div>
       <el-scrollbar class="thirdMenu">
         <div class="thirdMenuItem" v-for="(item,index) in thirdMenuItems">
-          <svg-icon class="bookIcon" icon-class="book" @click="toLearningCornerChat"></svg-icon>
-          <div class="bookName" @click="toLearningCornerChat">{{ item.bookName }}</div>
+          <svg-icon class="bookIcon" icon-class="book" @click="toLearningCornerChat(3,item.id)"></svg-icon>
+          <div class="bookName" @click="toLearningCornerChat(3,item.id)">{{ item.bookName }}</div>
           <svg-icon class="uncollectionIcon" icon-class="uncollection" v-if="secondMenuIds.indexOf(item.id) === -1"
                     @click="collection(item.id)"></svg-icon>
           <svg-icon class="uncollectionIcon" icon-class="collection" v-if="secondMenuIds.indexOf(item.id) !== -1"
@@ -213,7 +214,9 @@ export default {
     toWorkbench() {
       this.$router.push('/workbench')
     },
-    toLearningCornerChat() {
+    toLearningCornerChat(index, bookId) {
+      this.$store.commit('setBookId', bookId)
+      this.$store.commit('setBookList', index === 2 ? this.secondMenuItems : this.thirdMenuItems)
       this.$router.push('/learningCornerChat')
     },
     toPersonalCenter() {

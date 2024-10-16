@@ -1,15 +1,18 @@
 <template>
   <div id="learningCornerChat">
-    <el-menu class="bookMenu" default-active="0" v-if="bookMenuShow">
+    <el-menu class="bookMenu" :default-active="bookActive" v-if="bookMenuShow" @select="selectBookMenu">
       <div class="bookMenuTitle">课程</div>
       <el-scrollbar class="bookMenuScrollbar">
-        <el-menu-item class="bookMenuItem" v-for="(item,index) in bookMenuItems">
-          <div class="bookMenuItemName">{{ item.name }}</div>
+        <el-menu-item class="bookMenuItem" v-for="(item,index) in bookMenuItems" :index="String(index)">
+          <div class="bookMenuItemName">{{ item.bookName }}</div>
         </el-menu-item>
       </el-scrollbar>
       <div class="user" @click="toPersonalCenter">
         <el-image class="userAvatar" round :src="test"></el-image>
-        <div class="userName">{{ user.userName }}</div>
+        <div class="userInformation">
+          <div class="userId">{{ user.id }}</div>
+          <div class="userName">{{ user.userName }}</div>
+        </div>
       </div>
     </el-menu>
 
@@ -30,12 +33,19 @@
         <svg-icon class="shareIcon" icon-class="share" @click="share"></svg-icon>
       </div>
       <div class="studyContainer">
-        <el-scrollbar class="catalogueContainer">
-          <div class="bookTitle">{{ book.title }}</div>
-          <el-tree class="catalogue" :data="book.catalogue">
-
-          </el-tree>
-        </el-scrollbar>
+        <div class="catalogueContainer" v-if="initFlag">
+          <div class="bookTitle">{{ bookMenuItems[bookActive].bookName }}</div>
+          <el-scrollbar class="catalogueScrollbar">
+            <el-tree class="catalogue" :data="book" :props="{
+            label: 'outline',
+            children: 'outline_child_list',
+          }">
+              <template v-slot="{ node }">
+                <span>{{ node.data.outline.outline_content }}</span> <!-- 自定义节点显示内容 -->
+              </template>
+            </el-tree>
+          </el-scrollbar>
+        </div>
         <div class="chatContainer">
         </div>
       </div>
@@ -49,6 +59,9 @@ import test from "@/assets/pictures/test.jpg";
 import {ArrowLeftBold, ArrowRightBold} from '@element-plus/icons-vue'
 
 import SvgIcon from "@/components/svgIcon/index.vue";
+import {getCatalogueByBookId} from "@/apis/book";
+import {isEmpty} from "@/utils/common";
+import {getUserByToken} from "@/apis/user";
 
 export default {
   name: 'LearningCornerChat',
@@ -63,63 +76,73 @@ export default {
       ArrowLeftBold: ArrowLeftBold,
       ArrowRightBold: ArrowRightBold,
 
-      bookMenuItems: [
-        {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"},
-        {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"},
-        {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"},
-      ],
-      book: {
-        title: "高等数学",
-        catalogue: [
-          {
-            label: '第一章',
-            children: [
-              {
-                label: '第一节',
-                children: [
-                  {
-                    label: "函数"
-                  },
-                  {
-                    label: "函数"
-                  }
-                ]
-              },
-            ]
-          },
-          {
-            label: '第二章'
-          }, {
-            label: '第二章'
-          }, {
-            label: '第二章'
-          }, {
-            label: '第二章'
-          }, {
-            label: '第二章'
-          }, {
-            label: '第二章'
-          }, {
-            label: '第二章'
-          }, {
-            label: '第三章'
-          }, {
-            label: '第二章'
-          }, {
-            label: '第二章'
-          }, {
-            label: '第二章'
-          },
-        ]
-      },
+      bookMenuItems: [],
+      book: [],
 
-      bookMenuShow: true
+      bookActive: 0,
+
+      bookMenuShow: true,
+
+      initFlag: false
     }
   },
+  async created() {
+    this.bookMenuItems = this.$store.state.bookList
+    if (isEmpty(this.bookMenuItems)) {
+      this.toLearningCornerBook()
+      return
+    }
+    for (let i in this.bookMenuItems) {
+      if (this.bookMenuItems[i].id === this.$store.state.bookId) {
+        this.bookActive = i
+      }
+    }
+
+    await this.getUserByToken()
+    await this.getCatalogueByBookId()
+
+    this.initFlag = true
+  },
   methods: {
+    getUserByToken() {
+      return getUserByToken().then((res) => {
+        if (res.data.code === 200) {
+          this.user = {
+            id: res.data.data['user_id'],
+            email: res.data.data['email'],
+            userName: res.data.data['user_name']
+          }
+        } else {
+          this.$router.push("/home");
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
+    getCatalogueByBookId() {
+      getCatalogueByBookId(this.bookMenuItems[this.bookActive].id).then((res) => {
+        if (res.data.code === 200) {
+          this.book = [res.data.data]
+        } else {
+          this.book = []
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
+
     share() {
       navigator.clipboard.writeText("假装这里有分享链接")
       this.$message.success("分享链接已复制到剪切板")
+    },
+
+    selectBookMenu(index) {
+      this.bookActive = parseInt(index)
+      this.getCatalogueByBookId()
     },
 
     closeBookMenu() {
@@ -131,6 +154,9 @@ export default {
 
     toWorkbench() {
       this.$router.push('/workbench')
+    },
+    toLearningCornerBook() {
+      this.$router.push("/learningCornerBook")
     },
     toPersonalCenter() {
       this.$router.push('/personalCenter')
@@ -194,16 +220,16 @@ export default {
 
   background: #CBCBCB;
 
-  font-size: 20px;
+  font-size: 16px;
 }
 
 #learningCornerChat .bookMenu .user {
-  margin: 30px 0 30px 0;
+  margin: 30px 0 30px 30px;
 
   width: 100%;
   height: 60px;
 
-  text-align: center;
+  text-align: left;
 }
 
 #learningCornerChat .bookMenu .user .userAvatar {
@@ -217,18 +243,28 @@ export default {
   border-radius: 50%;
 }
 
-#learningCornerChat .bookMenu .user .userName {
+#learningCornerChat .bookMenu .user .userInformation {
   display: inline-block;
 
   vertical-align: top;
 
-  padding: 0 10px 0 10px;
+  margin: 0 0 0 20px;
 
   height: 60px;
+}
 
-  font-size: 20px;
+#learningCornerChat .bookMenu .user .userInformation .userId {
+  width: 100%;
+  height: 30px;
 
-  line-height: 60px;
+  line-height: 30px;
+}
+
+#learningCornerChat .bookMenu .user .userInformation .userName {
+  width: 100%;
+  height: 30px;
+
+  line-height: 30px;
 }
 
 #learningCornerChat .bookMenuControllerButton {
@@ -395,19 +431,34 @@ export default {
   font-size: 30px;
 }
 
-#learningCornerChat .mainContainer .studyContainer .catalogueContainer .catalogue {
+#learningCornerChat .mainContainer .studyContainer .catalogueContainer .catalogueScrollbar {
   width: 100%;
   height: calc(100% - 50px - 20px);
-
-  font-size: 20px;
 }
 
-#learningCornerChat .mainContainer .studyContainer .catalogueContainer .catalogue /deep/ .el-tree-node__content {
+#learningCornerChat .mainContainer .studyContainer .catalogueContainer .catalogueScrollbar .catalogue {
+  width: 100%;
+  height: 100%;
+
+  font-size: 20px;
+
+  overflow: auto
+}
+
+#learningCornerChat .mainContainer .studyContainer .catalogueContainer .catalogueScrollbar /deep/ .el-tree-node.is-expanded > .el-tree-node__children {
+  display: inline;
+}
+
+#learningCornerChat .mainContainer .studyContainer .catalogueContainer .catalogueScrollbar .catalogue /deep/ .el-tree-node__content {
   height: 60px;
+
+  align-self: baseline;
 }
 
 #learningCornerChat .mainContainer .studyContainer .chatContainer {
   display: inline-block;
+
+  vertical-align: top;
 
   width: calc(50% - 1px);
   height: 100%;

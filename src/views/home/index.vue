@@ -43,7 +43,12 @@
         :showClose="false"
         :close-on-click-modal="false"
     >
-      <el-tabs class="tabs" type="border-card" v-model="tabsValue">
+      <template #header>
+        <div class="header">
+          <el-image class="logo" :src="logo" fit="contain"></el-image>
+        </div>
+      </template>
+      <el-tabs class="tabs" v-model="tabsValue">
         <el-tab-pane class="tabPane" label="登录">
           <el-form class="form" :model="loginForm" :rules="loginRules">
             <el-form-item class="formItem" prop="email">
@@ -109,6 +114,7 @@
               size="large"
               filterable
               placeholder="请选择学校"
+              @change="getMajorBySchool"
           >
             <el-option
                 v-for="(item,index) in schools"
@@ -118,7 +124,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item class="formItem" prop="major">
+        <el-form-item class="formItem" prop="major" v-if="!isEmpty(personalInformationForm.school)">
           <el-select
               class="formInput"
               v-model="personalInformationForm.major"
@@ -154,6 +160,8 @@
 <script>
 // import bee from '@/assets/pictures/bee.png'
 import logo from '@/assets/pictures/logo.jpg'
+
+import schoolCategoryMajor from '@/jsons/schoolCategoryMajor.json'
 
 import {isEmpty, sleep} from "@/utils/common";
 import {isEmail, isPassword} from "@/utils/validate";
@@ -191,18 +199,9 @@ export default {
       token: null,
       user: {},
 
-      schools: [
-        "杭电",
-        "浙大",
-        "浙工大",
-      ],
-      majors: [
-        "计科",
-        "数媒",
-        "会计",
-        "电子",
-        "其他"
-      ],
+      schools: [],
+      categorys: [],
+      majors: [],
 
       loginForm: {},
       registerForm: {},
@@ -300,6 +299,7 @@ export default {
       await this.getUserByToken()
     }
 
+    this.initConstant()
     this.initLoginForm()
     this.initRegisterForm()
     this.initPersonalInformationForm()
@@ -312,6 +312,9 @@ export default {
     clearInterval(this.chatClock);
   },
   methods: {
+    initConstant() {
+      this.schools = Object.keys(schoolCategoryMajor)
+    },
     initLoginForm() {
       this.loginForm = {
         email: "",
@@ -523,6 +526,18 @@ export default {
       this.$router.push("/workBench");
     },
 
+    getMajorBySchool() {
+      this.personalInformationForm.major = null
+      this.categorys = Object.keys(schoolCategoryMajor[this.personalInformationForm.school])
+      this.majors = []
+      for (let i in this.categorys) {
+        let majors = schoolCategoryMajor[this.personalInformationForm.school][this.categorys[i]]
+        for (let j in majors) {
+          this.majors.push(majors[j])
+        }
+      }
+    },
+
     isEmpty(field) {
       return isEmpty(field)
     }
@@ -689,12 +704,29 @@ export default {
 }
 */
 
+/*
 #home /deep/ .tabsDialog {
   padding: 0;
 }
+ */
 
+/*
 #home /deep/ .tabsDialog .el-dialog__header {
   display: none;
+}
+ */
+
+#home .tabsDialog .header {
+  padding: 0 0 0 0;
+
+  width: 100%;
+  height: 100px;
+}
+
+#home .tabsDialog .header .logo {
+  height: 100%;
+
+  margin: 0 auto;
 }
 
 #home .tabsDialog .tabs .tabPane .form .formItem .formInput {

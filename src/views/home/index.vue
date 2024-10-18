@@ -645,7 +645,7 @@ export default {
 #home .main .example2 {
   margin: 160px 0 0 0;
 
-  font-size: 56px;
+  font-size: 50px;
   font-family: "Noto Sans SC";
 }
 

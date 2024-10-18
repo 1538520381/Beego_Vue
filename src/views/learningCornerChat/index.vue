@@ -24,12 +24,21 @@
 
     <div class="mainContainer" :class="{mainContainerShort:bookMenuShow,mainContainerLong:!bookMenuShow}">
       <div class="patterns">
-        <div class="pattern2 pattern2unactive" @click="toWorkbench">
-          工作台
-        </div>
-        <div class="pattern1 pattern1active">
-          学习角
-        </div>
+        <el-image class="patternLeftRectangle patternRectangleActive" :src="F2F2F2_Square"></el-image>
+        <el-image class="patternAngledTriangle patternBottomLeftAngledTriangleActive"
+                  :src="F2F2F2_BottomLeftAngledTriangle"></el-image>
+        <div class="leftTitleActive">学习角</div>
+        <el-image class="patternRightRectangle patternRectangleUnactive" :src="C9C9C9_Square"
+                  @click="toWorkbench"></el-image>
+        <el-image class="patternAngledTriangle patternTopRightAngledTriangleUnactive"
+                  :src="C9C9C9_TopRightAngledTriangle" @click="toWorkbench"></el-image>
+        <div class="rightTitleUnactive" @click="toWorkbench">工作台</div>
+        <!--        <div class="pattern2 pattern2unactive" @click="toWorkbench">-->
+        <!--          工作台-->
+        <!--        </div>-->
+        <!--        <div class="pattern1 pattern1active">-->
+        <!--          学习角-->
+        <!--        </div>-->
         <svg-icon class="shareIcon" icon-class="share" @click="share"></svg-icon>
       </div>
       <div class="studyContainer">
@@ -55,6 +64,10 @@
 
 <script>
 import test from "@/assets/pictures/test.jpg";
+import F2F2F2_Square from '@/assets/pictures/F2F2F2_Square.png'
+import C9C9C9_Square from '@/assets/pictures/C9C9C9_Square.png'
+import F2F2F2_BottomLeftAngledTriangle from '@/assets/pictures/F2F2F2_BottomLeftAngledTriangle.png'
+import C9C9C9_TopRightAngledTriangle from '@/assets/pictures/C9C9C9_TopRightAngledTriangle.png'
 
 import {ArrowLeftBold, ArrowRightBold} from '@element-plus/icons-vue'
 
@@ -69,6 +82,10 @@ export default {
   data() {
     return {
       test: test,
+      F2F2F2_Square: F2F2F2_Square,
+      C9C9C9_Square: C9C9C9_Square,
+      F2F2F2_BottomLeftAngledTriangle: F2F2F2_BottomLeftAngledTriangle,
+      C9C9C9_TopRightAngledTriangle: C9C9C9_TopRightAngledTriangle,
 
       token: null,
       user: {},
@@ -224,9 +241,9 @@ export default {
 }
 
 #learningCornerChat .bookMenu .user {
-  margin: 30px 0 30px 30px;
+  margin: 30px 0 30px 10px;
 
-  width: 100%;
+  width: calc(100% - 10px);
   height: 60px;
 
   text-align: left;
@@ -312,6 +329,88 @@ export default {
   height: 60px;
 }
 
+#learningCornerChat .mainContainer .patterns .patternLeftRectangle {
+  position: absolute;
+
+  top: 0;
+  left: 0;
+}
+
+#learningCornerChat .mainContainer .patterns .patternRightRectangle {
+  position: absolute;
+
+  top: 0;
+  right: 0;
+}
+
+#learningCornerChat .mainContainer .patterns .patternRectangleUnactive {
+  width: calc(25% - 60px / 2);
+  height: 100%;
+
+  cursor: pointer;
+}
+
+#learningCornerChat .mainContainer .patterns .patternRectangleActive {
+  width: calc(75% - 60px / 2);
+  height: 100%;
+}
+
+#learningCornerChat .mainContainer .patterns .patternAngledTriangle {
+  position: absolute;
+
+  top: 0;
+
+  width: 60px;
+  height: 60px;
+}
+
+#learningCornerChat .mainContainer .patterns .patternBottomLeftAngledTriangleActive {
+  left: calc(75% - 60px / 2);
+}
+
+#learningCornerChat .mainContainer .patterns .patternTopRightAngledTriangleUnactive {
+  right: calc(25% - 60px / 2);
+
+  cursor: pointer;
+}
+
+#learningCornerChat .mainContainer .patterns .leftTitleActive {
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: calc(75% - 60px / 2);
+  height: 60px;
+
+  font-size: 20px;
+
+  line-height: 60px;
+
+  text-align: center;
+
+  user-select: none;
+}
+
+#learningCornerChat .mainContainer .patterns .rightTitleUnactive {
+  position: absolute;
+
+  top: 0;
+  right: 0;
+
+  width: calc(25% - 60px / 2);
+  height: 60px;
+
+  font-size: 20px;
+
+  line-height: 60px;
+
+  text-align: center;
+
+  cursor: pointer;
+}
+
+/*
 #learningCornerChat .mainContainer .patterns .pattern1 {
   position: absolute;
 
@@ -393,6 +492,7 @@ export default {
 #learningCornerChat .mainContainer .patterns .pattern2unactive:before {
   z-index: -2;
 }
+ */
 
 #learningCornerChat .mainContainer .patterns .shareIcon {
   position: absolute;

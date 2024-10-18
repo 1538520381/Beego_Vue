@@ -11,11 +11,15 @@
           <div class="value">{{ user.userName }}</div>
         </div>
         <div class="item">
-          <div class="key">联系方式：</div>
-          <div class="value">{{ user.phone }}</div>
+          <div class="key">邮箱：</div>
+          <div class="value">{{ user.email }}</div>
         </div>
+<!--        <div class="item">-->
+<!--          <div class="key">联系方式：</div>-->
+<!--          <div class="value">{{ user.phone }}</div>-->
+<!--        </div>-->
         <div class="item">
-          <div class="key">所在院校：</div>
+          <div class="key">所在学校：</div>
           <div class="value">{{ user.school }}</div>
         </div>
         <div class="item">
@@ -34,6 +38,8 @@
 <script>
 import test from '@/assets/pictures/test.jpg'
 import SvgIcon from "@/components/svgIcon/index.vue";
+import {getUserByToken} from "@/apis/user";
+import {isEmpty} from "@/utils/common";
 
 export default {
   name: "PersonalCenter",
@@ -43,16 +49,42 @@ export default {
       test: test,
 
       token: null,
-      user: {
-        userName: 'Persolute',
-        phone: '18811111111',
-        school: '家里蹲大学',
-        major: '计算机科学与技术',
-        enterTime: '2022年6月'
-      },
+      user: {},
     }
   },
+  async created() {
+    this.token = localStorage.getItem("token");
+    if (isEmpty(this.token)) {
+      this.$router.push("/home");
+      this.$message.error("请先登录")
+    }
+
+    await this.getUserByToken()
+  },
   methods: {
+    getUserByToken() {
+      return getUserByToken().then((res) => {
+        if (res.data.code === 200) {
+          this.user = {
+            id: res.data.data['user_id'],
+            email: res.data.data['email'],
+            userName: res.data.data['user_name'],
+            major: res.data.data['major'],
+            // phone: res.data.data['phone'],
+            school: res.data.data['school'],
+            avatarUrl: isEmpty(res.data.data['avatar_url']) ? test : res.data.data['avatar_url'],
+            enterTime: res.data.data['enter_time'],
+          }
+        } else {
+          this.$router.push("/home");
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
+
     back() {
       this.$router.go(-1);
     }

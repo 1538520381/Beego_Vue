@@ -41,12 +41,21 @@
 
     <div class="mainContainer" :class="{mainContainerShort:sessionMenuShow,mainContainerLong:!sessionMenuShow}">
       <div class="patterns">
-        <div class="pattern1 pattern1unactive" @click="toLearningCornerBook">
-          学习角
-        </div>
-        <div class="pattern2 pattern2active">
-          工作台
-        </div>
+        <el-image class="patternLeftRectangle patternRectangleUnactive" :src="F2F2F2_Square"
+                  @click="toLearningCornerBook"></el-image>
+        <el-image class="patternAngledTriangle patternBottomLeftAngledTriangleUnactive"
+                  :src="F2F2F2_BottomLeftAngledTriangle" @click="toLearningCornerBook"></el-image>
+        <div class="leftTitleUnactive" @click="toLearningCornerBook">学习角</div>
+        <el-image class="patternRightRectangle patternRectangleActive" :src="C9C9C9_Square"></el-image>
+        <el-image class="patternAngledTriangle patternTopRightAngledTriangleActive"
+                  :src="C9C9C9_TopRightAngledTriangle"></el-image>
+        <div class="rightTitleActive">工作台</div>
+        <!--        <div class="pattern1 pattern1unactive" @click="toLearningCornerBook">-->
+        <!--          学习角-->
+        <!--        </div>-->
+        <!--        <div class="pattern2 pattern2active">-->
+        <!--          工作台-->
+        <!--        </div>-->
         <svg-icon class="shareIcon" icon-class="share" @click="share"></svg-icon>
       </div>
 
@@ -103,6 +112,11 @@
 
 <script>
 import test from '@/assets/pictures/test.jpg'
+import F2F2F2_Square from '@/assets/pictures/F2F2F2_Square.png'
+import C9C9C9_Square from '@/assets/pictures/C9C9C9_Square.png'
+import F2F2F2_BottomLeftAngledTriangle from '@/assets/pictures/F2F2F2_BottomLeftAngledTriangle.png'
+import C9C9C9_TopRightAngledTriangle from '@/assets/pictures/C9C9C9_TopRightAngledTriangle.png'
+
 
 import {ref} from 'vue'
 import {fetchEventSource} from "@microsoft/fetch-event-source";
@@ -121,6 +135,10 @@ export default {
   data() {
     return {
       test: test,
+      F2F2F2_Square: F2F2F2_Square,
+      C9C9C9_Square: C9C9C9_Square,
+      F2F2F2_BottomLeftAngledTriangle: F2F2F2_BottomLeftAngledTriangle,
+      C9C9C9_TopRightAngledTriangle: C9C9C9_TopRightAngledTriangle,
 
       token: null,
       user: {},
@@ -263,6 +281,9 @@ export default {
                 }
               })
             }
+            this.sessions.sort((o1, o2) => {
+              return new Date(o2.createTime) - new Date(o1.createTime)
+            })
             this.getMessageList()
           }
         } else {
@@ -299,10 +320,13 @@ export default {
       })
     },
     chat(fileUrl) {
-      if (!this.answeringFlag) {
-        this.answeringFlag = true
-        this.answeringMessage = ""
+      console.log(fileUrl)
+      if (this.answeringFlag) {
+        return
       }
+
+      this.answeringFlag = true
+      this.answeringMessage = ""
 
       this.messages.push({
         role: "user",
@@ -358,10 +382,7 @@ export default {
     },
 
     fileUpload(res, file, fileList) {
-      console.log(res)
-      console.log(file)
-      console.log(fileList)
-      this.chat(res.data['min_io_url'])
+      this.chat(res.data['minio_url'])
     },
 
     share() {
@@ -390,6 +411,8 @@ export default {
     selectSessionMenu(index) {
       this.sessionActive = parseInt(index);
       this.getMessageList()
+      this.answeringFlag = false
+      this.answeringMessage = ""
     },
 
     // markdownToHtml(text) {
@@ -405,7 +428,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 #workbench {
   width: 100%;
   height: 100%;
@@ -603,6 +626,96 @@ export default {
   height: 60px;
 }
 
+#workbench .mainContainer .patterns .patternLeftRectangle {
+  position: absolute;
+
+  top: 0;
+  left: 0;
+}
+
+#workbench .mainContainer .patterns .patternRightRectangle {
+  position: absolute;
+
+  top: 0;
+  right: 0;
+}
+
+#workbench .mainContainer .patterns .patternRectangleUnactive {
+  width: calc(25% - 60px / 2);
+  height: 100%;
+
+  cursor: pointer;
+}
+
+#workbench .mainContainer .patterns .patternRectangleActive {
+  width: calc(75% - 60px / 2);
+  height: 100%;
+}
+
+#workbench .mainContainer .patterns .patternAngledTriangle {
+  position: absolute;
+
+  top: 0;
+
+  width: 60px;
+  height: 60px;
+}
+
+#workbench .mainContainer .patterns .patternBottomLeftAngledTriangleUnactive {
+  left: calc(25% - 60px / 2);
+
+  cursor: pointer;
+}
+
+#workbench .mainContainer .patterns .patternBottomLeftAngledTriangleActive {
+  left: calc(75% - 60px / 2);
+}
+
+#workbench .mainContainer .patterns .patternTopRightAngledTriangleUnactive {
+  right: calc(25% - 60px / 2);
+}
+
+#workbench .mainContainer .patterns .patternTopRightAngledTriangleActive {
+  right: calc(75% - 60px / 2);
+}
+
+#workbench .mainContainer .patterns .leftTitleUnactive {
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: calc(25% - 60px / 2);
+  height: 60px;
+
+  font-size: 20px;
+
+  line-height: 60px;
+
+  text-align: center;
+
+  cursor: pointer;
+}
+
+#workbench .mainContainer .patterns .rightTitleActive {
+  position: absolute;
+
+  top: 0;
+  right: 0;
+
+  width: calc(75% - 60px / 2);
+  height: 60px;
+
+  font-size: 20px;
+
+  line-height: 60px;
+
+  text-align: center;
+
+  user-select: none;
+}
+
+/*
 #workbench .mainContainer .patterns .pattern1 {
   position: absolute;
 
@@ -684,6 +797,7 @@ export default {
 #workbench .mainContainer .patterns .pattern2active:before {
   z-index: -1;
 }
+*/
 
 #workbench .mainContainer .patterns .shareIcon {
   position: absolute;
@@ -756,7 +870,7 @@ export default {
 
   vertical-align: top;
 
-  margin: 0 0 0 10px;
+  margin: 0 10px 0 0;
 
   max-width: calc(80% - 40px - 50px);
 

@@ -1,8 +1,16 @@
 import request from '@/utils/request'
 
-export function getBookList() {
+export function getBookCategoryList() {
     return request({
-        url: '/book/list', method: 'post'
+        url: '/library/get', method: 'post'
+    })
+}
+
+export function getBookList(categoryId) {
+    return request({
+        url: '/book/listByCategory', method: 'post', data: {
+            library_id: categoryId
+        }
     })
 }
 

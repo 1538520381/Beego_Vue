@@ -378,6 +378,7 @@ export default {
             localStorage.setItem("token", res.data.data.token)
             this.getUserByToken()
             this.tabsDialogVis = false
+            this.toWorkBench()
           } else {
             this.$message.error(res.data.message)
           }
@@ -615,13 +616,38 @@ export default {
 }
 
 #home .main {
+  position: absolute;
+
+  margin: auto;
+
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  height: calc(80px + 45px + 40px + 40px + 40px);
+
   text-align: center;
 }
 
 #home .main .logo {
-  margin: 80px 0 0 0;
-
   height: 300px;
+}
+
+
+#home .main .example2 {
+  height: 80px;
+
+  font-size: 50px;
+  font-family: "Noto Sans SC";
+}
+
+#home .main .example1 {
+  height: 45px;
+
+  font-size: 30px;
+  font-weight: bold;
+  font-family: "Noto Sans SC";
 }
 
 #home .main .experienceNow {
@@ -636,25 +662,6 @@ export default {
   font-size: 16px;
 
   color: #000000;
-}
-
-#home .main .example {
-  margin: 10px 0 0 0;
-}
-
-#home .main .example2 {
-  margin: 160px 0 0 0;
-
-  font-size: 50px;
-  font-family: "Noto Sans SC";
-}
-
-#home .main .example1 {
-  margin: 80px 0 0 0;
-
-  font-size: 30px;
-  font-weight: bold;
-  font-family: "Noto Sans SC";
 }
 
 /*

@@ -1,10 +1,15 @@
 <template>
   <div id="learningCornerChat">
-    <el-menu class="bookMenu" :default-active="bookActive" v-if="bookMenuShow" @select="selectBookMenu">
+    <el-menu class="bookMenu" :default-active="String(bookActive)" v-if="bookMenuShow" @select="selectBookMenu">
+      <div class="returnButton" @click="toLearningCornerBook">返回</div>
       <div class="bookMenuTitle">课程</div>
       <el-scrollbar class="bookMenuScrollbar">
         <el-menu-item class="bookMenuItem" v-for="(item,index) in bookMenuItems" :index="String(index)">
           <div class="bookMenuItemName">{{ item.bookName }}</div>
+          <svg-icon class="collectionIcon" icon-class="collection"
+                    v-if="collectionBookIdList.indexOf(item.id) !== -1" @click="uncollection(item.id)"></svg-icon>
+          <svg-icon class="collectionIcon" icon-class="uncollection"
+                    v-else @click="collection(item.id)"></svg-icon>
         </el-menu-item>
       </el-scrollbar>
       <div class="user" @click="toPersonalCenter">
@@ -45,12 +50,12 @@
         <div class="catalogueContainer" v-if="initFlag">
           <div class="bookTitle">{{ bookMenuItems[bookActive].bookName }}</div>
           <el-scrollbar class="catalogueScrollbar">
-            <el-tree class="catalogue" :data="book" :props="{
+            <el-tree class="catalogue" :data="catalogue" :props="{
             label: 'outline',
             children: 'outline_child_list',
           }">
               <template v-slot="{ node }">
-                <span>{{ node.data.outline.outline_content }}</span> <!-- 自定义节点显示内容 -->
+                <span>{{ node.data.outline.outline_content }}</span>
               </template>
             </el-tree>
           </el-scrollbar>
@@ -72,7 +77,7 @@ import C9C9C9_TopRightAngledTriangle from '@/assets/pictures/C9C9C9_TopRightAngl
 import {ArrowLeftBold, ArrowRightBold} from '@element-plus/icons-vue'
 
 import SvgIcon from "@/components/svgIcon/index.vue";
-import {getCatalogueByBookId} from "@/apis/book";
+import {collection, getCatalogueByBookId, getCollectionBookList, uncollection} from "@/apis/book";
 import {isEmpty} from "@/utils/common";
 import {getUserByToken} from "@/apis/user";
 
@@ -93,8 +98,10 @@ export default {
       ArrowLeftBold: ArrowLeftBold,
       ArrowRightBold: ArrowRightBold,
 
+      collectionBookIdList: [],
       bookMenuItems: [],
-      book: [],
+      book: {},
+      catalogue: [],
 
       bookActive: 0,
 
@@ -104,18 +111,24 @@ export default {
     }
   },
   async created() {
-    this.bookMenuItems = this.$store.state.bookList
-    if (isEmpty(this.bookMenuItems)) {
+    if (isEmpty(this.$store.state.book)) {
       this.toLearningCornerBook()
-      return
-    }
-    for (let i in this.bookMenuItems) {
-      if (this.bookMenuItems[i].id === this.$store.state.bookId) {
-        this.bookActive = i
-      }
+    } else {
+      this.book = this.$store.state.book
     }
 
+    await this.getCollectionBookList()
     await this.getUserByToken()
+
+    if (this.collectionBookIdList.indexOf(this.book.id) !== -1) {
+      this.bookActive = this.collectionBookIdList.indexOf(this.book.id)
+    } else {
+      this.bookMenuItems.push(this.book)
+      this.bookActive = this.bookMenuItems.length - 1
+    }
+    this.closeBookMenu()
+    this.openBookMenu()
+    console.log(this.bookMenuItems)
     await this.getCatalogueByBookId()
 
     this.initFlag = true
@@ -141,9 +154,59 @@ export default {
     getCatalogueByBookId() {
       getCatalogueByBookId(this.bookMenuItems[this.bookActive].id).then((res) => {
         if (res.data.code === 200) {
-          this.book = [res.data.data]
+          this.catalogue = [res.data.data]
         } else {
-          this.book = []
+          this.catalogue = []
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
+
+    getCollectionBookList() {
+      getCollectionBookList().then((res) => {
+        if (res.data.code === 200) {
+          this.bookMenuItems = []
+          this.collectionBookIdList = []
+          if (!isEmpty(res.data.data)) {
+            for (let i = 0; i < res.data.data.length; i++) {
+              this.bookMenuItems.push({
+                id: res.data.data[i]['book_id'],
+                bookName: res.data.data[i]['book_name'],
+                bookOutlineUrl: res.data.data[i]['book_outline_url'],
+                book_url: res.data.data[i]['book_url']
+              })
+              this.collectionBookIdList.push(res.data.data[i]['book_id'])
+            }
+          }
+        } else {
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
+    collection(id) {
+      collection(id).then((res) => {
+        if (res.data.code === 200) {
+          this.collectionBookIdList.push(id)
+          this.$message.success(res.data.message)
+        } else {
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
+    uncollection(id) {
+      uncollection(id).then((res) => {
+        if (res.data.code === 200) {
+          this.collectionBookIdList.splice(this.collectionBookIdList.indexOf(id, 1))
+          this.$message.success(res.data.message)
+        } else {
           this.$message.error(res.data.message)
         }
       }).catch((err) => {
@@ -193,12 +256,32 @@ export default {
 
   vertical-align: top;
 
-  width: 180px;
+  width: 220px;
   height: 100%;
 
   border: 0;
 
   background: #E6E6E6;
+}
+
+#learningCornerChat .bookMenu .returnButton {
+  margin: 10px 10px 0 10px;
+
+  width: calc(100% - 10px * 2 - 4px * 2);
+  height: 40px;
+
+  border: 4px solid #CBCBCB;
+  border-radius: 10px;
+
+  background: #CBCBCB;
+
+  text-align: center;
+
+  font-size: 20px;
+
+  line-height: 40px;
+
+  cursor: pointer;
 }
 
 #learningCornerChat .bookMenu .bookMenuTitle {
@@ -221,11 +304,15 @@ export default {
 
 #learningCornerChat .bookMenu .bookMenuScrollbar {
   width: 100%;
-  height: calc(100% - 120px - 10px - 40px - 8px);
+  height: calc(100% - 120px - 10px - 40px - 10px - 40px - 8px);
+}
+
+#learningCornerChat .bookMenu .bookMenuScrollbar .bookMenuItem {
+  padding: 0 10px 0 10px;
 }
 
 #learningCornerChat .bookMenu .bookMenuScrollbar .bookMenuItem .bookMenuItemName {
-  width: 100%;
+  width: calc(100% - 30px);
   height: 40px;
 
   border: none;
@@ -238,6 +325,13 @@ export default {
   background: #CBCBCB;
 
   font-size: 16px;
+}
+
+#learningCornerChat .bookMenu .bookMenuScrollbar .bookMenuItem .collectionIcon {
+  margin: 0 3px 0 3px;
+
+  width: 24px;
+  height: 24px;
 }
 
 #learningCornerChat .bookMenu .user {
@@ -287,20 +381,20 @@ export default {
 #learningCornerChat .bookMenuControllerButton {
   position: absolute;
 
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
 
   z-index: 1;
 }
 
 #learningCornerChat .bookMenuControllerButtonClose {
-  top: calc(50% - 30px / 2);
-  left: calc(0px - 30px / 2);
+  top: calc(50% - 40px / 2);
+  left: calc(0px - 40px / 2);
 }
 
 #learningCornerChat .bookMenuControllerButtonOpen {
-  top: calc(50% - 30px / 2);
-  left: calc(180px - 30px / 2);
+  top: calc(50% - 40px / 2);
+  left: calc(220px - 40px / 2);
 }
 
 #learningCornerChat .mainContainer {
@@ -315,7 +409,7 @@ export default {
 }
 
 #learningCornerChat .mainContainerShort {
-  width: calc(100% - 180px);
+  width: calc(100% - 220px);
 }
 
 #learningCornerChat .mainContainerLong {
@@ -537,12 +631,13 @@ export default {
 }
 
 #learningCornerChat .mainContainer .studyContainer .catalogueContainer .catalogueScrollbar .catalogue {
-  width: 100%;
   height: 100%;
 
   font-size: 20px;
+}
 
-  overflow: auto
+#learningCornerChat .mainContainer .studyContainer .catalogueContainer .catalogueScrollbar /deep/ .el-tree-node{
+  white-space: normal;
 }
 
 #learningCornerChat .mainContainer .studyContainer .catalogueContainer .catalogueScrollbar /deep/ .el-tree-node.is-expanded > .el-tree-node__children {
@@ -550,9 +645,10 @@ export default {
 }
 
 #learningCornerChat .mainContainer .studyContainer .catalogueContainer .catalogueScrollbar .catalogue /deep/ .el-tree-node__content {
-  height: 60px;
+  padding: 10px 0 10px 0;
 
-  align-self: baseline;
+  height: 100%;
+  align-items: start;
 }
 
 #learningCornerChat .mainContainer .studyContainer .chatContainer {

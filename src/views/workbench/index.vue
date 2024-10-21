@@ -10,7 +10,7 @@
         </el-menu-item>
       </el-scrollbar>
       <div class="logo">
-        <el-image class="logoImage" :src="test" fit="fill"/>
+        <el-image class="logoImage" :src="logo" fit="fill"/>
       </div>
     </el-menu>
 
@@ -112,6 +112,7 @@
 
 <script>
 import test from '@/assets/pictures/test.jpg'
+import logo from '@/assets/pictures/logo.jpg'
 import F2F2F2_Square from '@/assets/pictures/F2F2F2_Square.png'
 import C9C9C9_Square from '@/assets/pictures/C9C9C9_Square.png'
 import F2F2F2_BottomLeftAngledTriangle from '@/assets/pictures/F2F2F2_BottomLeftAngledTriangle.png'
@@ -135,6 +136,7 @@ export default {
   data() {
     return {
       test: test,
+      logo: logo,
       F2F2F2_Square: F2F2F2_Square,
       C9C9C9_Square: C9C9C9_Square,
       F2F2F2_BottomLeftAngledTriangle: F2F2F2_BottomLeftAngledTriangle,
@@ -464,11 +466,17 @@ export default {
 }
 
 #workbench .robotMenu .robotMenuScrollbar .robotMenuItem .robotMenuItemContainer .robotMenuItemTitle {
-  height: 30px;
+  width: 100%;
 
-  line-height: 30px;
+  line-height: 20px;
+
+  font-size: 12px;
 
   text-align: center;
+
+  white-space: normal;
+  word-break: break-all;
+  overflow: hidden;
 }
 
 #workbench .robotMenu .logo {
@@ -540,20 +548,20 @@ export default {
 #workbench .sessionMenuControllerButton {
   position: absolute;
 
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
 
   z-index: 1;
 }
 
 #workbench .sessionMenuControllerButtonClose {
-  top: calc(50% - 30px / 2);
-  left: calc(120px - 30px / 2);
+  top: calc(50% - 40px / 2);
+  left: calc(120px - 40px / 2);
 }
 
 #workbench .sessionMenuControllerButtonOpen {
-  top: calc(50% - 30px / 2);
-  left: calc(120px + 200px - 30px / 2);
+  top: calc(50% - 40px / 2);
+  left: calc(120px + 200px - 40px / 2);
 }
 
 #workbench .sessionMenu .user {

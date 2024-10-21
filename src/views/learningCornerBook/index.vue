@@ -1,11 +1,11 @@
 <template>
   <div id="learningCornerBook">
-    <el-menu class="firstMenu" default-active="0">
+    <el-menu class="firstMenu" default-active="0" @select="selectFirstMenu">
       <div class="firstMenuTitle">大类</div>
-      <div class="search">
-        <svg-icon class="searchIcon" icon-class="search"></svg-icon>
-        <input class="searchInput">
-      </div>
+      <!--      <div class="search">-->
+      <!--        <svg-icon class="searchIcon" icon-class="search"></svg-icon>-->
+      <!--        <input class="searchInput">-->
+      <!--      </div>-->
       <el-scrollbar class="firstMenuScrollbar">
         <el-menu-item class="firstMenuItem" v-for="(item,index) in firstMenuItems" :index="String(index)">
           <div class="firstMenuItemName">{{ item.name }}</div>
@@ -22,7 +22,7 @@
       <div class="secondMenuTitle">收藏夹</div>
       <el-scrollbar class="secondMenuScrollbar">
         <el-menu-item class="secondMenuItem" v-for="(item,index) in secondMenuItems"
-                      @click="toLearningCornerChat(2,item.id)">
+                      @click="toLearningCornerChat(2,item)">
           <div class="secondMenuItemName">{{ item.bookName }}</div>
           <svg-icon class="secondMenuItemDelete" icon-class="delete" @click="uncollection(item.id)"></svg-icon>
         </el-menu-item>
@@ -63,8 +63,8 @@
       </div>
       <el-scrollbar class="thirdMenu">
         <div class="thirdMenuItem" v-for="(item,index) in thirdMenuItems">
-          <svg-icon class="bookIcon" icon-class="book" @click="toLearningCornerChat(3,item.id)"></svg-icon>
-          <div class="bookName" @click="toLearningCornerChat(3,item.id)">{{ item.bookName }}</div>
+          <svg-icon class="bookIcon" icon-class="book" @click="toLearningCornerChat(3,item)"></svg-icon>
+          <div class="bookName" @click="toLearningCornerChat(3,item)">{{ item.bookName }}</div>
           <svg-icon class="uncollectionIcon" icon-class="uncollection" v-if="secondMenuIds.indexOf(item.id) === -1"
                     @click="collection(item.id)"></svg-icon>
           <svg-icon class="uncollectionIcon" icon-class="collection" v-if="secondMenuIds.indexOf(item.id) !== -1"
@@ -80,7 +80,7 @@ import test from '@/assets/pictures/test.jpg'
 
 import {ArrowLeftBold, ArrowRightBold} from '@element-plus/icons-vue'
 
-import {collection, getBookList, getCollectionBookList, uncollection} from "@/apis/book";
+import {collection, getBookCategoryList, getBookList, getCollectionBookList, uncollection} from "@/apis/book";
 
 import {isEmpty} from "@/utils/common";
 import {getUserByToken} from "@/apis/user";
@@ -105,14 +105,12 @@ export default {
       ArrowLeftBold: ArrowLeftBold,
       ArrowRightBold: ArrowRightBold,
 
-      firstMenuItems: [
-        {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"},
-        {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"},
-        {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"}, {name: "理学"}, {name: "管理学"},
-      ],
+      firstMenuItems: [],
       secondMenuItems: [],
       secondMenuIds: [],
       thirdMenuItems: [],
+
+      firstActive: 0,
 
       secondMenuShow: true,
     }
@@ -125,6 +123,7 @@ export default {
     }
 
     await this.getUserByToken()
+    await this.getBookCategoryList()
     await this.getCollectionBookList()
     await this.getBookList()
   },
@@ -146,16 +145,38 @@ export default {
         this.$message.error('系统异常，请联系管理员')
       })
     },
+    getBookCategoryList() {
+      return getBookCategoryList().then((res) => {
+        if (res.data.code === 200) {
+          this.firstMenuItems = []
+          if (!isEmpty(res.data.data)) {
+            for (let i in res.data.data) {
+              this.firstMenuItems.push({
+                id: res.data.data[i]['lib_id'],
+                name: res.data.data[i]['lib_name']
+              })
+            }
+          }
+        } else {
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
     getBookList() {
-      return getBookList().then((res) => {
+      return getBookList(this.firstMenuItems[this.firstActive].id).then((res) => {
         if (res.data.code === 200) {
           this.thirdMenuItems = []
-          for (let i = 0; i < res.data.data.length; i++) {
-            this.thirdMenuItems.push({
-              id: res.data.data[i]['book_id'],
-              bookName: res.data.data[i]['book_name'],
-              bookUrl: res.data.data[i]['book_url'],
-            })
+          if (!isEmpty(res.data.data)) {
+            for (let i = 0; i < res.data.data.length; i++) {
+              this.thirdMenuItems.push({
+                id: res.data.data[i]['book_id'],
+                bookName: res.data.data[i]['book_name'],
+                bookUrl: res.data.data[i]['book_url'],
+              })
+            }
           }
         } else {
           this.$message.error(res.data.message)
@@ -228,11 +249,17 @@ export default {
       this.secondMenuShow = true
     },
 
+    selectFirstMenu(index) {
+      this.firstActive = parseInt(index)
+      this.getBookList()
+    },
+
     toWorkbench() {
       this.$router.push('/workbench')
     },
-    toLearningCornerChat(index, bookId) {
-      this.$store.commit('setBookId', bookId)
+    toLearningCornerChat(index, book) {
+      console.log(book)
+      this.$store.commit('setBook', book)
       this.$store.commit('setBookList', index === 2 ? this.secondMenuItems : this.thirdMenuItems)
       this.$router.push('/learningCornerChat')
     },
@@ -323,7 +350,7 @@ export default {
 
 #learningCornerBook .firstMenu .firstMenuScrollbar {
   width: 100%;
-  height: calc(100% - 120px - 10px - 40px - 10px - 40px - 8px);
+  height: calc(100% - 120px - 10px - 40px - 8px);
 }
 
 #learningCornerBook .firstMenu .firstMenuScrollbar .firstMenuItem .firstMenuItemName {
@@ -358,7 +385,7 @@ export default {
 
   vertical-align: top;
 
-  width: 180px;
+  width: 220px;
   height: 100%;
 
   border: 0;
@@ -428,12 +455,12 @@ export default {
 }
 
 #learningCornerBook .secondMenu .user {
-  margin: 30px 0 30px 10px;
+  margin: 30px 0 30px 0;
 
   width: calc(100% - 10px);
   height: 60px;
 
-  text-align: left;
+  text-align: center;
 }
 
 #learningCornerBook .secondMenu .user .userAvatar {
@@ -474,20 +501,20 @@ export default {
 #learningCornerBook .secondMenuControllerButton {
   position: absolute;
 
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
 
   z-index: 1;
 }
 
 #learningCornerBook .secondMenuControllerButtonClose {
-  top: calc(50% - 30px / 2);
-  left: calc(180px - 30px / 2);
+  top: calc(50% - 40px / 2);
+  left: calc(180px - 40px / 2);
 }
 
 #learningCornerBook .secondMenuControllerButtonOpen {
-  top: calc(50% - 30px / 2);
-  left: calc(180px + 180px - 30px / 2);
+  top: calc(50% - 40px / 2);
+  left: calc(180px + 220px - 40px / 2);
 }
 
 #learningCornerBook .mainContainer {
@@ -502,7 +529,7 @@ export default {
 }
 
 #learningCornerBook .mainContainerShort {
-  width: calc(100% - 180px - 180px);
+  width: calc(100% - 180px - 220px);
 }
 
 #learningCornerBook .mainContainerLong {

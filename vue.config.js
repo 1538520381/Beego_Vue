@@ -4,7 +4,7 @@ module.exports = defineConfig({
     devServer: {
         proxy: {
             '/api': {
-                target: 'http://118.178.138.32:8080', changeOrigin: true, pathRewrite: {'^/api': ''}
+                target: 'http://52.81.109.18:8081', changeOrigin: true, pathRewrite: {'^/api': ''}
             }
         }
     }, transpileDependencies: true, lintOnSave: false, chainWebpack: config => {

@@ -55,7 +55,7 @@
             children: 'outline_child_list',
           }">
               <template v-slot="{ node }">
-                <span>{{ node.data.outline.outline_content }}</span>
+                <v-md-preview class="markdown" :text="node.data.outline.outline_content"></v-md-preview>
               </template>
             </el-tree>
           </el-scrollbar>
@@ -736,5 +736,13 @@ export default {
   height: 100%;
 
   border-left: 1px solid #F2F2F2;
+}
+
+#learningCornerChat /deep/ .markdown .github-markdown-body{
+  padding: 0 0 0 0;
+}
+
+#learningCornerChat /deep/ .markdown .github-markdown-body p {
+  margin-bottom: 0 !important;
 }
 </style>

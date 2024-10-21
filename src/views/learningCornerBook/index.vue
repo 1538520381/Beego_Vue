@@ -1,14 +1,12 @@
 <template>
   <div id="learningCornerBook">
-    <el-menu class="firstMenu" default-active="0" @select="selectFirstMenu">
-      <div class="firstMenuTitle">大类</div>
-      <!--      <div class="search">-->
-      <!--        <svg-icon class="searchIcon" icon-class="search"></svg-icon>-->
-      <!--        <input class="searchInput">-->
-      <!--      </div>-->
-      <el-scrollbar class="firstMenuScrollbar">
-        <el-menu-item class="firstMenuItem" v-for="(item,index) in firstMenuItems" :index="String(index)">
-          <div class="firstMenuItemName">{{ item.name }}</div>
+    <el-menu class="secondMenu" default-active="0" v-if="secondMenuShow">
+      <div class="secondMenuTitle">收藏夹</div>
+      <el-scrollbar class="secondMenuScrollbar">
+        <el-menu-item class="secondMenuItem" v-for="(item,index) in secondMenuItems"
+                      @click="toLearningCornerChat(2,item)">
+          <div class="secondMenuItemName">{{ item.bookName }}</div>
+          <svg-icon class="secondMenuItemDelete" icon-class="delete" @click="uncollection(item.id)"></svg-icon>
         </el-menu-item>
       </el-scrollbar>
       <div class="slogan">
@@ -18,13 +16,15 @@
       </div>
     </el-menu>
 
-    <el-menu class="secondMenu" default-active="0" v-if="secondMenuShow">
-      <div class="secondMenuTitle">收藏夹</div>
-      <el-scrollbar class="secondMenuScrollbar">
-        <el-menu-item class="secondMenuItem" v-for="(item,index) in secondMenuItems"
-                      @click="toLearningCornerChat(2,item)">
-          <div class="secondMenuItemName">{{ item.bookName }}</div>
-          <svg-icon class="secondMenuItemDelete" icon-class="delete" @click="uncollection(item.id)"></svg-icon>
+    <el-menu class="firstMenu" default-active="0" @select="selectFirstMenu">
+      <div class="firstMenuTitle">大类</div>
+      <!--      <div class="search">-->
+      <!--        <svg-icon class="searchIcon" icon-class="search"></svg-icon>-->
+      <!--        <input class="searchInput">-->
+      <!--      </div>-->
+      <el-scrollbar class="firstMenuScrollbar">
+        <el-menu-item class="firstMenuItem" v-for="(item,index) in firstMenuItems" :index="String(index)">
+          <div class="firstMenuItemName">{{ item.name }}</div>
         </el-menu-item>
       </el-scrollbar>
       <div class="user" @click="toPersonalCenter">
@@ -369,15 +369,48 @@ export default {
   font-size: 20px;
 }
 
-#learningCornerBook .firstMenu .slogan {
-  padding: 20px 0 0 0;
+#learningCornerBook .firstMenu .user {
+  margin: 30px 0 30px 0;
 
-  height: calc(120px - 20px);
+  width: calc(100% - 10px);
+  height: 60px;
 
   text-align: center;
+}
 
-  font-size: 30px;
-  font-weight: bold;
+#learningCornerBook .firstMenu .user .userAvatar {
+  display: inline-block;
+
+  vertical-align: top;
+
+  width: 60px;
+  height: 60px;
+
+  border-radius: 50%;
+}
+
+#learningCornerBook .firstMenu .user .userInformation {
+  display: inline-block;
+
+  vertical-align: top;
+
+  margin: 0 0 0 20px;
+
+  height: 60px;
+}
+
+#learningCornerBook .firstMenu .user .userInformation .userId {
+  width: 100%;
+  height: 30px;
+
+  line-height: 30px;
+}
+
+#learningCornerBook .firstMenu .user .userInformation .userName {
+  width: 100%;
+  height: 30px;
+
+  line-height: 30px;
 }
 
 #learningCornerBook .secondMenu {
@@ -454,48 +487,15 @@ export default {
   font-weight: bold;
 }
 
-#learningCornerBook .secondMenu .user {
-  margin: 30px 0 30px 0;
+#learningCornerBook .secondMenu .slogan {
+  padding: 0 0 0 0;
 
-  width: calc(100% - 10px);
-  height: 60px;
+  height: calc(120px - 20px);
 
   text-align: center;
-}
 
-#learningCornerBook .secondMenu .user .userAvatar {
-  display: inline-block;
-
-  vertical-align: top;
-
-  width: 60px;
-  height: 60px;
-
-  border-radius: 50%;
-}
-
-#learningCornerBook .secondMenu .user .userInformation {
-  display: inline-block;
-
-  vertical-align: top;
-
-  margin: 0 0 0 20px;
-
-  height: 60px;
-}
-
-#learningCornerBook .secondMenu .user .userInformation .userId {
-  width: 100%;
-  height: 30px;
-
-  line-height: 30px;
-}
-
-#learningCornerBook .secondMenu .user .userInformation .userName {
-  width: 100%;
-  height: 30px;
-
-  line-height: 30px;
+  font-size: 30px;
+  font-weight: bold;
 }
 
 #learningCornerBook .secondMenuControllerButton {
@@ -509,12 +509,12 @@ export default {
 
 #learningCornerBook .secondMenuControllerButtonClose {
   top: calc(50% - 40px / 2);
-  left: calc(180px - 40px / 2);
+  left: calc(-40px / 2);
 }
 
 #learningCornerBook .secondMenuControllerButtonOpen {
   top: calc(50% - 40px / 2);
-  left: calc(180px + 220px - 40px / 2);
+  left: calc(220px - 40px / 2);
 }
 
 #learningCornerBook .mainContainer {

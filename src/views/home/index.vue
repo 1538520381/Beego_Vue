@@ -158,8 +158,7 @@
 </template>
 
 <script>
-// import bee from '@/assets/pictures/bee.png'
-import logo from '@/assets/pictures/logo.jpg'
+import logo from '@/assets/pictures/logo.png'
 
 import schoolCategoryMajor from '@/jsons/schoolCategoryMajor.json'
 

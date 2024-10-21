@@ -113,7 +113,7 @@
 
 <script>
 import test from '@/assets/pictures/test.jpg'
-import logo from '@/assets/pictures/logo.jpg'
+import logo from '@/assets/pictures/logo.png'
 import F2F2F2_Square from '@/assets/pictures/F2F2F2_Square.png'
 import C9C9C9_Square from '@/assets/pictures/C9C9C9_Square.png'
 import F2F2F2_BottomLeftAngledTriangle from '@/assets/pictures/F2F2F2_BottomLeftAngledTriangle.png'
@@ -497,7 +497,6 @@ export default {
 
 #workbench .robotMenu .logo .logoImage {
   width: 80px;
-  height: 80px;
 }
 
 #workbench .sessionMenu {

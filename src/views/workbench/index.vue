@@ -82,6 +82,7 @@
             </div>
           </div>
         </div>
+        <el-button class="scrollToBottomButton" :icon="ArrowDownBold" circle @click="scrollToBottom"></el-button>
       </el-scrollbar>
 
       <div class="inputArea">
@@ -123,7 +124,7 @@ import C9C9C9_TopRightAngledTriangle from '@/assets/pictures/C9C9C9_TopRightAngl
 import {ref} from 'vue'
 import {fetchEventSource} from "@microsoft/fetch-event-source";
 
-import {ArrowLeftBold, ArrowRightBold, Folder} from '@element-plus/icons-vue'
+import {ArrowLeftBold, ArrowRightBold, ArrowDownBold, Folder} from '@element-plus/icons-vue'
 
 import {addSession, deleteSession, getMessageList, getRobotList, getSessionList} from "@/apis/chat";
 import {isEmpty} from "@/utils/common";
@@ -148,6 +149,7 @@ export default {
 
       ArrowLeftBold: ArrowLeftBold,
       ArrowRightBold: ArrowRightBold,
+      ArrowDownBold: ArrowDownBold,
       Folder: Folder,
 
       robots: [],
@@ -359,13 +361,7 @@ export default {
         onmessage: (message) => {
           if (message.event === 'conversation') {
             this.answeringMessage += isEmpty(message.data) ? '' : message.data
-            this.$nextTick(() => {
-              this.scrollToBottom()
-            })
           } else if (message.event === "done") {
-            this.$nextTick(() => {
-              this.scrollToBottom()
-            })
           } else if (message.event === 'all') {
             this.answeringFlag = false
             this.messages.push({
@@ -830,6 +826,13 @@ export default {
 
 #workbench .mainContainer .chatArea {
   flex: 1;
+}
+
+#workbench .mainContainer .chatArea .scrollToBottomButton {
+  position: absolute;
+
+  bottom: 0;
+  left: 50%;
 }
 
 #workbench .mainContainer .chatArea .chatAreaInner .chatRow {

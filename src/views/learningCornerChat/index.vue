@@ -60,6 +60,7 @@
             </el-tree>
           </el-scrollbar>
         </div>
+        <div class="resize"></div>
         <div class="chatContainer">
         </div>
       </div>
@@ -132,6 +133,9 @@ export default {
     await this.getCatalogueByBookId()
 
     this.initFlag = true
+  },
+  mounted() {
+    this.dragControllerDiv();
   },
   methods: {
     getUserByToken() {
@@ -240,6 +244,47 @@ export default {
     },
     toPersonalCenter() {
       this.$router.push('/personalCenter')
+    },
+
+    dragControllerDiv() {
+      var resize = document.getElementsByClassName("resize")[0];
+      var left = document.getElementsByClassName("catalogueContainer");
+      var mid = document.getElementsByClassName("chatContainer");
+      var box = document.getElementsByClassName("studyContainer")[0];
+
+      // 鼠标按下事件
+      resize.onmousedown = function (e) {
+        //颜色改变提醒
+        resize.style.background = "#818181";
+        var startX = e.clientX;
+        resize.left = resize.offsetLeft;
+        // 鼠标拖动事件
+        document.onmousemove = function (e) {
+          var endX = e.clientX;
+          var moveLen = resize.left + (endX - startX); // （endx-startx）=移动的距离。resize.left+移动的距离=左边区域最后的宽度
+          var maxT = box.clientWidth - resize.offsetWidth; // 容器宽度 - 左边区域的宽度 = 右边区域的宽度
+
+          if (moveLen < 20) moveLen = 20; // 左边区域的最小宽度为32px
+          if (moveLen > maxT - 20) moveLen = maxT - 20; //右边区域最小宽度为150px
+
+          resize.style.left = moveLen; // 设置左侧区域的宽度
+
+          for (let j = 0; j < left.length; j++) {
+            left[j].style.width = moveLen - 1 + "px";
+            mid[j].style.width = box.clientWidth - moveLen - 10 - 1 + "px";
+          }
+        };
+        // 鼠标松开事件
+        document.onmouseup = function () {
+          //颜色恢复
+          resize.style.background = "#d6d6d6";
+          document.onmousemove = null;
+          document.onmouseup = null;
+          resize.releaseCapture && resize.releaseCapture(); //当你不在需要继续获得鼠标消息就要应该调用ReleaseCapture()释放掉
+        };
+        resize.setCapture && resize.setCapture(); //该函数在属于当前线程的指定窗口里设置鼠标捕获
+        return false;
+      };
     }
   }
 }
@@ -610,8 +655,10 @@ export default {
 
   position: relative;
 
-  width: 50%;
+  width: calc(50% - 6px);
   height: 100%;
+
+  border-right: 1px solid #F2F2F2;
 }
 
 #learningCornerChat .mainContainer .studyContainer .catalogueContainer .bookTitle {
@@ -636,7 +683,7 @@ export default {
   font-size: 20px;
 }
 
-#learningCornerChat .mainContainer .studyContainer .catalogueContainer .catalogueScrollbar /deep/ .el-tree-node{
+#learningCornerChat .mainContainer .studyContainer .catalogueContainer .catalogueScrollbar /deep/ .el-tree-node {
   white-space: normal;
 }
 
@@ -651,12 +698,41 @@ export default {
   align-items: start;
 }
 
+.resize {
+  display: inline-block;
+
+  vertical-align: top;
+
+  position: relative;
+
+  top: calc(50% - 50px / 2);
+
+  width: 10px;
+  height: 50px;
+
+  background-color: #d6d6d6;
+  background-size: cover;
+  background-position: center;
+
+  border-radius: 5px;
+
+  font-size: 32px;
+
+  color: white;
+
+  cursor: col-resize;
+}
+
+.resize:hover {
+  color: #444444;
+}
+
 #learningCornerChat .mainContainer .studyContainer .chatContainer {
   display: inline-block;
 
   vertical-align: top;
 
-  width: calc(50% - 1px);
+  width: calc(50% - 6px);
   height: 100%;
 
   border-left: 1px solid #F2F2F2;

@@ -72,6 +72,7 @@
         </div>
       </el-scrollbar>
     </div>
+    <input type="text" id="copyVal" value="假装有分享链接" style="opacity:0; position:absolute;top: 0;left: 0"/>
   </div>
 </template>
 
@@ -238,7 +239,9 @@ export default {
     },
 
     share() {
-      navigator.clipboard.writeText("假装这里有分享链接")
+      var copyVal = document.getElementById("copyVal");
+      copyVal.select();
+      document.execCommand('copy')
       this.$message.success("分享链接已复制到剪切板")
     },
 

@@ -88,8 +88,9 @@
         <el-upload
             class="upload-demo"
             action="/api/file/uploadPicture"
-            :show-file-list="false"
+            :on-change="changeFile"
             :on-success="fileUpload"
+            :file-list="fileList"
         >
           <el-button class="fileUploadButton" :icon="Folder" circle></el-button>
         </el-upload>
@@ -154,6 +155,9 @@ export default {
       messages: [],
 
       chatInput: "",
+      file: null,
+
+      fileList: [],
 
       answeringFlag: false,
       answeringMessage: "",
@@ -321,8 +325,7 @@ export default {
         this.$message.error('系统异常，请联系管理员')
       })
     },
-    chat(fileUrl) {
-      console.log(fileUrl)
+    chat() {
       if (this.answeringFlag) {
         return
       }
@@ -349,8 +352,8 @@ export default {
         body: JSON.stringify({
           bot_id: this.robots[this.robotActive].id,
           session_id: this.sessions[this.sessionActive].id,
-          content: isEmpty(fileUrl) ? this.chatInput : "请描述下该文件",
-          file_url: fileUrl
+          content: this.chatInput,
+          file_url: isEmpty(this.file) ? null : this.file.url
         }),
         signal: ctrl.signal,
         onmessage: (message) => {
@@ -381,10 +384,17 @@ export default {
       });
 
       this.chatInput = ""
+      this.fileList = []
     },
 
+    changeFile(file, fileList) {
+      // this.fileList = []
+    },
     fileUpload(res, file, fileList) {
-      this.chat(res.data['minio_url'])
+      this.file = {
+        name: file.name,
+        url: res.data['minio_url']
+      }
     },
 
     share() {
@@ -925,12 +935,12 @@ export default {
   background: #F2F2F2;
 }
 
-#workbench .chatMessage .github-markdown-body {
+#workbench /deep/ .chatMessage .github-markdown-body {
   padding: 16px 32px 16px 32px;
 }
 
 
-#workbench .chatMessage .github-markdown-body p {
+#workbench /deep/ .chatMessage .github-markdown-body p {
   margin-bottom: 0 !important;
 }
 
@@ -942,6 +952,22 @@ export default {
   width: 100%;
   height: auto;
   max-height: 200px;
+}
+
+#workbench .mainContainer .inputArea .upload-demo {
+  position: absolute;
+
+  left: 0;
+  bottom: 0;
+}
+
+#workbench .mainContainer .inputArea .upload-demo /deep/ .el-upload-list {
+  position: absolute;
+
+  bottom: 70px;
+  left: 10px;
+
+  width: 90px;
 }
 
 #workbench .mainContainer .inputArea .fileUploadButton {

@@ -353,20 +353,20 @@ export default {
         signal: ctrl.signal,
         onmessage: (message) => {
           if (message.event === 'conversation') {
-            console.log(new Date().getMilliseconds())
-            this.answeringMessage += isEmpty(message.data) ? '\n\n' : message.data
+            this.answeringMessage += isEmpty(message.data) ? '' : message.data
             this.$nextTick(() => {
               this.scrollToBottom()
             })
           } else if (message.event === "done") {
+            this.$nextTick(() => {
+              this.scrollToBottom()
+            })
+          } else if (message.event === 'all') {
             this.answeringFlag = false
             this.messages.push({
               role: "assistant",
               contentType: 'text',
-              content: this.answeringMessage
-            })
-            this.$nextTick(() => {
-              this.scrollToBottom()
+              content: message.data.replaceAll("\\n", "\n")
             })
           }
         },

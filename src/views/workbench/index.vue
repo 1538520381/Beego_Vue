@@ -19,7 +19,10 @@
       <el-scrollbar class="sessionMenuScrollbar">
         <el-menu-item class="sessionMenuItem" v-for="(item,value) in sessions" :index="String(value)">
           <!--          <div class="sessionMenuItemTitle">{{ item.id }}</div>-->
-          <div class="sessionMenuItemTitle">{{ isEmpty(item.message) ? "new Chat" : item.message.content }}</div>
+          <div class="sessionMenuItemTitle">{{
+              isEmpty(item.message) || isEmpty(item.message.content) ? "new Chat" : item.message.content
+            }}
+          </div>
           <svg-icon class="sessionMenuDeleteIcon" icon-class="delete" @click="deleteSession(value)"></svg-icon>
         </el-menu-item>
       </el-scrollbar>
@@ -78,7 +81,8 @@
             <div class="chatRobot" v-if="answeringFlag">
               <el-image class="chatRobotAvatar" :src="robots[robotActive].avatar"></el-image>
               <!--              <div class="chatRobotMessage chatMessage" v-html="markdownToHtml(answeringMessage)"></div>-->
-              <v-md-preview class="chatRobotMessage chatMessage" :text="answeringMessage"></v-md-preview>
+              <v-md-preview class="chatRobotMessage chatMessage"
+                            :text="answeringMessage.substring(0,answeringIndex)"></v-md-preview>
             </div>
           </div>
         </div>
@@ -89,7 +93,7 @@
         <el-upload
             class="upload-demo"
             action="/api/file/uploadPicture"
-            :on-change="changeFile"
+            :on-remove="removeFile"
             :on-success="fileUpload"
             :file-list="fileList"
         >
@@ -164,6 +168,8 @@ export default {
 
       answeringFlag: false,
       answeringMessage: "",
+      answeringIndex: 0,
+      answeringClock: null,
 
       sessionMenuShow: true,
 
@@ -285,7 +291,9 @@ export default {
                   sessionId: res.data.data[i]["message"]["session_id"],
                   role: res.data.data[i]["message"]["role"],
                   content: res.data.data[i]["message"]["content"],
-                  contentType: res.data.data[i]["message"]["text"],
+                  fileType: res.data.data[i]["message"]["file_type"],
+                  fileName: res.data.data[i]["message"]["file_name"],
+                  fileUrl: res.data.data[i]["message"]["file_url"],
                   createTime: res.data.data[i]["message"]["created_time"],
                 }
               })
@@ -335,10 +343,13 @@ export default {
 
       this.answeringFlag = true
       this.answeringMessage = ""
+      this.answeringIndex = 0
+      this.answeringClock = setInterval(() => {
+        this.answeringIndex = Math.min(this.answeringIndex + 1, this.answeringMessage.length)
+      }, 100)
 
       this.messages.push({
         role: "user",
-        contentType: 'text',
         content: this.chatInput
       })
       this.$nextTick(() => {
@@ -356,7 +367,9 @@ export default {
           bot_id: this.robots[this.robotActive].id,
           session_id: this.sessions[this.sessionActive].id,
           content: this.chatInput,
-          file_url: isEmpty(this.file) ? null : this.file.url
+          file_name: isEmpty(this.file) ? null : this.file.name,
+          file_type: isEmpty(this.file) ? null : this.file.type,
+          file_url: isEmpty(this.file) ? null : this.file.url,
         }),
         signal: ctrl.signal,
         onmessage: (message) => {
@@ -365,6 +378,7 @@ export default {
           } else if (message.event === "done") {
           } else if (message.event === 'all') {
             this.answeringFlag = false
+            clearInterval(this.answeringClock)
             this.messages.push({
               role: "assistant",
               contentType: 'text',
@@ -375,6 +389,8 @@ export default {
         onclose: () => {
         },
         onerror: (err) => {
+          this.answeringFlag = false
+          clearInterval(this.answeringClock)
           console.log(err)
           this.$message.error('系统异常，请联系管理员')
         }
@@ -384,13 +400,23 @@ export default {
       this.fileList = []
     },
 
-    changeFile(file, fileList) {
-      // this.fileList = []
+    removeFile(file, fileList) {
+      console.log(1)
+      this.file = null
     },
     fileUpload(res, file, fileList) {
-      this.file = {
-        name: file.name,
-        url: res.data['minio_url']
+      console.log(2)
+      if (res.code === 200) {
+        this.file = {
+          id: res.data["file_id"],
+          name: res.data["file_name"],
+          type: res.data["file_type"],
+          url: res.data['file_url'],
+          createTime: res.data["create_time"],
+        }
+      } else {
+        this.fileList = []
+        this.$message.error(res.message)
       }
     },
 

@@ -119,8 +119,8 @@ export default {
       this.book = this.$store.state.book
     }
 
-    await this.getCollectionBookList()
     await this.getUserByToken()
+    await this.getCollectionBookList()
 
     if (this.collectionBookIdList.indexOf(this.book.id) !== -1) {
       this.bookActive = this.collectionBookIdList.indexOf(this.book.id)
@@ -128,9 +128,7 @@ export default {
       this.bookMenuItems.push(this.book)
       this.bookActive = this.bookMenuItems.length - 1
     }
-    this.closeBookMenu()
-    this.openBookMenu()
-    console.log(this.bookMenuItems)
+
     await this.getCatalogueByBookId()
 
     this.initFlag = true
@@ -171,18 +169,19 @@ export default {
     },
 
     getCollectionBookList() {
-      getCollectionBookList().then((res) => {
+      return getCollectionBookList().then((res) => {
         if (res.data.code === 200) {
-          this.bookMenuItems = []
           this.collectionBookIdList = []
           if (!isEmpty(res.data.data)) {
             for (let i = 0; i < res.data.data.length; i++) {
-              this.bookMenuItems.push({
-                id: res.data.data[i]['book_id'],
-                bookName: res.data.data[i]['book_name'],
-                bookOutlineUrl: res.data.data[i]['book_outline_url'],
-                book_url: res.data.data[i]['book_url']
-              })
+              if (!this.initFlag) {
+                this.bookMenuItems.push({
+                  id: res.data.data[i]['book_id'],
+                  bookName: res.data.data[i]['book_name'],
+                  bookOutlineUrl: res.data.data[i]['book_outline_url'],
+                  book_url: res.data.data[i]['book_url']
+                })
+              }
               this.collectionBookIdList.push(res.data.data[i]['book_id'])
             }
           }
@@ -196,7 +195,7 @@ export default {
     collection(id) {
       collection(id).then((res) => {
         if (res.data.code === 200) {
-          this.collectionBookIdList.push(id)
+          this.getCollectionBookList()
           this.$message.success(res.data.message)
         } else {
           this.$message.error(res.data.message)
@@ -209,7 +208,7 @@ export default {
     uncollection(id) {
       uncollection(id).then((res) => {
         if (res.data.code === 200) {
-          this.collectionBookIdList.splice(this.collectionBookIdList.indexOf(id, 1))
+          this.getCollectionBookList()
           this.$message.success(res.data.message)
         } else {
           this.$message.error(res.data.message)
@@ -741,7 +740,7 @@ export default {
   border-left: 1px solid #F2F2F2;
 }
 
-#learningCornerChat /deep/ .markdown .github-markdown-body{
+#learningCornerChat /deep/ .markdown .github-markdown-body {
   padding: 0 0 0 0;
 }
 

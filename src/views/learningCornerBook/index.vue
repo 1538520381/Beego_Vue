@@ -3,9 +3,8 @@
     <el-menu class="secondMenu" default-active="0" v-if="secondMenuShow">
       <div class="secondMenuTitle">收藏夹</div>
       <el-scrollbar class="secondMenuScrollbar">
-        <el-menu-item class="secondMenuItem" v-for="(item,index) in secondMenuItems"
-                      @click="toLearningCornerChat(2,item)">
-          <div class="secondMenuItemName">{{ item.bookName }}</div>
+        <el-menu-item class="secondMenuItem" v-for="(item,index) in secondMenuItems">
+          <div class="secondMenuItemName" @click="toLearningCornerChat(2,item)">{{ item.bookName }}</div>
           <svg-icon class="secondMenuItemDelete" icon-class="delete" @click="uncollection(item.id)"></svg-icon>
         </el-menu-item>
       </el-scrollbar>

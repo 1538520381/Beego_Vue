@@ -27,7 +27,8 @@
         </el-menu-item>
       </el-scrollbar>
       <div class="user" @click="toPersonalCenter">
-        <el-image class="userAvatar" round :src="test"></el-image>
+        <el-image class="userAvatar" round
+                  :src="isEmpty(user.avatarUrl) ? ((user.gender === 0 || isEmpty(user.gender))? BoyAvatar : GirlAvatar) : user.avatarUrl"></el-image>
         <div class="userInformation">
           <div class="userId">{{ user.id }}</div>
           <div class="userName">{{ user.userName }}</div>
@@ -161,7 +162,8 @@
 </template>
 
 <script>
-import test from '@/assets/pictures/test.jpg'
+import BoyAvatar from '@/assets/pictures/boyAvatar.png';
+import GirlAvatar from '@/assets/pictures/girlAvatar.png';
 import logo from '@/assets/pictures/logo.png'
 import F2F2F2_Square from '@/assets/pictures/F2F2F2_Square.png'
 import C9C9C9_Square from '@/assets/pictures/C9C9C9_Square.png'
@@ -175,8 +177,9 @@ import {fetchEventSource} from "@microsoft/fetch-event-source";
 import {ArrowLeftBold, ArrowRightBold, ArrowDownBold, Folder} from '@element-plus/icons-vue'
 
 import {addSession, deleteSession, getMessageList, getRobotList, getSessionList} from "@/apis/chat";
-import {isEmpty} from "@/utils/common";
 import {getUserByToken} from "@/apis/user";
+
+import {isEmpty} from "@/utils/common";
 
 import SvgIcon from "@/components/svgIcon/index.vue";
 
@@ -185,7 +188,8 @@ export default {
   components: {SvgIcon},
   data() {
     return {
-      test: test,
+      BoyAvatar: BoyAvatar,
+      GirlAvatar: GirlAvatar,
       logo: logo,
       F2F2F2_Square: F2F2F2_Square,
       C9C9C9_Square: C9C9C9_Square,
@@ -283,7 +287,8 @@ export default {
           this.user = {
             id: res.data.data['user_id'],
             email: res.data.data['email'],
-            userName: res.data.data['user_name']
+            userName: res.data.data['user_name'],
+            avatarUrl: res.data.data['avatar_url'],
           }
         } else {
           this.$router.push("/home");

@@ -3,7 +3,21 @@
     <svg-icon class="backIcon" icon-class="back" @click="back"></svg-icon>
     <div class="mainContainer">
       <div class="avatarContainer">
-        <el-image class="avatar" :src="test"></el-image>
+        <div class="mainContainer">
+          <el-image class="avatar"
+                    :src="isEmpty(user.avatarUrl) ? ((user.gender === 0 || isEmpty(user.gender))? BoyAvatar : GirlAvatar) : user.avatarUrl"></el-image>
+          <el-upload
+              class="upload-demo"
+              action="/api/user/avatar"
+              :on-success="avatarUpload"
+              :show-file-list="false"
+              :headers="{
+                'Authorization':token
+              }"
+          >
+            <el-button class="avatarUploadButton">上传头像</el-button>
+          </el-upload>
+        </div>
       </div>
       <div class="informationContainer">
         <div class="item">
@@ -14,10 +28,10 @@
           <div class="key">邮箱：</div>
           <div class="value">{{ user.email }}</div>
         </div>
-<!--        <div class="item">-->
-<!--          <div class="key">联系方式：</div>-->
-<!--          <div class="value">{{ user.phone }}</div>-->
-<!--        </div>-->
+        <!--        <div class="item">-->
+        <!--          <div class="key">联系方式：</div>-->
+        <!--          <div class="value">{{ user.phone }}</div>-->
+        <!--        </div>-->
         <div class="item">
           <div class="key">所在学校：</div>
           <div class="value">{{ user.school }}</div>
@@ -36,8 +50,11 @@
 </template>
 
 <script>
-import test from '@/assets/pictures/test.jpg'
+import BoyAvatar from '@/assets/pictures/boyAvatar.png';
+import GirlAvatar from '@/assets/pictures/girlAvatar.png';
+
 import SvgIcon from "@/components/svgIcon/index.vue";
+
 import {getUserByToken} from "@/apis/user";
 import {isEmpty} from "@/utils/common";
 
@@ -46,7 +63,8 @@ export default {
   components: {SvgIcon},
   data() {
     return {
-      test: test,
+      BoyAvatar: BoyAvatar,
+      GirlAvatar: GirlAvatar,
 
       token: null,
       user: {},
@@ -72,7 +90,7 @@ export default {
             major: res.data.data['major'],
             // phone: res.data.data['phone'],
             school: res.data.data['school'],
-            avatarUrl: isEmpty(res.data.data['avatar_url']) ? test : res.data.data['avatar_url'],
+            avatarUrl: res.data.data['avatar_url'],
             enterTime: res.data.data['enter_time'],
           }
         } else {
@@ -85,9 +103,22 @@ export default {
       })
     },
 
+    avatarUpload(res, file, fileList) {
+      if (res.code === 200) {
+        this.$message.success("上传成功")
+        this.getUserByToken()
+      } else {
+        this.$message.error(res.message)
+      }
+    },
+
     back() {
       this.$router.go(-1);
-    }
+    },
+
+    isEmpty(field) {
+      return isEmpty(field)
+    },
   }
 }
 </script>
@@ -139,7 +170,7 @@ export default {
   height: 100%;
 }
 
-#personalCenter .mainContainer .avatarContainer .avatar {
+#personalCenter .mainContainer .avatarContainer .mainContainer {
   position: absolute;
 
   top: 0;
@@ -150,9 +181,21 @@ export default {
   margin: auto;
 
   width: 100px;
+  height: calc(100px + 25px + 25px);
+
+  text-align: center;
+}
+
+#personalCenter .mainContainer .avatarContainer .mainContainer .avatar {
+  width: 100px;
   height: 100px;
 
   border-radius: 50%;
+}
+
+#personalCenter .mainContainer .avatarContainer .mainContainer .avatarUploadButton {
+  width: 80%;
+  height: 25px;
 }
 
 #personalCenter .mainContainer .informationContainer {

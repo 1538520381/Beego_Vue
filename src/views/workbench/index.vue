@@ -142,21 +142,65 @@
         <el-upload
             class="upload-demo"
             action="/api/file/uploadPicture"
+            :show-file-list="false"
             :on-remove="removeFile"
             :on-success="fileUpload"
             :file-list="fileList"
         >
           <el-button class="fileUploadButton" :icon="Folder" circle></el-button>
         </el-upload>
-        <el-input
-            class="chatInput"
-            v-model="chatInput"
-            :rows="2"
-            :autosize="{minRows:2,maxRows:8}"
-            type="textarea"
-            resize="none"
-            placeholder="开始创作你的提示词吧"
-        />
+        <div class="input">
+          <el-tooltip :content="file.fileName + '.' + file.fileType" placement="top" effect="light"
+                      v-if="!isEmpty(file)">
+            <div class="file">
+              <el-image class="picture" :src="file.fileUrl" fit="fill"
+                        v-if="['jpg','png'].indexOf(file.fileType) !== -1"
+                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></el-image>
+              <svg-icon class="fileSvg" icon-class="csv"
+                        v-else-if="['csv'].indexOf(file.fileType) !== -1"
+                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
+              <svg-icon class="fileSvg" icon-class="excel"
+                        v-else-if="['xlsx','xls'].indexOf(file.fileType) !== -1"
+                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
+              <svg-icon class="fileSvg" icon-class="mp4"
+                        v-else-if="['mp4'].indexOf(file.fileType) !== -1"
+                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
+              <svg-icon class="fileSvg" icon-class="pdf"
+                        v-else-if="['pdf'].indexOf(file.fileType) !== -1"
+                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
+              <svg-icon class="fileSvg" icon-class="ppt"
+                        v-else-if="['ppt'].indexOf(file.fileType) !== -1"
+                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
+              <svg-icon class="fileSvg" icon-class="rar"
+                        v-else-if="['rar'].indexOf(file.fileType) !== -1"
+                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
+              <svg-icon class="fileSvg" icon-class="txt"
+                        v-else-if="['txt'].indexOf(file.fileType) !== -1"
+                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
+              <svg-icon class="fileSvg" icon-class="word"
+                        v-else-if="['word'].indexOf(file.fileType) !== -1"
+                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
+              <svg-icon class="fileSvg" icon-class="word"
+                        v-else-if="['docx','doc'].indexOf(file.fileType) !== -1"
+                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
+              <svg-icon class="fileSvg" icon-class="zip"
+                        v-else-if="['zip'].indexOf(file.fileType) !== -1"
+                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
+              <svg-icon class="fileSvg" icon-class="unknownFile" v-else
+                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
+              <svg-icon class="deleteFile" icon-class="fork" @click="removeFile"></svg-icon>
+            </div>
+          </el-tooltip>
+          <el-input
+              class="chatInput"
+              v-model="chatInput"
+              :rows="2"
+              :autosize="{minRows:2,maxRows:8}"
+              type="textarea"
+              resize="none"
+              placeholder="开始创作你的提示词吧"
+          />
+        </div>
         <el-button class="sendButton" @click="chat">
           <svg-icon class="sendButtonIcon" icon-class="send"></svg-icon>
         </el-button>
@@ -407,9 +451,9 @@ export default {
       this.messages.push({
         role: "user",
         content: this.chatInput,
-        fileType: isEmpty(this.file) ? null : this.file.type,
-        fileName: isEmpty(this.file) ? null : this.file.name,
-        fileUrl: isEmpty(this.file) ? null : this.file.url,
+        fileType: isEmpty(this.file) ? null : this.file.fileType,
+        fileName: isEmpty(this.file) ? null : this.file.fileName,
+        fileUrl: isEmpty(this.file) ? null : this.file.fileUrl,
       })
 
       this.$nextTick(() => {
@@ -427,9 +471,9 @@ export default {
           bot_id: this.robots[this.robotActive].id,
           session_id: this.sessions[this.sessionActive].id,
           content: this.chatInput,
-          file_name: isEmpty(this.file) ? null : this.file.name,
-          file_type: isEmpty(this.file) ? null : this.file.type,
-          file_url: isEmpty(this.file) ? null : this.file.url,
+          file_type: isEmpty(this.file) ? null : this.file.fileType,
+          file_name: isEmpty(this.file) ? null : this.file.fileName,
+          file_url: isEmpty(this.file) ? null : this.file.fileUrl,
         }),
         signal: ctrl.signal,
         onmessage: (message) => {
@@ -447,6 +491,7 @@ export default {
           }
         },
         onclose: () => {
+          console.log(111)
         },
         onerror: (err) => {
           this.answeringFlag = false
@@ -462,26 +507,23 @@ export default {
       });
 
       this.chatInput = ""
-      this.file = {}
-      this.fileList = []
+      this.removeFile()
     },
 
     removeFile(file, fileList) {
-      console.log(1)
       this.file = null
     },
     fileUpload(res, file, fileList) {
       if (res.code === 200) {
         this.file = {
           id: res.data["file_id"],
-          name: res.data["file_name"],
-          type: res.data["file_type"],
-          url: res.data['file_url'],
+          fileName: res.data["file_name"],
+          fileType: res.data["file_type"],
+          fileUrl: res.data['file_url'],
           createTime: res.data["create_time"],
         }
         console.log(this.file)
       } else {
-        this.fileList = []
         this.$message.error(res.message)
       }
     },
@@ -1030,8 +1072,8 @@ export default {
   margin: 10px 10px 10px 10px;
 
   width: 50px;
-  min-width: 50px;
-  min-height: 50px;
+  max-width: 100px;
+  max-height: 100px;
 
   cursor: pointer;
 }
@@ -1144,10 +1186,53 @@ export default {
   height: 40px;
 }
 
-#workbench .mainContainer .inputArea .chatInput {
+#workbench .mainContainer .inputArea .input {
   margin: 0 0 0 100px;
 
   width: calc(100% - 100px - 120px);
+}
+
+#workbench .mainContainer .inputArea .input .file {
+  display: inline-block;
+
+  position: relative;
+}
+
+#workbench .mainContainer .inputArea .input .file .picture {
+  max-width: 100px;
+  max-height: 100px;
+
+  cursor: pointer;
+}
+
+#workbench .mainContainer .inputArea .input .file .fileSvg {
+  width: 50px;
+
+  height: 50px;
+
+  outline: none;
+
+  cursor: pointer;
+}
+
+#workbench .mainContainer .inputArea .input .file .deleteFile {
+  position: absolute;
+
+  top: -6px;
+  right: -6px;
+
+  width: 12px;
+  height: 12px;
+
+  border-radius: 50%;
+
+  background: #C9C9C9;
+
+  cursor: pointer;
+}
+
+#workbench .mainContainer .inputArea .input .chatInput {
+  width: 100%;
 
   font-size: 16px;
 }

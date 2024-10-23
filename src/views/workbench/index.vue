@@ -75,29 +75,44 @@
 
             <div class="chatUser" v-if="item.role === 'user'">
               <div class="chatUserMessage">
-                <el-image class="chatUserFilePicture" :src="item.fileUrl" fit="fill"
-                          v-if="['jpg','png'].indexOf(item.fileType) !== -1"></el-image>
-                <svg-icon class="chatUserFileSvg" icon-class="csv"
-                          v-else-if="['csv'].indexOf(item.fileType) !== -1"></svg-icon>
-                <svg-icon class="chatUserFileSvg" icon-class="excel"
-                          v-else-if="['xlsx','xls'].indexOf(item.fileType) !== -1"></svg-icon>
-                <svg-icon class="chatUserFileSvg" icon-class="mp4"
-                          v-else-if="['mp4'].indexOf(item.fileType) !== -1"></svg-icon>
-                <svg-icon class="chatUserFileSvg" icon-class="pdf"
-                          v-else-if="['pdf'].indexOf(item.fileType) !== -1"></svg-icon>
-                <svg-icon class="chatUserFileSvg" icon-class="ppt"
-                          v-else-if="['ppt'].indexOf(item.fileType) !== -1"></svg-icon>
-                <svg-icon class="chatUserFileSvg" icon-class="rar"
-                          v-else-if="['rar'].indexOf(item.fileType) !== -1"></svg-icon>
-                <svg-icon class="chatUserFileSvg" icon-class="txt"
-                          v-else-if="['txt'].indexOf(item.fileType) !== -1"></svg-icon>
-                <svg-icon class="chatUserFileSvg" icon-class="word"
-                          v-else-if="['word'].indexOf(item.fileType) !== -1"></svg-icon>
-                <svg-icon class="chatUserFileSvg" icon-class="word"
-                          v-else-if="['docx','doc'].indexOf(item.fileType) !== -1"></svg-icon>
-                <svg-icon class="chatUserFileSvg" icon-class="zip"
-                          v-else-if="['zip'].indexOf(item.fileType) !== -1"></svg-icon>
-                <svg-icon class="chatUserFileSvg" icon-class="unknownFile" v-else></svg-icon>
+                <el-tooltip :content="item.fileName + '.' +item.fileType" placement="top" effect="light"
+                            v-if="!isEmpty(item.fileType)">
+                  <el-image class="chatUserFilePicture" :src="item.fileUrl" fit="fill"
+                            v-if="['jpg','png'].indexOf(item.fileType) !== -1"
+                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></el-image>
+                  <svg-icon class="chatUserFileSvg" icon-class="csv"
+                            v-else-if="['csv'].indexOf(item.fileType) !== -1"
+                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
+                  <svg-icon class="chatUserFileSvg" icon-class="excel"
+                            v-else-if="['xlsx','xls'].indexOf(item.fileType) !== -1"
+                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
+                  <svg-icon class="chatUserFileSvg" icon-class="mp4"
+                            v-else-if="['mp4'].indexOf(item.fileType) !== -1"
+                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
+                  <svg-icon class="chatUserFileSvg" icon-class="pdf"
+                            v-else-if="['pdf'].indexOf(item.fileType) !== -1"
+                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
+                  <svg-icon class="chatUserFileSvg" icon-class="ppt"
+                            v-else-if="['ppt'].indexOf(item.fileType) !== -1"
+                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
+                  <svg-icon class="chatUserFileSvg" icon-class="rar"
+                            v-else-if="['rar'].indexOf(item.fileType) !== -1"
+                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
+                  <svg-icon class="chatUserFileSvg" icon-class="txt"
+                            v-else-if="['txt'].indexOf(item.fileType) !== -1"
+                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
+                  <svg-icon class="chatUserFileSvg" icon-class="word"
+                            v-else-if="['word'].indexOf(item.fileType) !== -1"
+                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
+                  <svg-icon class="chatUserFileSvg" icon-class="word"
+                            v-else-if="['docx','doc'].indexOf(item.fileType) !== -1"
+                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
+                  <svg-icon class="chatUserFileSvg" icon-class="zip"
+                            v-else-if="['zip'].indexOf(item.fileType) !== -1"
+                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
+                  <svg-icon class="chatUserFileSvg" icon-class="unknownFile" v-else
+                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
+                </el-tooltip>
                 <!--              <div class="chatUserMessage" v-html="markdownToHtml(item.content)"></div>-->
                 <v-md-preview class="chatUserMessageText chatMessageText" :text="item.content"
                               v-if="!isEmpty(item.content)"></v-md-preview>
@@ -376,7 +391,7 @@ export default {
       this.answeringIndex = 0
       this.answeringClock = setInterval(() => {
         this.answeringIndex = Math.min(this.answeringIndex + 1, this.answeringMessage.length)
-      }, 100)
+      }, 20)
 
       this.messages.push({
         role: "user",
@@ -385,7 +400,7 @@ export default {
         fileName: isEmpty(this.file) ? null : this.file.name,
         fileUrl: isEmpty(this.file) ? null : this.file.url,
       })
-      console.log(this.messages)
+
       this.$nextTick(() => {
         this.scrollToBottom()
       })
@@ -485,6 +500,43 @@ export default {
       this.getMessageList()
       this.answeringFlag = false
       this.answeringMessage = ""
+    },
+
+    downloadFile(url, name) {
+      // console.log(url)
+      // let a = document.createElement('a')
+      // a.href = url;
+      // a.download = name;
+      // a.style.display = 'none'
+      // document.body.appendChild(a)
+      // a.click()
+      // document.body.removeChild(a)
+      // window.location.href = url
+      // window.open(url)
+
+      const xhr = new XMLHttpRequest()
+      xhr.open('get', url)
+      xhr.responseType = 'blob'
+      xhr.onload = e => {
+        if (xhr.status === 200) {
+          const response = xhr.response
+          if (window.navigator.msSaveOrOpenBlob) {
+            window.navigator.msSaveOrOpenBlob(response, name)
+          } else {
+            const href = URL.createObjectURL(response)
+            let ele = document.createElement('a')
+            ele.target = '_blank'
+            ele.href = href
+            ele.download = name
+            ele.click()
+            ele = null
+            URL.revokeObjectURL(href)
+          }
+        } else {
+          this.$message.error('下载失败')
+        }
+      }
+      xhr.send(null)
     },
 
     // markdownToHtml(text) {
@@ -964,6 +1016,8 @@ export default {
   width: 50px;
   min-width: 50px;
   min-height: 50px;
+
+  cursor: pointer;
 }
 
 #workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatUser .chatUserMessage .chatUserFileSvg {
@@ -972,6 +1026,10 @@ export default {
   width: 50px;
 
   height: 50px;
+
+  outline: none;
+
+  cursor: pointer;
 }
 
 #workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatUser .chatUserMessage .chatUserMessageText {

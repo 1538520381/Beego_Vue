@@ -21,8 +21,16 @@
       </div>
       <div class="informationContainer">
         <div class="item">
+          <div class="key">账号ID：</div>
+          <div class="value">{{ user.id }}</div>
+        </div>
+        <div class="item">
           <div class="key">昵称：</div>
           <div class="value">{{ user.userName }}</div>
+        </div>
+        <div class="item">
+          <div class="key">性别：</div>
+          <div class="value">{{ user.gender }}</div>
         </div>
         <div class="item">
           <div class="key">邮箱：</div>
@@ -86,9 +94,9 @@ export default {
           this.user = {
             id: res.data.data['user_id'],
             email: res.data.data['email'],
+            gender: res.data.data['gender'],
             userName: res.data.data['user_name'],
             major: res.data.data['major'],
-            // phone: res.data.data['phone'],
             school: res.data.data['school'],
             avatarUrl: res.data.data['avatar_url'],
             enterTime: res.data.data['enter_time'],
@@ -180,15 +188,15 @@ export default {
 
   margin: auto;
 
-  width: 100px;
-  height: calc(100px + 25px + 25px);
+  width: 140px;
+  height: calc(140px + 25px + 25px);
 
   text-align: center;
 }
 
 #personalCenter .mainContainer .avatarContainer .mainContainer .avatar {
-  width: 100px;
-  height: 100px;
+  width: 140px;
+  height: 140px;
 
   border-radius: 50%;
 }
@@ -219,11 +227,13 @@ export default {
 
 #personalCenter .mainContainer .informationContainer .item {
   width: 100%;
-  height: 50px;
+  height: 60px;
 }
 
 #personalCenter .mainContainer .informationContainer .item .key {
   display: inline-block;
+
+  vertical-align: top;
 
   width: 100px;
   height: 50px;

@@ -107,6 +107,12 @@
           <el-input class="formInput" size="large" v-model="personalInformationForm.userName"
                     placeholder="请输入昵称"></el-input>
         </el-form-item>
+        <el-form-item class="formInput">
+          <el-radio-group v-model="personalInformationForm.gender" style="padding: 0 0 0 10px">
+            <el-radio :value="0" size="large">男</el-radio>
+            <el-radio :value="1" size="large">女</el-radio>
+          </el-radio-group>
+        </el-form-item>
         <el-form-item class="formItem" prop="school">
           <el-select
               class="formInput"
@@ -332,6 +338,7 @@ export default {
     initPersonalInformationForm() {
       this.personalInformationForm = {
         userName: "",
+        gender: 0,
         school: "",
         major: "",
         elseMajor: "",
@@ -346,6 +353,7 @@ export default {
           this.user = {
             id: res.data.data['user_id'],
             email: res.data.data['email'],
+            gender: res.data.data['gender'],
             userName: res.data.data['user_name']
           }
         } else if (res.data.code === 201) {
@@ -473,6 +481,7 @@ export default {
       } else {
         improvePersonalInformation({
           userName: this.personalInformationForm.userName,
+          gender: this.personalInformationForm.gender,
           school: this.personalInformationForm.school,
           major: this.personalInformationForm.major === '其他' ? this.personalInformationForm.elseMajor : this.personalInformationForm.major,
           enterTime: this.personalInformationForm.enterTime.getFullYear(),

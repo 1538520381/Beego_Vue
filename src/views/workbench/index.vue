@@ -128,8 +128,10 @@
             <div class="chatRobot" v-if="answeringFlag">
               <el-image class="chatRobotAvatar" :src="robots[robotActive].avatar"></el-image>
               <!--              <div class="chatRobotMessage chatMessage" v-html="markdownToHtml(answeringMessage)"></div>-->
-              <v-md-preview class="chatRobotMessageText chatMessageText"
-                            :text="answeringMessage.substring(0,answeringIndex)"></v-md-preview>
+              <div class="chatRobotMessage">
+                <v-md-preview class="chatRobotMessageText chatMessageText"
+                              :text="answeringIndex === 0 ? '正在分析中...' :  answeringMessage.substring(0,answeringIndex)"></v-md-preview>
+              </div>
             </div>
           </div>
         </div>
@@ -290,6 +292,7 @@ export default {
           this.user = {
             id: res.data.data['user_id'],
             email: res.data.data['email'],
+            gender: res.data.data['gender'],
             userName: res.data.data['user_name'],
             avatarUrl: res.data.data['avatar_url'],
           }
@@ -448,6 +451,11 @@ export default {
         onerror: (err) => {
           this.answeringFlag = false
           clearInterval(this.answeringClock)
+          this.messages.push({
+            role: "assistant",
+            contentType: 'text',
+            content: '系统异常，请联系管理员'
+          })
           console.log(err)
           this.$message.error('系统异常，请联系管理员')
         }

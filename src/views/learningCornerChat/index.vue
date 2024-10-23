@@ -148,6 +148,7 @@ export default {
           this.user = {
             id: res.data.data['user_id'],
             email: res.data.data['email'],
+            gender: res.data.data['gender'],
             userName: res.data.data['user_name'],
             avatarUrl: res.data.data['avatar_url'],
           }

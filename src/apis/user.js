@@ -29,10 +29,10 @@ export function improvePersonalInformation(personalInformationForm) {
     return request({
         url: '/user/mustInfo', method: 'post', data: {
             user_name: personalInformationForm.userName,
+            gender: personalInformationForm.gender,
             school: personalInformationForm.school,
             major: personalInformationForm.major,
-            enter_time: personalInformationForm.enterTime,
-            phone: '1111' // TODO 待接口变化后删除
+            enter_time: personalInformationForm.enterTime
         }
     })
 }

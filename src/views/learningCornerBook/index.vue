@@ -8,10 +8,12 @@
           <svg-icon class="secondMenuItemDelete" icon-class="delete" @click="uncollection(item.id)"></svg-icon>
         </el-menu-item>
       </el-scrollbar>
+
       <div class="slogan">
-        Beego
-        <br/>
-        必过
+        <!--        Beego-->
+        <!--        <br/>-->
+        <!--        必过-->
+        <el-image class="logoImage" :src="logo" fit="fill"/>
       </div>
     </el-menu>
 
@@ -77,6 +79,7 @@
 </template>
 
 <script>
+import logo from '@/assets/pictures/logo.png'
 import BoyAvatar from '@/assets/pictures/boyAvatar.png';
 import GirlAvatar from '@/assets/pictures/girlAvatar.png';
 import F2F2F2_Square from "@/assets/pictures/F2F2F2_Square.png";
@@ -95,6 +98,7 @@ export default {
   name: 'LearningCornerBook',
   data() {
     return {
+      logo: logo,
       BoyAvatar: BoyAvatar,
       GirlAvatar: GirlAvatar,
       F2F2F2_Square: F2F2F2_Square,
@@ -137,6 +141,7 @@ export default {
           this.user = {
             id: res.data.data['user_id'],
             email: res.data.data['email'],
+            gender: res.data.data['gender'],
             userName: res.data.data['user_name'],
             avatarUrl: res.data.data['avatar_url'],
           }
@@ -489,15 +494,6 @@ export default {
 }
 
 #learningCornerBook .secondMenu .slogan {
-  height: 120px;
-
-  text-align: center;
-
-  font-size: 30px;
-  font-weight: bold;
-}
-
-#learningCornerBook .secondMenu .slogan {
   padding: 0 0 0 0;
 
   height: calc(120px - 20px);
@@ -506,6 +502,10 @@ export default {
 
   font-size: 30px;
   font-weight: bold;
+}
+
+#learningCornerBook .secondMenu .slogan .logoImage {
+  height: 80%;
 }
 
 #learningCornerBook .secondMenuControllerButton {

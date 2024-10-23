@@ -2,7 +2,8 @@
   <div id="workbench">
     <el-menu class="robotMenu" default-active="0" @select="selectRobotMenu">
       <el-scrollbar class="robotMenuScrollbar">
-        <el-menu-item class="robotMenuItem" v-for="(item,value) in robots" :index="String(value)">
+        <el-menu-item class="robotMenuItem" v-for="(item,value) in robots" :index="String(value)"
+                      :disabled="answeringFlag">
           <div class="robotMenuItemContainer">
             <el-image class="robotMenuItemImage" :src="item.avatar" fit="fill"/>
             <div class="robotMenuItemTitle">{{ item.name }}</div>
@@ -17,7 +18,8 @@
     <el-menu class="sessionMenu" default-active="0" v-if="sessionMenuShow" @select="selectSessionMenu">
       <el-button class="addSessionButton" link @click="addSession">新增对话</el-button>
       <el-scrollbar class="sessionMenuScrollbar">
-        <el-menu-item class="sessionMenuItem" v-for="(item,value) in sessions" :index="String(value)">
+        <el-menu-item class="sessionMenuItem" v-for="(item,value) in sessions" :index="String(value)"
+                      :disabled="answeringFlag">
           <!--          <div class="sessionMenuItemTitle">{{ item.id }}</div>-->
           <div class="sessionMenuItemTitle">{{
               isEmpty(item.message) || isEmpty(item.message.content) ? "new Chat" : item.message.content
@@ -118,7 +120,8 @@
                 <v-md-preview class="chatUserMessageText chatMessageText" :text="item.content"
                               v-if="!isEmpty(item.content)"></v-md-preview>
               </div>
-              <el-image class="chatUserAvatar" :src="test"></el-image>
+              <el-image class="chatUserAvatar"
+                        :src="isEmpty(user.avatarUrl) ? ((user.gender === 0 || isEmpty(user.gender))? BoyAvatar : GirlAvatar) : user.avatarUrl"></el-image>
             </div>
           </div>
           <div class="chatRowLoading">

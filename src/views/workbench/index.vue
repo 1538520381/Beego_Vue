@@ -68,12 +68,40 @@
             <div class="chatRobot" v-if="item.role === 'assistant'">
               <el-image class="chatRobotAvatar" :src="robots[robotActive].avatar"></el-image>
               <!--              <div class="chatRobotMessage" v-html="markdownToHtml(item.content)"></div>-->
-              <v-md-preview class="chatRobotMessage chatMessage" :text="item.content"></v-md-preview>
+              <div class="chatRobotMessage">
+                <v-md-preview class="chatRobotMessageText chatMessageText" :text="item.content"></v-md-preview>
+              </div>
             </div>
 
             <div class="chatUser" v-if="item.role === 'user'">
-              <!--              <div class="chatUserMessage" v-html="markdownToHtml(item.content)"></div>-->
-              <v-md-preview class="chatUserMessage chatMessage" :text="item.content"></v-md-preview>
+              <div class="chatUserMessage">
+                <el-image class="chatUserFilePicture" :src="item.fileUrl" fit="fill"
+                          v-if="['jpg','png'].indexOf(item.fileType) !== -1"></el-image>
+                <svg-icon class="chatUserFileSvg" icon-class="csv"
+                          v-else-if="['csv'].indexOf(item.fileType) !== -1"></svg-icon>
+                <svg-icon class="chatUserFileSvg" icon-class="excel"
+                          v-else-if="['xlsx','xls'].indexOf(item.fileType) !== -1"></svg-icon>
+                <svg-icon class="chatUserFileSvg" icon-class="mp4"
+                          v-else-if="['mp4'].indexOf(item.fileType) !== -1"></svg-icon>
+                <svg-icon class="chatUserFileSvg" icon-class="pdf"
+                          v-else-if="['pdf'].indexOf(item.fileType) !== -1"></svg-icon>
+                <svg-icon class="chatUserFileSvg" icon-class="ppt"
+                          v-else-if="['ppt'].indexOf(item.fileType) !== -1"></svg-icon>
+                <svg-icon class="chatUserFileSvg" icon-class="rar"
+                          v-else-if="['rar'].indexOf(item.fileType) !== -1"></svg-icon>
+                <svg-icon class="chatUserFileSvg" icon-class="txt"
+                          v-else-if="['txt'].indexOf(item.fileType) !== -1"></svg-icon>
+                <svg-icon class="chatUserFileSvg" icon-class="word"
+                          v-else-if="['word'].indexOf(item.fileType) !== -1"></svg-icon>
+                <svg-icon class="chatUserFileSvg" icon-class="word"
+                          v-else-if="['docx','doc'].indexOf(item.fileType) !== -1"></svg-icon>
+                <svg-icon class="chatUserFileSvg" icon-class="zip"
+                          v-else-if="['zip'].indexOf(item.fileType) !== -1"></svg-icon>
+                <svg-icon class="chatUserFileSvg" icon-class="unknownFile" v-else></svg-icon>
+                <!--              <div class="chatUserMessage" v-html="markdownToHtml(item.content)"></div>-->
+                <v-md-preview class="chatUserMessageText chatMessageText" :text="item.content"
+                              v-if="!isEmpty(item.content)"></v-md-preview>
+              </div>
               <el-image class="chatUserAvatar" :src="test"></el-image>
             </div>
           </div>
@@ -81,7 +109,7 @@
             <div class="chatRobot" v-if="answeringFlag">
               <el-image class="chatRobotAvatar" :src="robots[robotActive].avatar"></el-image>
               <!--              <div class="chatRobotMessage chatMessage" v-html="markdownToHtml(answeringMessage)"></div>-->
-              <v-md-preview class="chatRobotMessage chatMessage"
+              <v-md-preview class="chatRobotMessageText chatMessageText"
                             :text="answeringMessage.substring(0,answeringIndex)"></v-md-preview>
             </div>
           </div>
@@ -108,7 +136,7 @@
             resize="none"
             placeholder="开始创作你的提示词吧"
         />
-        <el-button class="sendButton" @click="chat(null)">
+        <el-button class="sendButton" @click="chat">
           <svg-icon class="sendButtonIcon" icon-class="send"></svg-icon>
         </el-button>
       </div>
@@ -320,8 +348,10 @@ export default {
               id: res.data.data[i]['message_id'],
               sessionId: res.data.data[i]['session_id'],
               role: res.data.data[i]['role'],
-              contentType: res.data.data[i]['content_type'],
               content: res.data.data[i]['content'],
+              fileType: res.data.data[i]['file_type'],
+              fileName: res.data.data[i]['file_name'],
+              fileUrl: res.data.data[i]['file_url'],
               createTime: res.data.data[i]['created_time']
             })
           }
@@ -350,8 +380,12 @@ export default {
 
       this.messages.push({
         role: "user",
-        content: this.chatInput
+        content: this.chatInput,
+        fileType: isEmpty(this.file) ? null : this.file.type,
+        fileName: isEmpty(this.file) ? null : this.file.name,
+        fileUrl: isEmpty(this.file) ? null : this.file.url,
       })
+      console.log(this.messages)
       this.$nextTick(() => {
         this.scrollToBottom()
       })
@@ -397,6 +431,7 @@ export default {
       });
 
       this.chatInput = ""
+      this.file = {}
       this.fileList = []
     },
 
@@ -405,7 +440,6 @@ export default {
       this.file = null
     },
     fileUpload(res, file, fileList) {
-      console.log(2)
       if (res.code === 200) {
         this.file = {
           id: res.data["file_id"],
@@ -414,6 +448,7 @@ export default {
           url: res.data['file_url'],
           createTime: res.data["create_time"],
         }
+        console.log(this.file)
       } else {
         this.fileList = []
         this.$message.error(res.message)
@@ -899,19 +934,12 @@ export default {
   background: #F2F2F2;
 }
 
-#workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatUser {
-  text-align: right;
+#workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatRobot .chatRobotMessage .chatRobotMessageText {
+
 }
 
-#workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatUser .chatUserAvatar {
-  display: inline-block;
-
-  vertical-align: top;
-
-  width: 50px;
-  height: 50px;
-
-  border-radius: 50%;
+#workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatUser {
+  text-align: right;
 }
 
 #workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatUser .chatUserMessage {
@@ -928,6 +956,37 @@ export default {
   text-align: left;
 
   background: #F2F2F2;
+}
+
+#workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatUser .chatUserMessage .chatUserFilePicture {
+  margin: 10px 10px 10px 10px;
+
+  width: 50px;
+  min-width: 50px;
+  min-height: 50px;
+}
+
+#workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatUser .chatUserMessage .chatUserFileSvg {
+  margin: 10px 10px 10px 10px;
+
+  width: 50px;
+
+  height: 50px;
+}
+
+#workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatUser .chatUserMessage .chatUserMessageText {
+
+}
+
+#workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatUser .chatUserAvatar {
+  display: inline-block;
+
+  vertical-align: top;
+
+  width: 50px;
+  height: 50px;
+
+  border-radius: 50%;
 }
 
 #workbench .mainContainer .chatArea .chatAreaInner .chatRowLoading {
@@ -966,12 +1025,12 @@ export default {
   background: #F2F2F2;
 }
 
-#workbench /deep/ .chatMessage .github-markdown-body {
+#workbench /deep/ .chatMessageText .github-markdown-body {
   padding: 16px 32px 16px 32px;
 }
 
 
-#workbench /deep/ .chatMessage .github-markdown-body p {
+#workbench /deep/ .chatMessageText .github-markdown-body p {
   margin-bottom: 0 !important;
 }
 

@@ -63,6 +63,146 @@
         </div>
         <div class="resize"></div>
         <div class="chatContainer">
+          <el-scrollbar class="chatArea" ref="chatArea" label="chatArea" id="chatArea">
+            <div class="chatAreaInner" ref="chatAreaInner">
+              <div class="chatRow" v-for="(item,index) in messages">
+                <div class="chatRobot" v-if="item.role === 'assistant'">
+                  <el-image class="chatRobotAvatar" :src="robots[robotActive].avatar"></el-image>
+                  <!--              <div class="chatRobotMessage" v-html="markdownToHtml(item.content)"></div>-->
+                  <div class="chatRobotMessage">
+                    <v-md-preview class="chatRobotMessageText chatMessageText" :text="item.content"></v-md-preview>
+                  </div>
+                </div>
+
+                <div class="chatUser" v-if="item.role === 'user'">
+                  <div class="chatUserMessage">
+                    <el-tooltip :content="item.fileName + '.' +item.fileType" placement="top" effect="light"
+                                v-if="!isEmpty(item.fileType)">
+                      <el-image class="chatUserFilePicture" :src="item.fileUrl" fit="fill"
+                                v-if="['jpg','png'].indexOf(item.fileType) !== -1"
+                                @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></el-image>
+                      <svg-icon class="chatUserFileSvg" icon-class="csv"
+                                v-else-if="['csv'].indexOf(item.fileType) !== -1"
+                                @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
+                      <svg-icon class="chatUserFileSvg" icon-class="excel"
+                                v-else-if="['xlsx','xls'].indexOf(item.fileType) !== -1"
+                                @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
+                      <svg-icon class="chatUserFileSvg" icon-class="mp4"
+                                v-else-if="['mp4'].indexOf(item.fileType) !== -1"
+                                @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
+                      <svg-icon class="chatUserFileSvg" icon-class="pdf"
+                                v-else-if="['pdf'].indexOf(item.fileType) !== -1"
+                                @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
+                      <svg-icon class="chatUserFileSvg" icon-class="ppt"
+                                v-else-if="['ppt'].indexOf(item.fileType) !== -1"
+                                @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
+                      <svg-icon class="chatUserFileSvg" icon-class="rar"
+                                v-else-if="['rar'].indexOf(item.fileType) !== -1"
+                                @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
+                      <svg-icon class="chatUserFileSvg" icon-class="txt"
+                                v-else-if="['txt'].indexOf(item.fileType) !== -1"
+                                @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
+                      <svg-icon class="chatUserFileSvg" icon-class="word"
+                                v-else-if="['word'].indexOf(item.fileType) !== -1"
+                                @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
+                      <svg-icon class="chatUserFileSvg" icon-class="word"
+                                v-else-if="['docx','doc'].indexOf(item.fileType) !== -1"
+                                @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
+                      <svg-icon class="chatUserFileSvg" icon-class="zip"
+                                v-else-if="['zip'].indexOf(item.fileType) !== -1"
+                                @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
+                      <svg-icon class="chatUserFileSvg" icon-class="unknownFile" v-else
+                                @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
+                    </el-tooltip>
+                    <!--              <div class="chatUserMessage" v-html="markdownToHtml(item.content)"></div>-->
+                    <v-md-preview class="chatUserMessageText chatMessageText" :text="item.content"
+                                  v-if="!isEmpty(item.content)"></v-md-preview>
+                  </div>
+                  <el-image class="chatUserAvatar"
+                            :src="isEmpty(user.avatarUrl) ? ((user.gender === 0 || isEmpty(user.gender))? BoyAvatar : GirlAvatar) : user.avatarUrl"></el-image>
+                </div>
+              </div>
+              <div class="chatRowLoading">
+                <div class="chatRobot" v-if="answeringFlag">
+                  <el-image class="chatRobotAvatar" :src="robots[robotActive].avatar"></el-image>
+                  <!--              <div class="chatRobotMessage chatMessage" v-html="markdownToHtml(answeringMessage)"></div>-->
+                  <div class="chatRobotMessage">
+                    <v-md-preview class="chatRobotMessageText chatMessageText"
+                                  :text="answeringIndex === 0 ? '正在分析中...' :  answeringMessage.substring(0,answeringIndex)"></v-md-preview>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <el-button class="scrollToBottomButton" :icon="ArrowDownBold" circle @click="scrollToBottom"></el-button>
+          </el-scrollbar>
+
+          <div class="inputArea">
+            <el-upload
+                class="upload-demo"
+                action="/api/file/uploadPicture"
+                :show-file-list="false"
+                :on-remove="removeFile"
+                :on-success="fileUpload"
+                :file-list="fileList"
+            >
+              <el-button class="fileUploadButton" :icon="Folder" circle></el-button>
+            </el-upload>
+            <div class="input">
+              <el-tooltip :content="file.fileName + '.' + file.fileType" placement="top" effect="light"
+                          v-if="!isEmpty(file)">
+                <div class="file">
+                  <el-image class="picture" :src="file.fileUrl" fit="fill"
+                            v-if="['jpg','png'].indexOf(file.fileType) !== -1"
+                            @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></el-image>
+                  <svg-icon class="fileSvg" icon-class="csv"
+                            v-else-if="['csv'].indexOf(file.fileType) !== -1"
+                            @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
+                  <svg-icon class="fileSvg" icon-class="excel"
+                            v-else-if="['xlsx','xls'].indexOf(file.fileType) !== -1"
+                            @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
+                  <svg-icon class="fileSvg" icon-class="mp4"
+                            v-else-if="['mp4'].indexOf(file.fileType) !== -1"
+                            @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
+                  <svg-icon class="fileSvg" icon-class="pdf"
+                            v-else-if="['pdf'].indexOf(file.fileType) !== -1"
+                            @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
+                  <svg-icon class="fileSvg" icon-class="ppt"
+                            v-else-if="['ppt'].indexOf(file.fileType) !== -1"
+                            @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
+                  <svg-icon class="fileSvg" icon-class="rar"
+                            v-else-if="['rar'].indexOf(file.fileType) !== -1"
+                            @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
+                  <svg-icon class="fileSvg" icon-class="txt"
+                            v-else-if="['txt'].indexOf(file.fileType) !== -1"
+                            @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
+                  <svg-icon class="fileSvg" icon-class="word"
+                            v-else-if="['word'].indexOf(file.fileType) !== -1"
+                            @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
+                  <svg-icon class="fileSvg" icon-class="word"
+                            v-else-if="['docx','doc'].indexOf(file.fileType) !== -1"
+                            @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
+                  <svg-icon class="fileSvg" icon-class="zip"
+                            v-else-if="['zip'].indexOf(file.fileType) !== -1"
+                            @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
+                  <svg-icon class="fileSvg" icon-class="unknownFile" v-else
+                            @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
+                  <svg-icon class="deleteFile" icon-class="fork" @click="removeFile"></svg-icon>
+                </div>
+              </el-tooltip>
+              <el-input
+                  class="chatInput"
+                  v-model="chatInput"
+                  :rows="2"
+                  :autosize="{minRows:2,maxRows:8}"
+                  type="textarea"
+                  resize="none"
+                  placeholder="开始创作你的提示词吧"
+              />
+            </div>
+            <el-button class="sendButton" @click="chat">
+              <svg-icon class="sendButtonIcon" icon-class="send"></svg-icon>
+            </el-button>
+          </div>
         </div>
       </div>
     </div>
@@ -78,11 +218,11 @@ import C9C9C9_Square from '@/assets/pictures/C9C9C9_Square.png'
 import F2F2F2_BottomLeftAngledTriangle from '@/assets/pictures/F2F2F2_BottomLeftAngledTriangle.png'
 import C9C9C9_TopRightAngledTriangle from '@/assets/pictures/C9C9C9_TopRightAngledTriangle.png'
 
-import {ArrowLeftBold, ArrowRightBold} from '@element-plus/icons-vue'
+import {ArrowDownBold, ArrowLeftBold, ArrowRightBold, Folder} from '@element-plus/icons-vue'
 
 import SvgIcon from "@/components/svgIcon/index.vue";
 
-import {collection, getCatalogueByBookId, getCollectionBookList, uncollection} from "@/apis/book";
+import {collection, getBookCategoryList, getCatalogueByBookId, getCollectionBookList, uncollection} from "@/apis/book";
 import {getUserByToken} from "@/apis/user";
 
 import {isEmpty} from "@/utils/common";
@@ -104,6 +244,8 @@ export default {
 
       ArrowLeftBold: ArrowLeftBold,
       ArrowRightBold: ArrowRightBold,
+      ArrowDownBold: ArrowDownBold,
+      Folder: Folder,
 
       collectionBookIdList: [],
       bookMenuItems: [],
@@ -167,6 +309,25 @@ export default {
           this.catalogue = [res.data.data]
         } else {
           this.catalogue = []
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
+    getBookCategoryList() {
+      return getBookCategoryList().then((res) => {
+        if (res.data.code === 200) {
+          if (!isEmpty(res.data.data)) {
+            for (let i in res.data.data) {
+              this.firstMenuItems.push({
+                id: res.data.data[i]['lib_id'],
+                name: res.data.data[i]['lib_name']
+              })
+            }
+          }
+        } else {
           this.$message.error(res.data.message)
         }
       }).catch((err) => {
@@ -711,7 +872,7 @@ export default {
   align-items: start;
 }
 
-.resize {
+#learningCornerChat .mainContainer .studyContainer .resize {
   display: inline-block;
 
   vertical-align: top;
@@ -736,12 +897,13 @@ export default {
   cursor: col-resize;
 }
 
-.resize:hover {
+#learningCornerChat .mainContainer .studyContainer .resize:hover {
   color: #444444;
 }
 
 #learningCornerChat .mainContainer .studyContainer .chatContainer {
-  display: inline-block;
+  display: inline-flex;
+  flex-flow: column;
 
   vertical-align: top;
 
@@ -749,6 +911,264 @@ export default {
   height: 100%;
 
   border-left: 1px solid #F2F2F2;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .chatArea {
+  flex: 1;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .chatArea .scrollToBottomButton {
+  position: absolute;
+
+  bottom: 0;
+  left: 50%;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .chatArea .chatAreaInner .chatRow {
+  padding: 15px 20px 15px 20px;
+
+  width: calc(100% - 20px * 2);
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .chatArea .chatAreaInner .chatRow .chatRobot {
+  text-align: left;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .chatArea .chatAreaInner .chatRow .chatRobot .chatRobotAvatar {
+  display: inline-block;
+
+  vertical-align: top;
+
+  width: 50px;
+  height: 50px;
+
+  border-radius: 50%;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .chatArea .chatAreaInner .chatRow .chatRobot .chatRobotMessage {
+  display: inline-block;
+
+  vertical-align: top;
+
+  margin: 0 0 0 10px;
+
+  max-width: calc(80% - 40px - 50px);
+
+  border-radius: 20px;
+
+  background: #F2F2F2;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .chatArea .chatAreaInner .chatRow .chatRobot .chatRobotMessage .chatRobotMessageText {
+
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .chatArea .chatAreaInner .chatRow .chatUser {
+  text-align: right;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .chatArea .chatAreaInner .chatRow .chatUser .chatUserMessage {
+  display: inline-block;
+
+  vertical-align: top;
+
+  margin: 0 10px 0 0;
+
+  max-width: calc(80% - 40px - 50px);
+
+  border-radius: 20px;
+
+  text-align: left;
+
+  background: #F2F2F2;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .chatArea .chatAreaInner .chatRow .chatUser .chatUserMessage .chatUserFilePicture {
+  margin: 10px 10px 10px 10px;
+
+  width: 50px;
+  max-width: 100px;
+  max-height: 100px;
+
+  cursor: pointer;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .chatArea .chatAreaInner .chatRow .chatUser .chatUserMessage .chatUserFileSvg {
+  margin: 10px 10px 10px 10px;
+
+  width: 50px;
+
+  height: 50px;
+
+  outline: none;
+
+  cursor: pointer;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .chatArea .chatAreaInner .chatRow .chatUser .chatUserMessage .chatUserMessageText {
+
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .chatArea .chatAreaInner .chatRow .chatUser .chatUserAvatar {
+  display: inline-block;
+
+  vertical-align: top;
+
+  width: 50px;
+  height: 50px;
+
+  border-radius: 50%;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .chatArea .chatAreaInner .chatRowLoading {
+  padding: 15px 20px 15px 20px;
+
+  width: calc(100% - 20px * 2);
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .chatArea .chatAreaInner .chatRowLoading .chatRobot {
+  text-align: left;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .chatArea .chatAreaInner .chatRowLoading .chatRobot .chatRobotAvatar {
+  display: inline-block;
+
+  vertical-align: top;
+
+  width: 50px;
+  height: 50px;
+
+  border-radius: 50%;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .chatArea .chatAreaInner .chatRowLoading .chatRobot .chatRobotMessage {
+  display: inline-block;
+
+  vertical-align: top;
+
+  margin: 0 0 0 10px;
+
+  min-width: 30px;
+  max-width: calc(80% - 40px - 50px);
+
+  border-radius: 20px;
+
+  background: #F2F2F2;
+}
+
+#learningCornerChat /deep/ .chatMessageText .github-markdown-body {
+  padding: 16px 32px 16px 32px;
+}
+
+
+#learningCornerChat /deep/ .chatMessageText .github-markdown-body p {
+  margin-bottom: 0 !important;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .inputArea {
+  position: relative;
+
+  padding: 10px 0 10px 0;
+
+  width: 100%;
+  height: auto;
+  max-height: 200px;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .inputArea .upload-demo {
+  position: absolute;
+
+  left: 0;
+  bottom: 0;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .inputArea .upload-demo /deep/ .el-upload-list {
+  position: absolute;
+
+  bottom: 70px;
+  left: 10px;
+
+  width: 90px;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .inputArea .fileUploadButton {
+  position: absolute;
+
+  bottom: 20px;
+  left: 40px;
+
+  width: 40px;
+  height: 40px;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .inputArea .input {
+  margin: 0 0 0 100px;
+
+  width: calc(100% - 100px - 120px);
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .inputArea .input .file {
+  display: inline-block;
+
+  position: relative;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .inputArea .input .file .picture {
+  max-width: 100px;
+  max-height: 100px;
+
+  cursor: pointer;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .inputArea .input .file .fileSvg {
+  width: 50px;
+
+  height: 50px;
+
+  outline: none;
+
+  cursor: pointer;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .inputArea .input .file .deleteFile {
+  position: absolute;
+
+  top: -6px;
+  right: -6px;
+
+  width: 12px;
+  height: 12px;
+
+  border-radius: 50%;
+
+  background: #C9C9C9;
+
+  cursor: pointer;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .inputArea .input .chatInput {
+  width: 100%;
+
+  font-size: 16px;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .inputArea .sendButton {
+  position: absolute;
+
+  right: 40px;
+  bottom: 20px;
+
+  padding: 0 0 0 0;
+
+  width: 60px;
+  height: 40px;
+
+  text-align: center;
+}
+
+#learningCornerChat .mainContainer .studyContainer .chatContainer .inputArea .sendButton .sendButtonIcon {
+  width: 24px;
+  height: 24px;
 }
 
 #learningCornerChat /deep/ .markdown .github-markdown-body {

@@ -30,7 +30,7 @@
         </div>
         <div class="item">
           <div class="key">性别：</div>
-          <div class="value">{{ user.gender }}</div>
+          <div class="value">{{ user.gender === 0 ? '男' : '女' }}</div>
         </div>
         <div class="item">
           <div class="key">邮箱：</div>
@@ -52,8 +52,72 @@
           <div class="key">入学年份：</div>
           <div class="value">{{ user.enterTime }}</div>
         </div>
+        <el-button type="primary" @click="openPersonalInformationDialog">修改信息</el-button>
+        <el-button type="primary">意见反馈</el-button>
+        <el-button type="danger" @click="logout">退出登录</el-button>
       </div>
     </div>
+
+    <el-dialog class="personalInformationDialog" v-model="personalInformationDialogVis" title="个人信息修改"
+               width="350" :show-close="false" :close-on-click-modal="false">
+      <el-form class="form" :model="personalInformationForm" :rules="personalInformationRules">
+        <el-form-item class="formItem" prop="userName">
+          <el-input class="formInput" size="large" v-model="personalInformationForm.userName"
+                    placeholder="请输入昵称"></el-input>
+        </el-form-item>
+        <el-form-item class="formInput">
+          <el-radio-group v-model="personalInformationForm.gender" style="padding: 0 0 0 10px">
+            <el-radio :value="0" size="large">男</el-radio>
+            <el-radio :value="1" size="large">女</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item class="formItem" prop="school">
+          <el-select
+              class="formInput"
+              v-model="personalInformationForm.school"
+              size="large"
+              filterable
+              placeholder="请选择学校"
+              @change="getMajorBySchool"
+          >
+            <el-option
+                v-for="(item,index) in schools"
+                :key="index"
+                :label="item"
+                :value="item"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item class="formItem" prop="major" v-if="!isEmpty(personalInformationForm.school)">
+          <el-select
+              class="formInput"
+              v-model="personalInformationForm.major"
+              size="large"
+              filterable
+              placeholder="请选择专业"
+          >
+            <el-option
+                v-for="(item,index) in majors"
+                :key="index"
+                :label="item"
+                :value="item"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item class="formItem" prop="elseMajor" v-if="personalInformationForm.major === '其他'">
+          <el-input class="formInput" size="large" v-model="personalInformationForm.elseMajor"
+                    placeholder="请输入专业"></el-input>
+        </el-form-item>
+        <el-form-item class="formItem" prop="enterTime">
+          <el-date-picker
+              class="formInput" size="large" v-model="personalInformationForm.enterTime" type="year"
+              placeholder="请选择入学年份"/>
+        </el-form-item>
+      </el-form>
+      <div class="control">
+        <el-button type="primary" @click="improvePersonalInformation">确定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -63,7 +127,9 @@ import GirlAvatar from '@/assets/pictures/girlAvatar.png';
 
 import SvgIcon from "@/components/svgIcon/index.vue";
 
-import {getUserByToken} from "@/apis/user";
+import schoolCategoryMajor from '@/jsons/schoolCategoryMajor.json'
+
+import {getUserByToken, improvePersonalInformation, logout} from "@/apis/user";
 import {isEmpty} from "@/utils/common";
 
 export default {
@@ -76,6 +142,42 @@ export default {
 
       token: null,
       user: {},
+
+      schools: [],
+      categorys: [],
+      majors: [],
+
+      personalInformationForm: {},
+
+      personalInformationRules: {
+        userName: [{
+          required: true,
+          trigger: 'blur',
+          message: '用户名不能为空'
+        }],
+        school: [{
+          required: true,
+          trigger: 'blur',
+          message: '所在学校不能为空'
+        }],
+        major: [{
+          required: true,
+          trigger: 'blur',
+          message: '专业不能为空'
+        }],
+        elseMajor: [{
+          required: true,
+          trigger: 'blur',
+          message: '专业不能为空'
+        }],
+        enterTime: [{
+          required: true,
+          trigger: 'blur',
+          message: '入学年份不能为空'
+        }]
+      },
+
+      personalInformationDialogVis: false
     }
   },
   async created() {
@@ -86,8 +188,26 @@ export default {
     }
 
     await this.getUserByToken()
+
+    this.initConstant()
+    this.initPersonalInformationForm()
   },
   methods: {
+    initConstant() {
+      this.schools = Object.keys(schoolCategoryMajor)
+    },
+    initPersonalInformationForm() {
+      this.personalInformationForm = {
+        userName: this.user.userName,
+        gender: this.user.gender,
+        school: this.user.school,
+        major: this.user.major,
+        elseMajor: this.user.elseMajor,
+        enterTime: new Date().setFullYear(this.user.enterTime),
+      }
+    },
+
+
     getUserByToken() {
       return getUserByToken().then((res) => {
         if (res.data.code === 200) {
@@ -110,6 +230,55 @@ export default {
         this.$message.error('系统异常，请联系管理员')
       })
     },
+    improvePersonalInformation() {
+      if (isEmpty(this.personalInformationForm.userName)) {
+        this.$message.error("请输入昵称")
+      } else if (isEmpty(this.personalInformationForm.school)) {
+        this.$message.error("请选择学校")
+      } else if (isEmpty(this.personalInformationForm.major)) {
+        this.$message.error("请选择专业")
+      } else if (this.personalInformationForm.major === '其他' && isEmpty(this.personalInformationForm.elseMajor)) {
+        this.$message.error("请输入专业")
+      } else if (isEmpty(this.personalInformationForm.enterTime)) {
+        this.$message.error("请选择入学年份")
+      } else {
+        improvePersonalInformation({
+          userName: this.personalInformationForm.userName,
+          gender: this.personalInformationForm.gender,
+          school: this.personalInformationForm.school,
+          major: this.personalInformationForm.major === '其他' ? this.personalInformationForm.elseMajor : this.personalInformationForm.major,
+          enterTime: new Date(this.personalInformationForm.enterTime).getFullYear(),
+        }).then((res) => {
+          if (res.data.code === 200) {
+            this.personalInformationDialogVis = false
+            this.getUserByToken()
+            this.$message.success(res.data.message)
+          } else {
+            this.$message.error(res.data.message)
+          }
+        }).catch((err) => {
+          console.log(err)
+          this.$message.error('系统异常，请联系管理员')
+        })
+      }
+    },
+    logout() {
+      logout().then((res) => {
+        if (res.data.code === 200) {
+          this.token = null
+          this.user = {}
+          this.$router.push("/home")
+          localStorage.removeItem("token");
+          this.$message.success("注销成功");
+        } else {
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
+
 
     avatarUpload(res, file, fileList) {
       if (res.code === 200) {
@@ -120,12 +289,29 @@ export default {
       }
     },
 
+    openPersonalInformationDialog() {
+      this.initPersonalInformationForm()
+      this.personalInformationDialogVis = true
+    },
+
     back() {
       this.$router.go(-1);
     },
 
     isEmpty(field) {
       return isEmpty(field)
+    },
+
+    getMajorBySchool() {
+      this.personalInformationForm.major = null
+      this.categorys = Object.keys(schoolCategoryMajor[this.personalInformationForm.school])
+      this.majors = []
+      for (let i in this.categorys) {
+        let majors = schoolCategoryMajor[this.personalInformationForm.school][this.categorys[i]]
+        for (let j in majors) {
+          this.majors.push(majors[j])
+        }
+      }
     },
   }
 }
@@ -253,5 +439,13 @@ export default {
   line-height: 50px;
 
   font-size: 18px;
+}
+
+#personalCenter .personalInformationDialog .control {
+  text-align: right;
+}
+
+#personalCenter .personalInformationDialog .form .formItem /deep/ .formInput {
+  width: 100%;
 }
 </style>

@@ -744,12 +744,14 @@ export default {
 }
 
 #workbench .sessionMenu .user {
-  margin: 30px 0 30px 30px;
+  margin: 30px 20px 30px 20px;
 
-  width: 100%;
+  width: calc(100% - 20px * 2);
   height: 60px;
 
   text-align: left;
+
+  cursor: pointer;
 }
 
 #workbench .sessionMenu .user .userAvatar {
@@ -766,9 +768,11 @@ export default {
 #workbench .sessionMenu .user .userInformation {
   display: inline-block;
 
+  margin: 0 0 0 10px;
+
   vertical-align: top;
 
-  margin: 0 0 0 20px;
+  width: calc(100% - 70px);
 
   height: 60px;
 }
@@ -778,6 +782,12 @@ export default {
   height: 30px;
 
   line-height: 30px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
 }
 
 #workbench .sessionMenu .user .userInformation .userName {
@@ -785,6 +795,12 @@ export default {
   height: 30px;
 
   line-height: 30px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
 }
 
 #workbench .mainContainer {

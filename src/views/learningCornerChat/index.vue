@@ -554,9 +554,9 @@ export default {
 }
 
 #learningCornerChat .bookMenu .user {
-  margin: 30px 0 30px 10px;
+  margin: 30px 20px 30px 20px;
 
-  width: calc(100% - 10px);
+  width: calc(100% - 20px * 2);
   height: 60px;
 
   text-align: left;
@@ -578,8 +578,9 @@ export default {
 
   vertical-align: top;
 
-  margin: 0 0 0 20px;
+  margin: 0 0 0 10px;
 
+  width: calc(100% - 70px);
   height: 60px;
 }
 
@@ -588,6 +589,12 @@ export default {
   height: 30px;
 
   line-height: 30px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
 }
 
 #learningCornerChat .bookMenu .user .userInformation .userName {
@@ -595,6 +602,13 @@ export default {
   height: 30px;
 
   line-height: 30px;
+
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
 }
 
 #learningCornerChat .bookMenuControllerButton {

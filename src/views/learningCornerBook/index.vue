@@ -385,12 +385,10 @@ export default {
 }
 
 #learningCornerBook .firstMenu .user {
-  margin: 30px 0 30px 0;
+  margin: 30px 20px 30px 20px;
 
-  width: calc(100% - 10px);
+  width: calc(100% - 20px * 2);
   height: 60px;
-
-  text-align: center;
 }
 
 #learningCornerBook .firstMenu .user .userAvatar {
@@ -402,6 +400,8 @@ export default {
   height: 60px;
 
   border-radius: 50%;
+
+  cursor: pointer;
 }
 
 #learningCornerBook .firstMenu .user .userInformation {
@@ -409,8 +409,9 @@ export default {
 
   vertical-align: top;
 
-  margin: 0 0 0 20px;
+  margin: 0 0 0 10px;
 
+  width: calc(100% - 70px);
   height: 60px;
 }
 
@@ -419,6 +420,12 @@ export default {
   height: 30px;
 
   line-height: 30px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
 }
 
 #learningCornerBook .firstMenu .user .userInformation .userName {
@@ -426,6 +433,12 @@ export default {
   height: 30px;
 
   line-height: 30px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
 }
 
 #learningCornerBook .secondMenu {

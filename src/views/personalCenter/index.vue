@@ -439,6 +439,12 @@ export default {
   line-height: 50px;
 
   font-size: 18px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
 }
 
 #personalCenter .personalInformationDialog .control {

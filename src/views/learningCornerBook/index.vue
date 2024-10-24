@@ -183,7 +183,7 @@ export default {
               this.thirdMenuItems.push({
                 id: res.data.data[i]['book_id'],
                 bookName: res.data.data[i]['book_name'],
-                bookUrl: res.data.data[i]['book_url'],
+                categoryId: res.data.data[i]['lib_id']
               })
             }
           }
@@ -205,8 +205,7 @@ export default {
               this.secondMenuItems.push({
                 id: res.data.data[i]['book_id'],
                 bookName: res.data.data[i]['book_name'],
-                bookOutlineUrl: res.data.data[i]['book_outline_url'],
-                book_url: res.data.data[i]['book_url']
+                categoryId: res.data.data[i]['lib_id']
               })
               this.secondMenuIds.push(res.data.data[i]['book_id'])
             }

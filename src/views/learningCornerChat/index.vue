@@ -4,7 +4,8 @@
       <div class="returnButton" @click="toLearningCornerBook">返回</div>
       <div class="bookMenuTitle">课程</div>
       <el-scrollbar class="bookMenuScrollbar">
-        <el-menu-item class="bookMenuItem" v-for="(item,index) in bookMenuItems" :index="String(index)">
+        <el-menu-item class="bookMenuItem" v-for="(item,index) in bookMenuItems" :index="String(index)"
+                      :disabled="answeringFlag">
           <div class="bookMenuItemName">{{ item.bookName }}</div>
           <svg-icon class="collectionIcon" icon-class="collection"
                     v-if="collectionBookIdList.indexOf(item.id) !== -1" @click="uncollection(item.id)"></svg-icon>
@@ -67,7 +68,8 @@
             <div class="chatAreaInner" ref="chatAreaInner">
               <div class="chatRow" v-for="(item,index) in messages">
                 <div class="chatRobot" v-if="item.role === 'assistant'">
-                  <el-image class="chatRobotAvatar" :src="robots[robotActive].avatar"></el-image>
+                  <el-image class="chatRobotAvatar"
+                            :src="robotIdToRobot[categoryIdToRobotId[bookMenuItems[bookActive].categoryId]].avatar"></el-image>
                   <!--              <div class="chatRobotMessage" v-html="markdownToHtml(item.content)"></div>-->
                   <div class="chatRobotMessage">
                     <v-md-preview class="chatRobotMessageText chatMessageText" :text="item.content"></v-md-preview>
@@ -124,7 +126,8 @@
               </div>
               <div class="chatRowLoading">
                 <div class="chatRobot" v-if="answeringFlag">
-                  <el-image class="chatRobotAvatar" :src="robots[robotActive].avatar"></el-image>
+                  <el-image class="chatRobotAvatar"
+                            :src="robotIdToRobot[categoryIdToRobotId[bookMenuItems[bookActive].categoryId]].avatar"></el-image>
                   <!--              <div class="chatRobotMessage chatMessage" v-html="markdownToHtml(answeringMessage)"></div>-->
                   <div class="chatRobotMessage">
                     <v-md-preview class="chatRobotMessageText chatMessageText"
@@ -137,13 +140,13 @@
           </el-scrollbar>
 
           <div class="inputArea">
+            <el-button class="clearSessionButton" :icon="DeleteFilled" circle @click="refreshSession"></el-button>
             <el-upload
                 class="upload-demo"
-                action="/api/file/uploadPicture"
+                action="/api/file/uploadPicture?bucketType=1"
                 :show-file-list="false"
                 :on-remove="removeFile"
                 :on-success="fileUpload"
-                :file-list="fileList"
             >
               <el-button class="fileUploadButton" :icon="Folder" circle></el-button>
             </el-upload>
@@ -218,7 +221,7 @@ import C9C9C9_Square from '@/assets/pictures/C9C9C9_Square.png'
 import F2F2F2_BottomLeftAngledTriangle from '@/assets/pictures/F2F2F2_BottomLeftAngledTriangle.png'
 import C9C9C9_TopRightAngledTriangle from '@/assets/pictures/C9C9C9_TopRightAngledTriangle.png'
 
-import {ArrowDownBold, ArrowLeftBold, ArrowRightBold, Folder} from '@element-plus/icons-vue'
+import {ArrowDownBold, ArrowLeftBold, ArrowRightBold, DeleteFilled, Folder} from '@element-plus/icons-vue'
 
 import SvgIcon from "@/components/svgIcon/index.vue";
 
@@ -226,6 +229,9 @@ import {collection, getBookCategoryList, getCatalogueByBookId, getCollectionBook
 import {getUserByToken} from "@/apis/user";
 
 import {isEmpty} from "@/utils/common";
+import {fetchEventSource} from "@microsoft/fetch-event-source";
+import {addSession, deleteSession, getLearningCornerRobotList, getMessageList, getSessionList} from "@/apis/chat";
+import {ref} from "vue";
 
 export default {
   name: 'LearningCornerChat',
@@ -245,12 +251,26 @@ export default {
       ArrowLeftBold: ArrowLeftBold,
       ArrowRightBold: ArrowRightBold,
       ArrowDownBold: ArrowDownBold,
+      DeleteFilled: DeleteFilled,
       Folder: Folder,
+
+      categoryIdToRobotId: {},
+      robotIdToRobot: {},
 
       collectionBookIdList: [],
       bookMenuItems: [],
       book: {},
       catalogue: [],
+      session: null,
+      messages: [],
+
+      chatInput: '',
+      file: null,
+
+      answeringFlag: false,
+      answeringMessage: "",
+      answeringIndex: 0,
+      answeringClock: null,
 
       bookActive: 0,
 
@@ -259,9 +279,27 @@ export default {
       initFlag: false
     }
   },
+  setup() {
+    const chatArea = ref(null);
+    const chatAreaInner = ref(null);
+
+    const scrollToBottom = () => {
+      try {
+        const bottom = chatAreaInner.value.clientHeight;
+        chatArea.value.setScrollTop(bottom);
+      } catch (err) {
+        console.log(err)
+      }
+    };
+
+    return {
+      chatAreaInner, chatArea, scrollToBottom
+    }
+  },
   async created() {
     if (isEmpty(this.$store.state.book)) {
       this.toLearningCornerBook()
+      return
     } else {
       this.book = this.$store.state.book
     }
@@ -276,7 +314,10 @@ export default {
       this.bookActive = this.bookMenuItems.length - 1
     }
 
+    await this.getBookCategoryList()
+    await this.getRobotList()
     await this.getCatalogueByBookId()
+    await this.getSessionList()
 
     this.initFlag = true
   },
@@ -284,6 +325,31 @@ export default {
     this.dragControllerDiv();
   },
   methods: {
+    addSession() {
+      addSession(this.categoryIdToRobotId[this.bookMenuItems[this.bookActive].categoryId]).then((res) => {
+        if (res.data.code === 200) {
+          this.getSessionList()
+        } else {
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
+    refreshSession() {
+      deleteSession(this.session.id).then((res) => {
+        if (res.data.code === 200) {
+          this.addSession()
+          this.$message.success("对话清除成功")
+        } else {
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
     getUserByToken() {
       return getUserByToken().then((res) => {
         if (res.data.code === 200) {
@@ -303,8 +369,46 @@ export default {
         this.$message.error('系统异常，请联系管理员')
       })
     },
+    getBookCategoryList() {
+      return getBookCategoryList().then((res) => {
+        if (res.data.code === 200) {
+          if (!isEmpty(res.data.data)) {
+            this.categoryIdToRobotId = {}
+            for (let i = 0; i < res.data.data.length; i++) {
+              this.categoryIdToRobotId[res.data.data[i]['lib_id']] = res.data.data[i]['bot_id']
+            }
+          }
+        } else {
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
+    getRobotList() {
+      return getLearningCornerRobotList().then((res) => {
+        if (res.data.code === 200) {
+          this.robotIdToRobot = {}
+          for (let i = 0; i < res.data.data.length; i++) {
+            this.robotIdToRobot[res.data.data[i]['bot_id']] = {
+              id: res.data.data[i]['bot_id'],
+              name: res.data.data[i]['bot_name'],
+              avatar: res.data.data[i]['bot_avatar'],
+              type: res.data.data[i]['bot_type'],
+              description: res.data.data[i]['description']
+            }
+          }
+        } else {
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
     getCatalogueByBookId() {
-      getCatalogueByBookId(this.bookMenuItems[this.bookActive].id).then((res) => {
+      return getCatalogueByBookId(this.bookMenuItems[this.bookActive].id).then((res) => {
         if (res.data.code === 200) {
           this.catalogue = [res.data.data]
         } else {
@@ -316,16 +420,30 @@ export default {
         this.$message.error('系统异常，请联系管理员')
       })
     },
-    getBookCategoryList() {
-      return getBookCategoryList().then((res) => {
+    getSessionList() {
+      return getSessionList(this.categoryIdToRobotId[this.bookMenuItems[this.bookActive].categoryId]).then((res) => {
         if (res.data.code === 200) {
-          if (!isEmpty(res.data.data)) {
-            for (let i in res.data.data) {
-              this.firstMenuItems.push({
-                id: res.data.data[i]['lib_id'],
-                name: res.data.data[i]['lib_name']
-              })
+          if (isEmpty(res.data.data)) {
+            this.addSession()
+          } else {
+            this.session = {
+              id: res.data.data[0]['session_id'],
+              botId: res.data.data[0]['bot_id'],
+              userId: res.data.data[0]["user_id"],
+              createTime: res.data.data[0]['created_time'],
+              updateTime: res.data.data[0]['updated_time'],
+              message: isEmpty(res.data.data[0]["message"]) ? null : {
+                id: res.data.data[0]["message"]["message_id"],
+                sessionId: res.data.data[0]["message"]["session_id"],
+                role: res.data.data[0]["message"]["role"],
+                content: res.data.data[0]["message"]["content"],
+                fileType: res.data.data[0]["message"]["file_type"],
+                fileName: res.data.data[0]["message"]["file_name"],
+                fileUrl: res.data.data[0]["message"]["file_url"],
+                createTime: res.data.data[0]["message"]["created_time"],
+              }
             }
+            this.getMessageList()
           }
         } else {
           this.$message.error(res.data.message)
@@ -335,7 +453,33 @@ export default {
         this.$message.error('系统异常，请联系管理员')
       })
     },
-
+    getMessageList() {
+      return getMessageList(this.session.id).then((res) => {
+        if (res.data.code === 200) {
+          this.messages = []
+          for (let i in res.data.data) {
+            this.messages.push({
+              id: res.data.data[i]['message_id'],
+              sessionId: res.data.data[i]['session_id'],
+              role: res.data.data[i]['role'],
+              content: res.data.data[i]['content'],
+              fileType: res.data.data[i]['file_type'],
+              fileName: res.data.data[i]['file_name'],
+              fileUrl: res.data.data[i]['file_url'],
+              createTime: res.data.data[i]['created_time']
+            })
+          }
+          this.$nextTick(() => {
+            this.scrollToBottom()
+          })
+        } else {
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
     getCollectionBookList() {
       return getCollectionBookList().then((res) => {
         if (res.data.code === 200) {
@@ -346,8 +490,7 @@ export default {
                 this.bookMenuItems.push({
                   id: res.data.data[i]['book_id'],
                   bookName: res.data.data[i]['book_name'],
-                  bookOutlineUrl: res.data.data[i]['book_outline_url'],
-                  book_url: res.data.data[i]['book_url']
+                  categoryId: res.data.data[i]['lib_id']
                 })
               }
               this.collectionBookIdList.push(res.data.data[i]['book_id'])
@@ -386,6 +529,98 @@ export default {
         this.$message.error('系统异常，请联系管理员')
       })
     },
+    chat() {
+      if (this.answeringFlag) {
+        return
+      }
+
+      this.answeringFlag = true
+      this.answeringMessage = ""
+      this.answeringIndex = 0
+      this.answeringClock = setInterval(() => {
+        this.answeringIndex = Math.min(this.answeringIndex + 1, this.answeringMessage.length)
+      }, 20)
+
+      this.messages.push({
+        role: "user",
+        content: this.chatInput,
+        fileType: isEmpty(this.file) ? null : this.file.fileType,
+        fileName: isEmpty(this.file) ? null : this.file.fileName,
+        fileUrl: isEmpty(this.file) ? null : this.file.fileUrl,
+      })
+
+      this.$nextTick(() => {
+        this.scrollToBottom()
+      })
+
+      const ctrl = new AbortController();
+      fetchEventSource('/api/chat/agent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem("token")
+        },
+        body: JSON.stringify({
+          bot_id: this.categoryIdToRobotId[this.bookMenuItems[this.bookActive].categoryId],
+          session_id: this.session.id,
+          content: this.chatInput,
+          file_type: isEmpty(this.file) ? null : this.file.fileType,
+          file_name: isEmpty(this.file) ? null : this.file.fileName,
+          file_url: isEmpty(this.file) ? null : this.file.fileUrl,
+        }),
+        signal: ctrl.signal,
+        onmessage: (message) => {
+          if (message.event === 'conversation') {
+            this.answeringMessage += isEmpty(message.data) ? '' : message.data
+          } else if (message.event === "done") {
+          } else if (message.event === 'all') {
+            this.answeringFlag = false
+            clearInterval(this.answeringClock)
+            this.messages.push({
+              role: "assistant",
+              contentType: 'text',
+              content: message.data.replaceAll("\\n", "\n")
+            })
+          }
+        },
+        onclose: () => {
+          console.log(111)
+        },
+        onerror: (err) => {
+          this.answeringFlag = false
+          clearInterval(this.answeringClock)
+          this.messages.push({
+            role: "assistant",
+            contentType: 'text',
+            content: '系统异常，请联系管理员'
+          })
+          console.log(err)
+          this.$message.error('系统异常，请联系管理员')
+          throw err
+        }
+      });
+
+      this.chatInput = ""
+      this.removeFile()
+    },
+
+    removeFile(file, fileList) {
+      this.file = null
+    },
+    fileUpload(res, file, fileList) {
+      if (res.code === 200) {
+        this.file = {
+          id: res.data["file_id"],
+          fileName: res.data["file_name"],
+          fileType: res.data["file_type"],
+          fileUrl: res.data['file_url'],
+          createTime: res.data["create_time"],
+        }
+        console.log(this.file)
+      } else {
+        this.$message.error(res.message)
+      }
+    },
 
     share() {
       var copyVal = document.getElementById("copyVal");
@@ -397,6 +632,7 @@ export default {
     selectBookMenu(index) {
       this.bookActive = parseInt(index)
       this.getCatalogueByBookId()
+      this.getSessionList()
     },
 
     closeBookMenu() {
@@ -422,37 +658,34 @@ export default {
       var mid = document.getElementsByClassName("chatContainer");
       var box = document.getElementsByClassName("studyContainer")[0];
 
-      // 鼠标按下事件
       resize.onmousedown = function (e) {
-        //颜色改变提醒
         resize.style.background = "#818181";
         var startX = e.clientX;
         resize.left = resize.offsetLeft;
-        // 鼠标拖动事件
+
         document.onmousemove = function (e) {
           var endX = e.clientX;
-          var moveLen = resize.left + (endX - startX); // （endx-startx）=移动的距离。resize.left+移动的距离=左边区域最后的宽度
-          var maxT = box.clientWidth - resize.offsetWidth; // 容器宽度 - 左边区域的宽度 = 右边区域的宽度
+          var moveLen = resize.left + (endX - startX);
+          var maxT = box.clientWidth - resize.offsetWidth;
 
-          if (moveLen < 20) moveLen = 20; // 左边区域的最小宽度为32px
-          if (moveLen > maxT - 20) moveLen = maxT - 20; //右边区域最小宽度为150px
+          if (moveLen < 20) moveLen = 20;
+          if (moveLen > maxT - 20) moveLen = maxT - 20;
 
-          resize.style.left = moveLen; // 设置左侧区域的宽度
+          resize.style.left = moveLen;
 
           for (let j = 0; j < left.length; j++) {
-            left[j].style.width = moveLen - 1 + "px";
-            mid[j].style.width = box.clientWidth - moveLen - 10 - 1 + "px";
+            left[j].style.width = moveLen + "px";
+            mid[j].style.width = box.clientWidth - moveLen + "px";
           }
         };
-        // 鼠标松开事件
+
         document.onmouseup = function () {
-          //颜色恢复
           resize.style.background = "#d6d6d6";
           document.onmousemove = null;
           document.onmouseup = null;
-          resize.releaseCapture && resize.releaseCapture(); //当你不在需要继续获得鼠标消息就要应该调用ReleaseCapture()释放掉
+          resize.releaseCapture && resize.releaseCapture();
         };
-        resize.setCapture && resize.setCapture(); //该函数在属于当前线程的指定窗口里设置鼠标捕获
+        resize.setCapture && resize.setCapture();
         return false;
       };
     },
@@ -571,6 +804,8 @@ export default {
   height: 60px;
 
   border-radius: 50%;
+
+  cursor: pointer;
 }
 
 #learningCornerChat .bookMenu .user .userInformation {
@@ -834,14 +1069,14 @@ export default {
 }
 
 #learningCornerChat .mainContainer .studyContainer {
+  position: relative;
+
   width: 100%;
   height: calc(100% - 64px);
 }
 
 #learningCornerChat .mainContainer .studyContainer .catalogueContainer {
   display: inline-block;
-
-  position: relative;
 
   width: calc(50% - 6px);
   height: 100%;
@@ -917,7 +1152,14 @@ export default {
 
 #learningCornerChat .mainContainer .studyContainer .chatContainer {
   display: inline-flex;
+
   flex-flow: column;
+
+  position: absolute;
+
+  top: 0;
+  right: 0;
+
 
   vertical-align: top;
 
@@ -1086,7 +1328,6 @@ export default {
 
   width: 100%;
   height: auto;
-  max-height: 200px;
 }
 
 #learningCornerChat .mainContainer .studyContainer .chatContainer .inputArea .upload-demo {
@@ -1105,20 +1346,30 @@ export default {
   width: 90px;
 }
 
+#learningCornerChat .mainContainer .studyContainer .chatContainer .inputArea .clearSessionButton {
+  position: absolute;
+
+  bottom: 20px;
+  left: 10px;
+
+  width: 40px;
+  height: 40px;
+}
+
 #learningCornerChat .mainContainer .studyContainer .chatContainer .inputArea .fileUploadButton {
   position: absolute;
 
   bottom: 20px;
-  left: 40px;
+  left: 60px;
 
   width: 40px;
   height: 40px;
 }
 
 #learningCornerChat .mainContainer .studyContainer .chatContainer .inputArea .input {
-  margin: 0 0 0 100px;
+  margin: 0 0 0 110px;
 
-  width: calc(100% - 100px - 120px);
+  width: calc(100% - 110px - 120px);
 }
 
 #learningCornerChat .mainContainer .studyContainer .chatContainer .inputArea .input .file {

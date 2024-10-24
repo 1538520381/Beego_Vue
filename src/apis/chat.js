@@ -1,8 +1,14 @@
 import request from '@/utils/request'
 
-export function getRobotList() {
+export function getWorkbenchRobotList() {
     return request({
         url: '/bot/list', method: 'post'
+    })
+}
+
+export function getLearningCornerRobotList() {
+    return request({
+        url: '/bot/list/coStudy', method: 'post'
     })
 }
 

@@ -141,7 +141,7 @@
       <div class="inputArea">
         <el-upload
             class="upload-demo"
-            action="/api/file/uploadPicture"
+            action="/api/file/uploadPicture?bucketType=1"
             :show-file-list="false"
             :on-remove="removeFile"
             :on-success="fileUpload"
@@ -225,7 +225,7 @@ import {fetchEventSource} from "@microsoft/fetch-event-source";
 
 import {ArrowLeftBold, ArrowRightBold, ArrowDownBold, Folder} from '@element-plus/icons-vue'
 
-import {addSession, deleteSession, getMessageList, getRobotList, getSessionList} from "@/apis/chat";
+import {addSession, deleteSession, getMessageList, getWorkbenchRobotList, getSessionList} from "@/apis/chat";
 import {getUserByToken} from "@/apis/user";
 
 import {isEmpty} from "@/utils/common";
@@ -350,7 +350,7 @@ export default {
       })
     },
     getRobotList() {
-      return getRobotList().then((res) => {
+      return getWorkbenchRobotList().then((res) => {
         if (res.data.code === 200) {
           this.robots = []
           for (let robot in res.data.data) {
@@ -503,6 +503,7 @@ export default {
           })
           console.log(err)
           this.$message.error('系统异常，请联系管理员')
+          throw err
         }
       });
 

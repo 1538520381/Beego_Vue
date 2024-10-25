@@ -5,7 +5,7 @@
         <el-menu-item class="robotMenuItem" v-for="(item,value) in robots" :index="String(value)"
                       :disabled="answeringFlag">
           <div class="robotMenuItemContainer">
-            <el-image class="robotMenuItemImage" :src="item.avatar" fit="fill"/>
+            <el-image class="robotMenuItemImage" :src="item.avatar" fit="contain"/>
             <div class="robotMenuItemTitle">{{ item.name }}</div>
           </div>
         </el-menu-item>
@@ -125,12 +125,24 @@
             </div>
           </div>
           <div class="chatRowLoading">
-            <div class="chatRobot" v-if="answeringFlag">
+            <div class="chatRobot" v-if="answeringFlag && loadingTime !== 0">
               <el-image class="chatRobotAvatar" :src="robots[robotActive].avatar"></el-image>
-              <!--              <div class="chatRobotMessage chatMessage" v-html="markdownToHtml(answeringMessage)"></div>-->
               <div class="chatRobotMessage">
                 <v-md-preview class="chatRobotMessageText chatMessageText"
-                              :text="answeringIndex === 0 ? '正在分析中...' :  answeringMessage.substring(0,answeringIndex)"></v-md-preview>
+                              :text="answeringIndex === 0 ?
+                              ((loadingTime % 3 === 0) ? '正在分析中.' : ((loadingTime % 3 === 1) ? '正在分析中. .' : '正在分析中. . .'))
+                               :
+                               answeringMessage.substring(0,answeringIndex)">
+                </v-md-preview>
+              </div>
+            </div>
+          </div>
+          <div class="chatRowLoading">
+            <div class="chatRobot" v-if="answeringFlag && loadingFlag">
+              <el-image class="chatRobotAvatar" :src="robots[robotActive].avatar"></el-image>
+              <div class="chatRobotMessage">
+                <v-md-preview class="chatRobotMessageText chatMessageText"
+                              text="快要生成出来了，请耐心等待"></v-md-preview>
               </div>
             </div>
           </div>
@@ -267,6 +279,10 @@ export default {
       answeringIndex: 0,
       answeringClock: null,
 
+      loadingTime: 0,
+      loadingClock: null,
+      loadingFlag: false,
+
       sessionMenuShow: true,
 
       robotActive: 0,
@@ -350,8 +366,12 @@ export default {
       })
     },
     getRobotList() {
+      this.answeringFlag = true
       return getWorkbenchRobotList().then((res) => {
         if (res.data.code === 200) {
+          res.data.data.sort((o1, o2) => {
+            return o1.sort - o2.sort
+          })
           this.robots = []
           for (let robot in res.data.data) {
             this.robots.push({
@@ -361,19 +381,24 @@ export default {
               description: res.data.data[robot]['description'],
             })
           }
+          this.answeringFlag = false
           this.getSessionList()
         } else {
+          this.answeringFlag = false
           this.$message.error(res.data.message)
         }
       }).catch((err) => {
+        this.answeringFlag = false
         console.log(err)
         this.$message.error('系统异常，请联系管理员')
       })
     },
     getSessionList() {
+      this.answeringFlag = true
       return getSessionList(this.robots[this.robotActive].id).then((res) => {
         if (res.data.code === 200) {
           if (isEmpty(res.data.data)) {
+            this.answeringFlag = false
             this.addSession()
           } else {
             this.sessions = []
@@ -399,20 +424,28 @@ export default {
             this.sessions.sort((o1, o2) => {
               return new Date(o2.createTime) - new Date(o1.createTime)
             })
+            this.answeringFlag = false
             this.getMessageList()
           }
         } else {
+          this.answeringFlag = false
           this.$message.error(res.data.message)
         }
       }).catch((err) => {
+        this.answeringFlag = false
         console.log(err)
         this.$message.error('系统异常，请联系管理员')
       })
     },
     getMessageList() {
+      this.answeringFlag = true
       return getMessageList(this.sessions[this.sessionActive].id).then((res) => {
         if (res.data.code === 200) {
-          this.messages = []
+          this.messages = [{
+            role: "assistant",
+            contentType: 'text',
+            content: "我是" + this.robots[this.robotActive].name + ",请问有什么我可以帮忙的吗?",
+          }]
           for (let i in res.data.data) {
             this.messages.push({
               id: res.data.data[i]['message_id'],
@@ -425,18 +458,21 @@ export default {
               createTime: res.data.data[i]['created_time']
             })
           }
+          this.answeringFlag = false
           this.$nextTick(() => {
             this.scrollToBottom()
           })
         } else {
+          this.answeringFlag = false
           this.$message.error(res.data.message)
         }
       }).catch((err) => {
+        this.answeringFlag = false
         console.log(err)
         this.$message.error('系统异常，请联系管理员')
       })
     },
-    chat() {
+    async chat() {
       if (this.answeringFlag) {
         return
       }
@@ -447,6 +483,15 @@ export default {
       this.answeringClock = setInterval(() => {
         this.answeringIndex = Math.min(this.answeringIndex + 1, this.answeringMessage.length)
       }, 20)
+
+      this.loadingTime = 0
+      this.loadingFlag = false
+      this.loadingClock = setInterval(() => {
+        this.loadingTime = this.loadingTime + 1;
+        if (this.loadingTime > Math.random() * 5 + 15) {
+          this.loadingFlag = true
+        }
+      }, 1000)
 
       this.messages.push({
         role: "user",
@@ -483,6 +528,9 @@ export default {
           } else if (message.event === 'all') {
             this.answeringFlag = false
             clearInterval(this.answeringClock)
+            this.loadingTime = 0
+            this.loadingFlag = false
+            clearInterval(this.loadingClock)
             this.messages.push({
               role: "assistant",
               contentType: 'text',
@@ -491,11 +539,18 @@ export default {
           }
         },
         onclose: () => {
-          console.log(111)
+          this.answeringFlag = false
+          clearInterval(this.answeringClock)
+          this.loadingTime = 0
+          this.loadingFlag = false
+          clearInterval(this.loadingClock)
         },
         onerror: (err) => {
           this.answeringFlag = false
           clearInterval(this.answeringClock)
+          this.loadingTime = 0
+          this.loadingFlag = false
+          clearInterval(this.loadingClock)
           this.messages.push({
             role: "assistant",
             contentType: 'text',
@@ -506,6 +561,51 @@ export default {
           throw err
         }
       });
+
+      // let response = await fetch('/api/chat/agent', {
+      //   method: 'POST',
+      //   responseType: 'stream',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Authorization': localStorage.getItem("token")
+      //   },
+      //   body: JSON.stringify({
+      //     bot_id: this.robots[this.robotActive].id,
+      //     session_id: this.sessions[this.sessionActive].id,
+      //     content: this.chatInput,
+      //     file_type: isEmpty(this.file) ? null : this.file.fileType,
+      //     file_name: isEmpty(this.file) ? null : this.file.fileName,
+      //     file_url: isEmpty(this.file) ? null : this.file.fileUrl,
+      //   }),
+      // });
+      // const reader = response.body.getReader();
+      // let result = true;
+      // let decoder = new TextDecoder('utf-8');
+      // while (result) {
+      //   const {done, value} = await reader.read();
+      //
+      //   if (done) {
+      //     break
+      //   }
+      //
+      //   let strs = decoder.decode(value).split('\n');
+      //   for (let i = 0; i < strs.length; i++) {
+      //     console.log(strs[i])
+      //     console.log(strs[i] === 'event:all')
+      //     console.log('-----')
+      //     if (strs[i] === 'event:conversation') {
+      //       this.answeringMessage += strs[i + 1].substring(5)
+      //     } else if (strs[i] === 'event:all') {
+      //       this.answeringFlag = false
+      //       clearInterval(this.answeringClock)
+      //       this.messages.push({
+      //         role: "assistant",
+      //         contentType: 'text',
+      //         content: strs[i + 1].substring(5).replaceAll("\\n", "\n")
+      //       })
+      //     }
+      //   }
+      // }
 
       this.chatInput = ""
       this.removeFile()
@@ -562,17 +662,6 @@ export default {
     },
 
     downloadFile(url, name) {
-      // console.log(url)
-      // let a = document.createElement('a')
-      // a.href = url;
-      // a.download = name;
-      // a.style.display = 'none'
-      // document.body.appendChild(a)
-      // a.click()
-      // document.body.removeChild(a)
-      // window.location.href = url
-      // window.open(url)
-
       const xhr = new XMLHttpRequest()
       xhr.open('get', url)
       xhr.responseType = 'blob'

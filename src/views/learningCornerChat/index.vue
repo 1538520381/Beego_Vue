@@ -125,13 +125,26 @@
                 </div>
               </div>
               <div class="chatRowLoading">
-                <div class="chatRobot" v-if="answeringFlag">
+                <div class="chatRobot" v-if="answeringFlag && loadingTime !== 0">
                   <el-image class="chatRobotAvatar"
                             :src="robotIdToRobot[categoryIdToRobotId[bookMenuItems[bookActive].categoryId]].avatar"></el-image>
-                  <!--              <div class="chatRobotMessage chatMessage" v-html="markdownToHtml(answeringMessage)"></div>-->
                   <div class="chatRobotMessage">
                     <v-md-preview class="chatRobotMessageText chatMessageText"
-                                  :text="answeringIndex === 0 ? '正在分析中...' :  answeringMessage.substring(0,answeringIndex)"></v-md-preview>
+                                  :text="answeringIndex === 0 ?
+                              ((loadingTime % 3 === 0) ? '正在分析中.' : ((loadingTime % 3 === 1) ? '正在分析中. .' : '正在分析中. . .'))
+                               :
+                               answeringMessage.substring(0,answeringIndex)">
+                    </v-md-preview>
+                  </div>
+                </div>
+              </div>
+              <div class="chatRowLoading">
+                <div class="chatRobot" v-if="answeringFlag && loadingFlag">
+                  <el-image class="chatRobotAvatar"
+                            :src="robotIdToRobot[categoryIdToRobotId[bookMenuItems[bookActive].categoryId]].avatar"></el-image>
+                  <div class="chatRobotMessage">
+                    <v-md-preview class="chatRobotMessageText chatMessageText"
+                                  text="快要生成出来了，请耐心等待"></v-md-preview>
                   </div>
                 </div>
               </div>
@@ -272,6 +285,10 @@ export default {
       answeringIndex: 0,
       answeringClock: null,
 
+      loadingTime: 0,
+      loadingClock: null,
+      loadingFlag: false,
+
       bookActive: 0,
 
       bookMenuShow: true,
@@ -387,6 +404,7 @@ export default {
       })
     },
     getRobotList() {
+      this.answeringFlag = true
       return getLearningCornerRobotList().then((res) => {
         if (res.data.code === 200) {
           this.robotIdToRobot = {}
@@ -399,10 +417,13 @@ export default {
               description: res.data.data[i]['description']
             }
           }
+          this.answeringFlag = false
         } else {
+          this.answeringFlag = false
           this.$message.error(res.data.message)
         }
       }).catch((err) => {
+        this.answeringFlag = false
         console.log(err)
         this.$message.error('系统异常，请联系管理员')
       })
@@ -421,9 +442,11 @@ export default {
       })
     },
     getSessionList() {
+      this.answeringFlag = true
       return getSessionList(this.categoryIdToRobotId[this.bookMenuItems[this.bookActive].categoryId]).then((res) => {
         if (res.data.code === 200) {
           if (isEmpty(res.data.data)) {
+            this.answeringFlag = false
             this.addSession()
           } else {
             this.session = {
@@ -443,20 +466,28 @@ export default {
                 createTime: res.data.data[0]["message"]["created_time"],
               }
             }
+            this.answeringFlag = false
             this.getMessageList()
           }
         } else {
+          this.answeringFlag = false
           this.$message.error(res.data.message)
         }
       }).catch((err) => {
+        this.answeringFlag = false
         console.log(err)
         this.$message.error('系统异常，请联系管理员')
       })
     },
     getMessageList() {
+      this.answeringFlag = true
       return getMessageList(this.session.id).then((res) => {
         if (res.data.code === 200) {
-          this.messages = []
+          this.messages = [{
+            role: "assistant",
+            contentType: 'text',
+            content: "我是" + this.robotIdToRobot[this.categoryIdToRobotId[this.bookMenuItems[this.bookActive].categoryId]].name + ",请问有什么我可以帮忙的吗?",
+          }]
           for (let i in res.data.data) {
             this.messages.push({
               id: res.data.data[i]['message_id'],
@@ -469,13 +500,16 @@ export default {
               createTime: res.data.data[i]['created_time']
             })
           }
+          this.answeringFlag = false
           this.$nextTick(() => {
             this.scrollToBottom()
           })
         } else {
+          this.answeringFlag = false
           this.$message.error(res.data.message)
         }
       }).catch((err) => {
+        this.answeringFlag = false
         console.log(err)
         this.$message.error('系统异常，请联系管理员')
       })
@@ -541,6 +575,15 @@ export default {
         this.answeringIndex = Math.min(this.answeringIndex + 1, this.answeringMessage.length)
       }, 20)
 
+      this.loadingTime = 0
+      this.loadingFlag = false
+      this.loadingClock = setInterval(() => {
+        this.loadingTime = this.loadingTime + 1;
+        if (this.loadingTime > Math.random() * 5 + 15) {
+          this.loadingFlag = true
+        }
+      }, 1000)
+
       this.messages.push({
         role: "user",
         content: this.chatInput,
@@ -576,6 +619,9 @@ export default {
           } else if (message.event === 'all') {
             this.answeringFlag = false
             clearInterval(this.answeringClock)
+            this.loadingTime = 0
+            this.loadingFlag = false
+            clearInterval(this.loadingClock)
             this.messages.push({
               role: "assistant",
               contentType: 'text',
@@ -584,11 +630,18 @@ export default {
           }
         },
         onclose: () => {
-          console.log(111)
+          this.answeringFlag = false
+          clearInterval(this.answeringClock)
+          this.loadingTime = 0
+          this.loadingFlag = false
+          clearInterval(this.loadingClock)
         },
         onerror: (err) => {
           this.answeringFlag = false
           clearInterval(this.answeringClock)
+          this.loadingTime = 0
+          this.loadingFlag = false
+          clearInterval(this.loadingClock)
           this.messages.push({
             role: "assistant",
             contentType: 'text',
@@ -633,6 +686,32 @@ export default {
       this.bookActive = parseInt(index)
       this.getCatalogueByBookId()
       this.getSessionList()
+    },
+
+    downloadFile(url, name) {
+      const xhr = new XMLHttpRequest()
+      xhr.open('get', url)
+      xhr.responseType = 'blob'
+      xhr.onload = e => {
+        if (xhr.status === 200) {
+          const response = xhr.response
+          if (window.navigator.msSaveOrOpenBlob) {
+            window.navigator.msSaveOrOpenBlob(response, name)
+          } else {
+            const href = URL.createObjectURL(response)
+            let ele = document.createElement('a')
+            ele.target = '_blank'
+            ele.href = href
+            ele.download = name
+            ele.click()
+            ele = null
+            URL.revokeObjectURL(href)
+          }
+        } else {
+          this.$message.error('下载失败')
+        }
+      }
+      xhr.send(null)
     },
 
     closeBookMenu() {

@@ -13,7 +13,7 @@
         <!--        Beego-->
         <!--        <br/>-->
         <!--        必过-->
-        <el-image class="logoImage" :src="logo" fit="fill"/>
+        <el-image class="logoImage" :src="logo" fit="contain"/>
       </div>
     </el-menu>
 
@@ -517,7 +517,7 @@ export default {
 }
 
 #learningCornerBook .secondMenu .slogan .logoImage {
-  height: 80%;
+  height: 80px;
 }
 
 #learningCornerBook .secondMenuControllerButton {

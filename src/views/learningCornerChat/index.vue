@@ -105,9 +105,6 @@
                                 v-else-if="['txt'].indexOf(item.fileType) !== -1"
                                 @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
                       <svg-icon class="chatUserFileSvg" icon-class="word"
-                                v-else-if="['word'].indexOf(item.fileType) !== -1"
-                                @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
-                      <svg-icon class="chatUserFileSvg" icon-class="word"
                                 v-else-if="['docx','doc'].indexOf(item.fileType) !== -1"
                                 @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
                       <svg-icon class="chatUserFileSvg" icon-class="zip"
@@ -190,9 +187,6 @@
                             @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
                   <svg-icon class="fileSvg" icon-class="txt"
                             v-else-if="['txt'].indexOf(file.fileType) !== -1"
-                            @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
-                  <svg-icon class="fileSvg" icon-class="word"
-                            v-else-if="['word'].indexOf(file.fileType) !== -1"
                             @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
                   <svg-icon class="fileSvg" icon-class="word"
                             v-else-if="['docx','doc'].indexOf(file.fileType) !== -1"
@@ -486,7 +480,7 @@ export default {
           this.messages = [{
             role: "assistant",
             contentType: 'text',
-            content: "我是" + this.robotIdToRobot[this.categoryIdToRobotId[this.bookMenuItems[this.bookActive].categoryId]].name + ",请问有什么我可以帮忙的吗?",
+            content: this.robotIdToRobot[this.categoryIdToRobotId[this.bookMenuItems[this.bookActive].categoryId]].description
           }]
           for (let i in res.data.data) {
             this.messages.push({
@@ -1393,11 +1387,15 @@ export default {
 
 #learningCornerChat /deep/ .chatMessageText .github-markdown-body {
   padding: 16px 32px 16px 32px;
+
+  font-family: 'Source Han Serif' !important;
 }
 
 
 #learningCornerChat /deep/ .chatMessageText .github-markdown-body p {
   margin-bottom: 0 !important;
+
+  font-family: 'Source Han Serif' !important;
 }
 
 #learningCornerChat .mainContainer .studyContainer .chatContainer .inputArea {
@@ -1517,9 +1515,13 @@ export default {
 
 #learningCornerChat /deep/ .markdown .github-markdown-body {
   padding: 0 0 0 0;
+
+  font-family: 'Source Han Serif' !important;
 }
 
 #learningCornerChat /deep/ .markdown .github-markdown-body p {
   margin-bottom: 0 !important;
+
+  font-family: 'Source Han Serif' !important;
 }
 </style>

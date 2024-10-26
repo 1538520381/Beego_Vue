@@ -22,7 +22,7 @@ body {
 
   margin: 0;
 
-  font-family: 'Source Han Serif';
+  font-family: 'Source Han Serif' !important;
 }
 
 #app {

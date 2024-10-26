@@ -105,9 +105,6 @@
                             v-else-if="['txt'].indexOf(item.fileType) !== -1"
                             @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
                   <svg-icon class="chatUserFileSvg" icon-class="word"
-                            v-else-if="['word'].indexOf(item.fileType) !== -1"
-                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
-                  <svg-icon class="chatUserFileSvg" icon-class="word"
                             v-else-if="['docx','doc'].indexOf(item.fileType) !== -1"
                             @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
                   <svg-icon class="chatUserFileSvg" icon-class="zip"
@@ -138,7 +135,7 @@
             </div>
           </div>
           <div class="chatRowLoading">
-            <div class="chatRobot" v-if="answeringFlag && loadingFlag">
+            <div class="chatRobot" v-if="answeringFlag && loadingFlag && answeringIndex === 0 ">
               <el-image class="chatRobotAvatar" :src="robots[robotActive].avatar"></el-image>
               <div class="chatRobotMessage">
                 <v-md-preview class="chatRobotMessageText chatMessageText"
@@ -188,9 +185,6 @@
                         @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
               <svg-icon class="fileSvg" icon-class="txt"
                         v-else-if="['txt'].indexOf(file.fileType) !== -1"
-                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
-              <svg-icon class="fileSvg" icon-class="word"
-                        v-else-if="['word'].indexOf(file.fileType) !== -1"
                         @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
               <svg-icon class="fileSvg" icon-class="word"
                         v-else-if="['docx','doc'].indexOf(file.fileType) !== -1"
@@ -425,6 +419,7 @@ export default {
               return new Date(o2.createTime) - new Date(o1.createTime)
             })
             this.answeringFlag = false
+            this.sessionActive = Math.min(this.sessions.length - 1, this.sessionActive)
             this.getMessageList()
           }
         } else {
@@ -444,7 +439,7 @@ export default {
           this.messages = [{
             role: "assistant",
             contentType: 'text',
-            content: "我是" + this.robots[this.robotActive].name + ",请问有什么我可以帮忙的吗?",
+            content: this.robots[this.robotActive].description,
           }]
           for (let i in res.data.data) {
             this.messages.push({
@@ -488,10 +483,10 @@ export default {
       this.loadingFlag = false
       this.loadingClock = setInterval(() => {
         this.loadingTime = this.loadingTime + 1;
-        if (this.loadingTime > Math.random() * 5 + 15) {
+        if (this.loadingTime / 2 > Math.random() * 5 + 15) {
           this.loadingFlag = true
         }
-      }, 1000)
+      }, 500)
 
       this.messages.push({
         role: "user",
@@ -521,6 +516,7 @@ export default {
           file_url: isEmpty(this.file) ? null : this.file.fileUrl,
         }),
         signal: ctrl.signal,
+        openWhenHidden: true,
         onmessage: (message) => {
           if (message.event === 'conversation') {
             this.answeringMessage += isEmpty(message.data) ? '' : message.data
@@ -652,6 +648,7 @@ export default {
 
     selectRobotMenu(index) {
       this.robotActive = parseInt(index);
+      this.sessionActive = 0
       this.getSessionList()
     },
     selectSessionMenu(index) {
@@ -721,7 +718,7 @@ export default {
 
 #workbench .robotMenu .robotMenuScrollbar {
   width: 100%;
-  height: calc(100% - 120px);
+  height: calc(100% - 100px);
 }
 
 #workbench .robotMenu .robotMenuScrollbar .robotMenuItem {
@@ -757,6 +754,7 @@ export default {
 
 #workbench .robotMenu .logo .logoImage {
   width: 80px;
+  height: 60px;
 }
 
 #workbench .sessionMenu {
@@ -1249,11 +1247,15 @@ export default {
 
 #workbench /deep/ .chatMessageText .github-markdown-body {
   padding: 16px 32px 16px 32px;
+
+  font-family: 'Source Han Serif' !important;
 }
 
 
 #workbench /deep/ .chatMessageText .github-markdown-body p {
   margin-bottom: 0 !important;
+
+  font-family: 'Source Han Serif' !important;
 }
 
 #workbench .mainContainer .inputArea {

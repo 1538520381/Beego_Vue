@@ -53,7 +53,6 @@
           <div class="value">{{ user.enterTime }}</div>
         </div>
         <el-button type="primary" @click="openPersonalInformationDialog">修改信息</el-button>
-        <el-button type="primary">意见反馈</el-button>
         <el-button type="danger" @click="logout">退出登录</el-button>
       </div>
     </div>

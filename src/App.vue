@@ -22,6 +22,8 @@ body {
 
   margin: 0;
 
+  overflow: hidden;
+
   font-family: 'Source Han Serif' !important;
 }
 

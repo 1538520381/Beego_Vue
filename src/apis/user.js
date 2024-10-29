@@ -3,7 +3,7 @@ import request from '@/utils/request'
 export function login(loginForm) {
     return request({
         url: '/user/login', method: 'post', data: {
-            email: loginForm.email, password: loginForm.password,
+            phoneOrEmail: loginForm.email, password: loginForm.password,
         }
     })
 }
@@ -46,5 +46,13 @@ export function getUserByToken() {
 export function logout() {
     return request({
         url: '/user/logout', method: 'post'
+    })
+}
+
+export function contactUs(content, fileId, fileName, fileUrl, fileType) {
+    return request({
+        url: '/feedback/save', method: 'post', data: {
+            feedback_content: content, file_id: fileId, file_name: fileName, file_url: fileUrl, file_type: fileType
+        }
     })
 }

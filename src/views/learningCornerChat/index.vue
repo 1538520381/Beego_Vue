@@ -216,7 +216,30 @@
         </div>
       </div>
     </div>
+
+    <el-dialog v-model="contactUsDialogVis" title="意见反馈" width="350" :close-on-click-modal="false"
+               :show-close="false">
+      <el-input v-model="contactUsForm.content" type="textarea" placeholder="请描述您需要的问题"></el-input>
+      <el-upload
+          ref="contactUsUpload"
+          action="/api/file/uploadPicture?bucketType=3"
+          :on-success="contactUsFileUpload"
+          :limit="1"
+          style="margin: 3px 0 0 0"
+      >
+        <el-button type="primary">上传附件</el-button>
+      </el-upload>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="danger" @click="closeContactUsDialog">取消</el-button>
+          <el-button type="primary" @click="contactUs">确定</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
     <input type="text" id="copyVal" value="假装有分享链接" style="opacity:0; position:absolute;top: 0;left: 0"/>
+
+    <SuspendedBall @handlepaly="openContactUsDialog" style="cursor:pointer"></SuspendedBall>
   </div>
 </template>
 
@@ -230,19 +253,21 @@ import C9C9C9_TopRightAngledTriangle from '@/assets/pictures/C9C9C9_TopRightAngl
 
 import {ArrowDownBold, ArrowLeftBold, ArrowRightBold, DeleteFilled, Folder} from '@element-plus/icons-vue'
 
-import SvgIcon from "@/components/svgIcon/index.vue";
+import {ref} from "vue";
+import {fetchEventSource} from "@microsoft/fetch-event-source";
 
 import {collection, getBookCategoryList, getCatalogueByBookId, getCollectionBookList, uncollection} from "@/apis/book";
-import {getUserByToken} from "@/apis/user";
+import {contactUs, getUserByToken} from "@/apis/user";
+import {addSession, deleteSession, getLearningCornerRobotList, getMessageList, getSessionList} from "@/apis/chat";
 
 import {isEmpty} from "@/utils/common";
-import {fetchEventSource} from "@microsoft/fetch-event-source";
-import {addSession, deleteSession, getLearningCornerRobotList, getMessageList, getSessionList} from "@/apis/chat";
-import {ref} from "vue";
+
+import SvgIcon from "@/components/svgIcon/index.vue";
+import SuspendedBall from "@/components/suspendedBall/index.vue";
 
 export default {
   name: 'LearningCornerChat',
-  components: {SvgIcon},
+  components: {SuspendedBall, SvgIcon},
   data() {
     return {
       BoyAvatar: BoyAvatar,
@@ -264,6 +289,8 @@ export default {
       categoryIdToRobotId: {},
       robotIdToRobot: {},
 
+      contactUsForm: {},
+
       collectionBookIdList: [],
       bookMenuItems: [],
       book: {},
@@ -273,6 +300,8 @@ export default {
 
       chatInput: '',
       file: null,
+
+      contactUsDialogVis: false,
 
       answeringFlag: false,
       answeringMessage: "",
@@ -336,6 +365,16 @@ export default {
     this.dragControllerDiv();
   },
   methods: {
+    initContactUsForm() {
+      this.contactUsForm = {
+        content: "",
+        fileId: null,
+        fileName: null,
+        fileUrl: null,
+        fileType: null
+      }
+    },
+
     addSession() {
       addSession(this.categoryIdToRobotId[this.bookMenuItems[this.bookActive].categoryId]).then((res) => {
         if (res.data.code === 200) {
@@ -600,6 +639,7 @@ export default {
         body: JSON.stringify({
           bot_id: this.categoryIdToRobotId[this.bookMenuItems[this.bookActive].categoryId],
           session_id: this.session.id,
+          bot_handle: 0,
           content: this.chatInput,
           file_type: isEmpty(this.file) ? null : this.file.fileType,
           file_name: isEmpty(this.file) ? null : this.file.fileName,
@@ -650,6 +690,21 @@ export default {
       this.chatInput = ""
       this.removeFile()
     },
+    contactUs() {
+      contactUs(this.contactUsForm.content, this.contactUsForm.fileId, this.contactUsForm.fileName, this.contactUsForm.fileUrl, this.contactUsForm.fileType).then((res) => {
+        if (res.data.code === 200) {
+          this.contactUsDialogVis = false
+          this.$message.success("反馈成功")
+        } else {
+          this.answeringFlag = false
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        this.answeringFlag = false
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
 
     removeFile(file, fileList) {
       this.file = null
@@ -667,6 +722,28 @@ export default {
       } else {
         this.$message.error(res.message)
       }
+    },
+    contactUsFileUpload(res, file, fileList) {
+      if (res.code === 200) {
+        this.contactUsForm.fileId = res.data["file_id"]
+        this.contactUsForm.fileName = res.data["file_name"]
+        this.contactUsForm.fileType = res.data["file_type"]
+        this.contactUsForm.fileUrl = res.data['file_url']
+      } else {
+        this.$message.error(res.message)
+      }
+    },
+
+    closeContactUsDialog() {
+      this.$refs.contactUsUpload.clearFiles();
+      this.contactUsDialogVis = false
+    },
+    openContactUsDialog() {
+      this.initContactUsForm()
+      this.contactUsDialogVis = true
+      this.$nextTick(() => {
+        this.$refs.contactUsUpload.clearFiles();
+      })
     },
 
     share() {
@@ -748,7 +825,7 @@ export default {
 
           for (let j = 0; j < left.length; j++) {
             left[j].style.width = moveLen + "px";
-            mid[j].style.width = box.clientWidth - moveLen + "px";
+            mid[j].style.width = box.clientWidth - moveLen - 12 + "px";
           }
         };
 

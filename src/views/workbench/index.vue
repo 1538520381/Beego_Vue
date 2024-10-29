@@ -15,7 +15,9 @@
       </div>
     </el-menu>
 
-    <el-menu class="sessionMenu" default-active="0" v-if="sessionMenuShow" @select="selectSessionMenu">
+    <el-menu class="sessionMenu" default-active="0"
+             v-if="sessionMenuShow && !isEmpty(this.robots) && this.robots[this.robotActive].handle === 0"
+             @select="selectSessionMenu">
       <el-button class="addSessionButton" link @click="addSession">新增对话</el-button>
       <el-scrollbar class="sessionMenuScrollbar">
         <el-menu-item class="sessionMenuItem" v-for="(item,value) in sessions" :index="String(value)"
@@ -38,14 +40,17 @@
       </div>
     </el-menu>
 
-    <el-button class="sessionMenuControllerButton sessionMenuControllerButtonOpen" v-if="sessionMenuShow"
+    <el-button class="sessionMenuControllerButton sessionMenuControllerButtonOpen"
+               v-if="sessionMenuShow && !isEmpty(this.robots) && this.robots[this.robotActive].handle === 0"
                @click="closeSessionMenu"
                :icon="ArrowLeftBold" circle/>
-    <el-button class="sessionMenuControllerButton sessionMenuControllerButtonClose" v-else @click="openSessionMenu"
+    <el-button class="sessionMenuControllerButton sessionMenuControllerButtonClose"
+               v-else-if="!isEmpty(this.robots) && this.robots[this.robotActive].handle === 0" @click="openSessionMenu"
                :icon="ArrowRightBold" circle/>
 
 
-    <div class="mainContainer" :class="{mainContainerShort:sessionMenuShow,mainContainerLong:!sessionMenuShow}">
+    <div class="mainContainer"
+         :class="{mainContainerShort:sessionMenuShow && !isEmpty(this.robots) && this.robots[this.robotActive].handle === 0,mainContainerLong:!(sessionMenuShow && !isEmpty(this.robots) && this.robots[this.robotActive].handle === 0)}">
       <div class="patterns">
         <el-image class="patternLeftRectangle patternRectangleUnactive" :src="F2F2F2_Square"
                   @click="toLearningCornerBook"></el-image>
@@ -65,7 +70,8 @@
         <svg-icon class="shareIcon" icon-class="share" @click="share"></svg-icon>
       </div>
 
-      <el-scrollbar class="chatArea" ref="chatArea" label="chatArea" id="chatArea">
+      <el-scrollbar class="chatArea" ref="chatArea" label="chatArea" id="chatArea"
+                    v-if="!isEmpty(this.robots) && this.robots[this.robotActive].handle === 0">
         <div class="chatAreaInner" ref="chatAreaInner">
           <div class="chatRow" v-for="(item,index) in messages">
             <div class="chatRobot" v-if="item.role === 'assistant'">
@@ -147,14 +153,13 @@
         <el-button class="scrollToBottomButton" :icon="ArrowDownBold" circle @click="scrollToBottom"></el-button>
       </el-scrollbar>
 
-      <div class="inputArea">
+      <div class="inputArea" v-if="!isEmpty(this.robots) && this.robots[this.robotActive].handle === 0">
         <el-upload
             class="upload-demo"
             action="/api/file/uploadPicture?bucketType=1"
             :show-file-list="false"
             :on-remove="removeFile"
             :on-success="fileUpload"
-            :file-list="fileList"
         >
           <el-button class="fileUploadButton" :icon="Folder" circle></el-button>
         </el-upload>
@@ -162,7 +167,7 @@
           <el-tooltip :content="file.fileName + '.' + file.fileType" placement="top" effect="light"
                       v-if="!isEmpty(file)">
             <div class="file">
-              <el-image class="picture" :src="file.fileUrl" fit="fill"
+              <el-image class="picture" :src="file.fileUrl" fit="contain"
                         v-if="['jpg','png'].indexOf(file.fileType) !== -1"
                         @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></el-image>
               <svg-icon class="fileSvg" icon-class="csv"
@@ -211,8 +216,61 @@
           <svg-icon class="sendButtonIcon" icon-class="send"></svg-icon>
         </el-button>
       </div>
+
+      <div class="mathematicalModel" v-else-if="!isEmpty(this.robots) && this.robots[this.robotActive].handle === 1">
+        <div class="leftContainer">
+          <el-upload
+              class="dragUpload"
+              drag
+              action="/api/file/uploadPicture?bucketType=1"
+              :show-file-list="false"
+              :on-success="fileUpload"
+          >
+            <i class="el-icon-upload"></i>
+            <div class="el-upload__text">
+              拖拽上传或<em>点击上传</em>
+            </div>
+          </el-upload>
+          <el-image class="image" :src="file.fileUrl" v-if="!isEmpty(file)" fit="contain"></el-image>
+          <el-button class="imageAnalyze" v-if="!isEmpty(file)" @click="imageAnalyze">开始分析</el-button>
+          <scrollbar class="latexContainer" ref="latexContainer"></scrollbar>
+          <el-input
+              class="latexInput"
+              v-model="imageQuestiuonText"
+              :rows="2"
+              :autosize="{minRows:2,maxRows:8}"
+              type="textarea"
+              resize="none"
+              @input="renderLatex"
+          />
+        </div>
+        <div class="rightContainer"></div>
+      </div>
     </div>
+
+    <el-dialog v-model="contactUsDialogVis" title="意见反馈" width="350" :close-on-click-modal="false"
+               :show-close="false">
+      <el-input v-model="contactUsForm.content" type="textarea" placeholder="请描述您需要的问题"></el-input>
+      <el-upload
+          ref="contactUsUpload"
+          action="/api/file/uploadPicture?bucketType=3"
+          :on-success="contactUsFileUpload"
+          :limit="1"
+          style="margin: 3px 0 0 0"
+      >
+        <el-button type="primary">上传附件</el-button>
+      </el-upload>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="danger" @click="closeContactUsDialog">取消</el-button>
+          <el-button type="primary" @click="contactUs">确定</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
     <input type="text" id="copyVal" value="假装有分享链接" style="opacity:0; position:absolute;top: 0;left: 0"/>
+
+    <SuspendedBall @handlepaly="openContactUsDialog" style="cursor:pointer"></SuspendedBall>
   </div>
 </template>
 
@@ -232,15 +290,16 @@ import {fetchEventSource} from "@microsoft/fetch-event-source";
 import {ArrowLeftBold, ArrowRightBold, ArrowDownBold, Folder} from '@element-plus/icons-vue'
 
 import {addSession, deleteSession, getMessageList, getWorkbenchRobotList, getSessionList} from "@/apis/chat";
-import {getUserByToken} from "@/apis/user";
+import {contactUs, getUserByToken} from "@/apis/user";
 
 import {isEmpty} from "@/utils/common";
 
 import SvgIcon from "@/components/svgIcon/index.vue";
+import SuspendedBall from '@/components/suspendedBall'
 
 export default {
   name: 'Workbench',
-  components: {SvgIcon},
+  components: {SvgIcon, SuspendedBall},
   data() {
     return {
       BoyAvatar: BoyAvatar,
@@ -264,9 +323,12 @@ export default {
       messages: [],
 
       chatInput: "",
+      imageQuestiuonText: "",
       file: null,
 
-      fileList: [],
+      contactUsForm: {},
+
+      contactUsDialogVis: false,
 
       answeringFlag: false,
       answeringMessage: "",
@@ -312,9 +374,26 @@ export default {
     await this.getUserByToken()
     await this.getRobotList()
 
+    this.initContactUsForm()
+
     this.initFlag = true
   },
+  mounted() {
+    this.loadLatexJS().then(() => {
+      this.renderLatex();
+    });
+  },
   methods: {
+    initContactUsForm() {
+      this.contactUsForm = {
+        content: "",
+        fileId: null,
+        fileName: null,
+        fileUrl: null,
+        fileType: null
+      }
+    },
+
     addSession() {
       addSession(this.robots[this.robotActive].id).then((res) => {
         if (res.data.code === 200) {
@@ -373,8 +452,11 @@ export default {
               avatar: res.data.data[robot]['bot_avatar'],
               name: res.data.data[robot]['bot_name'],
               description: res.data.data[robot]['description'],
+              handle: res.data.data[robot]['bot_handle'],
+              type: res.data.data[robot]['bot_type']
             })
           }
+          console.log(this.robots)
           this.answeringFlag = false
           this.getSessionList()
         } else {
@@ -467,7 +549,7 @@ export default {
         this.$message.error('系统异常，请联系管理员')
       })
     },
-    async chat() {
+    chat() {
       if (this.answeringFlag) {
         return
       }
@@ -510,6 +592,7 @@ export default {
         body: JSON.stringify({
           bot_id: this.robots[this.robotActive].id,
           session_id: this.sessions[this.sessionActive].id,
+          bot_handle: 0,
           content: this.chatInput,
           file_type: isEmpty(this.file) ? null : this.file.fileType,
           file_name: isEmpty(this.file) ? null : this.file.fileName,
@@ -558,54 +641,65 @@ export default {
         }
       });
 
-      // let response = await fetch('/api/chat/agent', {
-      //   method: 'POST',
-      //   responseType: 'stream',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Authorization': localStorage.getItem("token")
-      //   },
-      //   body: JSON.stringify({
-      //     bot_id: this.robots[this.robotActive].id,
-      //     session_id: this.sessions[this.sessionActive].id,
-      //     content: this.chatInput,
-      //     file_type: isEmpty(this.file) ? null : this.file.fileType,
-      //     file_name: isEmpty(this.file) ? null : this.file.fileName,
-      //     file_url: isEmpty(this.file) ? null : this.file.fileUrl,
-      //   }),
-      // });
-      // const reader = response.body.getReader();
-      // let result = true;
-      // let decoder = new TextDecoder('utf-8');
-      // while (result) {
-      //   const {done, value} = await reader.read();
-      //
-      //   if (done) {
-      //     break
-      //   }
-      //
-      //   let strs = decoder.decode(value).split('\n');
-      //   for (let i = 0; i < strs.length; i++) {
-      //     console.log(strs[i])
-      //     console.log(strs[i] === 'event:all')
-      //     console.log('-----')
-      //     if (strs[i] === 'event:conversation') {
-      //       this.answeringMessage += strs[i + 1].substring(5)
-      //     } else if (strs[i] === 'event:all') {
-      //       this.answeringFlag = false
-      //       clearInterval(this.answeringClock)
-      //       this.messages.push({
-      //         role: "assistant",
-      //         contentType: 'text',
-      //         content: strs[i + 1].substring(5).replaceAll("\\n", "\n")
-      //       })
-      //     }
-      //   }
-      // }
-
       this.chatInput = ""
       this.removeFile()
     },
+    imageAnalyze() {
+      const ctrl = new AbortController();
+      fetchEventSource('/api/chat/agent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem("token")
+        },
+        body: JSON.stringify({
+          bot_id: this.robots[this.robotActive].id,
+          session_id: this.sessions[this.sessionActive].id,
+          bot_handle: 1,
+          file_type: isEmpty(this.file) ? null : this.file.fileType,
+          file_name: isEmpty(this.file) ? null : this.file.fileName,
+          file_url: isEmpty(this.file) ? null : this.file.fileUrl,
+        }),
+        signal: ctrl.signal,
+        openWhenHidden: true,
+        onmessage: (message) => {
+          console.log(message)
+          if (message.event === 'conversation') {
+            this.answeringMessage += isEmpty(message.data) ? '' : message.data
+          } else if (message.event === "done") {
+          } else if (message.event === 'all') {
+            this.messages.push({
+              role: "assistant",
+              contentType: 'text',
+              content: message.data.replaceAll("\\n", "\n")
+            })
+          }
+        },
+        onclose: () => {
+        },
+        onerror: (err) => {
+          console.log(err)
+          this.$message.error('系统异常，请联系管理员')
+          throw err
+        }
+      });
+    },
+    contactUs() {
+      contactUs(this.contactUsForm.content, this.contactUsForm.fileId, this.contactUsForm.fileName, this.contactUsForm.fileUrl, this.contactUsForm.fileType).then((res) => {
+        if (res.data.code === 200) {
+          this.contactUsDialogVis = false
+          this.$message.success("反馈成功")
+        } else {
+          this.answeringFlag = false
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        this.answeringFlag = false
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
+
 
     removeFile(file, fileList) {
       this.file = null
@@ -620,6 +714,16 @@ export default {
           createTime: res.data["create_time"],
         }
         console.log(this.file)
+      } else {
+        this.$message.error(res.message)
+      }
+    },
+    contactUsFileUpload(res, file, fileList) {
+      if (res.code === 200) {
+        this.contactUsForm.fileId = res.data["file_id"]
+        this.contactUsForm.fileName = res.data["file_name"]
+        this.contactUsForm.fileType = res.data["file_type"]
+        this.contactUsForm.fileUrl = res.data['file_url']
       } else {
         this.$message.error(res.message)
       }
@@ -649,6 +753,9 @@ export default {
     selectRobotMenu(index) {
       this.robotActive = parseInt(index);
       this.sessionActive = 0
+      this.chatInput = ""
+      this.file = null
+      window.MathJax
       this.getSessionList()
     },
     selectSessionMenu(index) {
@@ -684,11 +791,37 @@ export default {
       xhr.send(null)
     },
 
-    // markdownToHtml(text) {
-    //   const md = new MarkdownIt();
-    //   md.use(mk);
-    //   return md.render(text)
-    // },
+    loadLatexJS() {
+      return new Promise((resolve) => {
+        const script = document.createElement('script');
+        script.src = './latex.js/dist/latex.js';
+        script.onload = resolve;
+        document.head.appendChild(script);
+      });
+    },
+    renderLatex() {
+      try {
+        this.$refs.latexContainer.innerHTML = '';
+        const text = this.imageQuestiuonText
+        const generator = new latexjs.HtmlGenerator({hyphenate: false});
+        const document = latexjs.parse(text, {generator});
+        this.$refs.latexContainer.appendChild(generator.domFragment());
+      } catch (e) {
+        console.log(e)
+      }
+    },
+
+    closeContactUsDialog() {
+      this.$refs.contactUsUpload.clearFiles();
+      this.contactUsDialogVis = false
+    },
+    openContactUsDialog() {
+      this.initContactUsForm()
+      this.contactUsDialogVis = true
+      this.$nextTick(() => {
+        this.$refs.contactUsUpload.clearFiles();
+      })
+    },
 
     isEmpty(field) {
       return isEmpty(field)
@@ -799,7 +932,6 @@ export default {
   width: 20px;
   height: 20px;
 }
-
 
 #workbench .sessionMenu .addSessionButton {
   margin: 10px 0 0 0;
@@ -1006,90 +1138,6 @@ export default {
   user-select: none;
 }
 
-/*
-#workbench .mainContainer .patterns .pattern1 {
-  position: absolute;
-
-  top: -1px;
-  left: 0;
-
-  height: 60px;
-
-  font-size: 24px;
-
-  line-height: 60px;
-
-  cursor: pointer;
-}
-
-#workbench .mainContainer .patterns .pattern1:before {
-  content: '';
-
-  position: absolute;
-
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-
-  background: #F2F2F2;
-
-  transform: perspective(10px) rotateX(0.5deg);
-  transform-origin: left;
-}
-
-#workbench .mainContainer .patterns .pattern1unactive {
-  padding: 0 0 0 12%;
-
-  width: calc(70% - 12%);
-}
-
-#workbench .mainContainer .patterns .pattern1unactive:before {
-  z-index: -2;
-}
-
-#workbench .mainContainer .patterns .pattern2 {
-  position: absolute;
-
-  top: 1px;
-  right: 0;
-
-  height: 60px;
-
-  font-size: 24px;
-
-  line-height: 60px;
-
-  cursor: pointer;
-}
-
-#workbench .mainContainer .patterns .pattern2:before {
-  content: '';
-
-  position: absolute;
-
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-
-  background: #C9C9C9;
-
-  transform: perspective(10px) rotateX(-0.5deg);
-  transform-origin: right;
-}
-
-#workbench .mainContainer .patterns .pattern2active {
-  padding: 0 0 0 35%;
-
-  width: calc(70% - 35%);
-}
-
-#workbench .mainContainer .patterns .pattern2active:before {
-  z-index: -1;
-}
-*/
-
 #workbench .mainContainer .patterns .shareIcon {
   position: absolute;
 
@@ -1175,9 +1223,8 @@ export default {
 #workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatUser .chatUserMessage .chatUserFilePicture {
   margin: 10px 10px 10px 10px;
 
-  width: 50px;
-  max-width: 100px;
-  max-height: 100px;
+  max-width: 300px;
+  height: 100px;
 
   cursor: pointer;
 }
@@ -1251,7 +1298,6 @@ export default {
   font-family: 'Source Han Serif' !important;
 }
 
-
 #workbench /deep/ .chatMessageText .github-markdown-body p {
   margin-bottom: 0 !important;
 
@@ -1307,8 +1353,8 @@ export default {
 }
 
 #workbench .mainContainer .inputArea .input .file .picture {
-  max-width: 100px;
-  max-height: 100px;
+  max-width: 200px;
+  height: 100px;
 
   cursor: pointer;
 }
@@ -1363,4 +1409,134 @@ export default {
   width: 24px;
   height: 24px;
 }
+
+#workbench .mainContainer .mathematicalModel {
+  width: 100%;
+  height: calc(100% - 64px);
+}
+
+#workbench .mainContainer .mathematicalModel .leftContainer {
+  display: inline-flex;
+
+  flex-flow: column;
+
+  position: relative;
+
+  vertical-align: top;
+
+  width: 50%;
+  height: 100%;
+}
+
+#workbench .mainContainer .mathematicalModel .leftContainer .dragUpload {
+  position: relative;
+
+  margin: 10px auto 0 auto;
+
+  width: 80%;
+}
+
+#workbench .mainContainer .mathematicalModel .leftContainer .image {
+  display: block;
+
+  position: relative;
+
+  margin: 20px auto 0 auto;
+
+  max-width: 80%;
+  height: 100px;
+}
+
+#workbench .mainContainer .mathematicalModel .leftContainer .imageAnalyze {
+  display: block;
+
+  position: relative;
+
+  margin: 10px auto 0 auto;
+}
+
+#workbench .mainContainer .mathematicalModel .leftContainer .latexContainer {
+  flex: 1;
+
+  margin: 10px auto 10px auto;
+
+  width: 80%;
+  height: 0;
+
+  overflow-y: scroll;
+}
+
+#workbench .mainContainer .mathematicalModel .leftContainer .latexInput {
+  position: relative;
+
+  margin: 10px auto 10px auto;
+
+  width: 80%;
+}
+
+#workbench .mainContainer .mathematicalModel .rightContainer {
+  display: inline-block;
+
+  vertical-align: top;
+
+  width: 50%;
+  height: 100%;
+
+  background: #46A2FF;
+}
 </style>
+
+<!--<template>-->
+<!--  <div id="app">-->
+<!--    <h1>实时 LaTeX 渲染示例</h1>-->
+<!--    <input v-model="latexInput" placeholder="输入 LaTeX 公式"/>-->
+<!--    <button @click="renderLatex">渲染</button>-->
+<!--    <div ref="latexContainer"></div>-->
+<!--  </div>-->
+<!--</template>-->
+
+<!--<script>-->
+<!--export default {-->
+<!--  name: 'App',-->
+<!--  data() {-->
+<!--    return {-->
+<!--      latexInput: '', // 用于绑定输入框的内容-->
+<!--    };-->
+<!--  },-->
+<!--  mounted() {-->
+<!--    this.loadLatexJS().then(() => {-->
+<!--      this.renderLatex(); // 初始渲染-->
+<!--    });-->
+<!--  },-->
+<!--  methods: {-->
+<!--    loadLatexJS() {-->
+<!--      return new Promise((resolve) => {-->
+<!--        const script = document.createElement('script');-->
+<!--        script.src = './latex.js/dist/latex.js'; // 引用本地的 latex.js-->
+<!--        script.onload = resolve;-->
+<!--        document.head.appendChild(script);-->
+<!--      });-->
+<!--    },-->
+<!--    renderLatex() {-->
+<!--      // 清空之前的内容-->
+<!--      this.$refs.latexContainer.innerHTML = '';-->
+<!--      const text = "To solve the integral \\(\\int \\frac{1}{x^2} \\sin \\frac{1}{x} \\, dx\\), we can use the substitution method. Let's set \\( u = \\frac{1}{x} \\). Then, we need to find \\( du \\) in terms of \\( dx \\).\n\nDifferentiating \\( u \\) with respect to \\( x \\), we get:\n\\[ du = -\\frac{1}{x^2} \\, dx \\]\nThis implies:\n\\[ \\frac{1}{x^2} \\, dx = -du \\]\n\nNow, substitute \\( u \\) and \\( \\frac{1}{x^2} \\, dx \\) into the original integral:\n\\[ \\int \\frac{1}{x^2} \\sin \\frac{1}{x} \\, dx = \\int -\\sin u \\, du \\]\n\nThe integral of \\(-\\sin u\\) is:\n\\[ \\int -\\sin u \\, du = \\cos u + C \\]\n\nSince \\( u = \\frac{1}{x} \\), we substitute back to get the final answer in terms of \\( x \\):\n\\[ \\cos \\frac{1}{x} + C \\]\n\nTherefore, the solution to the integral is:\n\\[ \\boxed{\\cos \\frac{1}{x} + C} \\]"-->
+<!--      // const text = this.latexInput-->
+<!--      console.log(text)-->
+<!--      console.log(this.latexInput)-->
+<!--      const generator = new latexjs.HtmlGenerator({hyphenate: false});-->
+<!--      const document = latexjs.parse(text, {generator});-->
+<!--      this.$refs.latexContainer.appendChild(generator.domFragment());-->
+<!--    },-->
+<!--  },-->
+<!--};-->
+<!--</script>-->
+
+<!--<style>-->
+<!--/* 其他样式 */-->
+<!--input {-->
+<!--  width: 100%;-->
+<!--  margin-bottom: 10px;-->
+<!--  padding: 8px;-->
+<!--}-->
+<!--</style>-->

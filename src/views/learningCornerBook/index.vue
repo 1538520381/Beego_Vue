@@ -74,7 +74,30 @@
         </div>
       </el-scrollbar>
     </div>
+
+    <el-dialog v-model="contactUsDialogVis" title="意见反馈" width="350" :close-on-click-modal="false"
+               :show-close="false">
+      <el-input v-model="contactUsForm.content" type="textarea" placeholder="请描述您需要的问题"></el-input>
+      <el-upload
+          ref="contactUsUpload"
+          action="/api/file/uploadPicture?bucketType=3"
+          :on-success="contactUsFileUpload"
+          :limit="1"
+          style="margin: 3px 0 0 0"
+      >
+        <el-button type="primary">上传附件</el-button>
+      </el-upload>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="danger" @click="closeContactUsDialog">取消</el-button>
+          <el-button type="primary" @click="contactUs">确定</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
     <input type="text" id="copyVal" value="假装有分享链接" style="opacity:0; position:absolute;top: 0;left: 0"/>
+
+    <SuspendedBall @handlepaly="openContactUsDialog" style="cursor:pointer"></SuspendedBall>
   </div>
 </template>
 
@@ -90,12 +113,14 @@ import C9C9C9_TopRightAngledTriangle from "@/assets/pictures/C9C9C9_TopRightAngl
 import {ArrowLeftBold, ArrowRightBold} from '@element-plus/icons-vue'
 
 import {collection, getBookCategoryList, getBookList, getCollectionBookList, uncollection} from "@/apis/book";
-import {getUserByToken} from "@/apis/user";
+import {contactUs, getUserByToken} from "@/apis/user";
 
 import {isEmpty} from "@/utils/common";
+import SuspendedBall from "@/components/suspendedBall/index.vue";
 
 export default {
   name: 'LearningCornerBook',
+  components: {SuspendedBall},
   data() {
     return {
       logo: logo,
@@ -112,6 +137,8 @@ export default {
       ArrowLeftBold: ArrowLeftBold,
       ArrowRightBold: ArrowRightBold,
 
+      contactUsForm: {},
+
       firstMenuItems: [],
       secondMenuItems: [],
       secondMenuIds: [],
@@ -120,6 +147,8 @@ export default {
       firstActive: 0,
 
       secondMenuShow: true,
+
+      contactUsDialogVis: false,
     }
   },
   async created() {
@@ -135,6 +164,16 @@ export default {
     await this.getBookList()
   },
   methods: {
+    initContactUsForm() {
+      this.contactUsForm = {
+        content: "",
+        fileId: null,
+        fileName: null,
+        fileUrl: null,
+        fileType: null
+      }
+    },
+
     getUserByToken() {
       return getUserByToken().then((res) => {
         if (res.data.code === 200) {
@@ -244,12 +283,50 @@ export default {
         this.$message.error('系统异常，请联系管理员')
       })
     },
+    contactUs() {
+      contactUs(this.contactUsForm.content, this.contactUsForm.fileId, this.contactUsForm.fileName, this.contactUsForm.fileUrl, this.contactUsForm.fileType).then((res) => {
+        if (res.data.code === 200) {
+          this.contactUsDialogVis = false
+          this.$message.success("反馈成功")
+        } else {
+          this.answeringFlag = false
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        this.answeringFlag = false
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
 
     share() {
       var copyVal = document.getElementById("copyVal");
       copyVal.select();
       document.execCommand('copy')
       this.$message.success("分享链接已复制到剪切板")
+    },
+
+    contactUsFileUpload(res, file, fileList) {
+      if (res.code === 200) {
+        this.contactUsForm.fileId = res.data["file_id"]
+        this.contactUsForm.fileName = res.data["file_name"]
+        this.contactUsForm.fileType = res.data["file_type"]
+        this.contactUsForm.fileUrl = res.data['file_url']
+      } else {
+        this.$message.error(res.message)
+      }
+    },
+
+    closeContactUsDialog() {
+      this.$refs.contactUsUpload.clearFiles();
+      this.contactUsDialogVis = false
+    },
+    openContactUsDialog() {
+      this.initContactUsForm()
+      this.contactUsDialogVis = true
+      this.$nextTick(() => {
+        this.$refs.contactUsUpload.clearFiles();
+      })
     },
 
     closeSecondMenu() {

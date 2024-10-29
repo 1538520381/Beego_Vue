@@ -941,6 +941,7 @@ export default {
   border: 2px dotted #000000;
 
   font-size: 20px;
+  font-family: 'Source Han Serif' !important;
 }
 
 #workbench .sessionMenuControllerButton {

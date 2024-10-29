@@ -872,4 +872,8 @@ export default {
   width: 24px;
   height: 24px;
 }
+
+#learningCornerBook .el-menu-item.is-disabled {
+  opacity: 1
+}
 </style>

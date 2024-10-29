@@ -1601,4 +1601,8 @@ export default {
 
   font-family: 'Source Han Serif' !important;
 }
+
+#learningCornerChat .el-menu-item.is-disabled {
+  opacity: 1
+}
 </style>

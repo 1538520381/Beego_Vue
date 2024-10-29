@@ -755,7 +755,6 @@ export default {
       this.sessionActive = 0
       this.chatInput = ""
       this.file = null
-      window.MathJax
       this.getSessionList()
     },
     selectSessionMenu(index) {
@@ -1483,6 +1482,10 @@ export default {
   height: 100%;
 
   background: #46A2FF;
+}
+
+#workbench .el-menu-item.is-disabled {
+  opacity: 1
 }
 </style>
 

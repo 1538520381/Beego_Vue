@@ -206,7 +206,7 @@
                   :autosize="{minRows:2,maxRows:8}"
                   type="textarea"
                   resize="none"
-                  placeholder="开始创作你的提示词吧"
+                  placeholder="开始你的提问吧"
               />
             </div>
             <el-button class="sendButton" @click="chat">
@@ -464,7 +464,7 @@ export default {
     getCatalogueByBookId() {
       return getCatalogueByBookId(this.bookMenuItems[this.bookActive].id).then((res) => {
         if (res.data.code === 200) {
-          this.catalogue = [res.data.data]
+          this.catalogue = res.data.data["outline_child_list"]
         } else {
           this.catalogue = []
           this.$message.error(res.data.message)
@@ -1251,6 +1251,9 @@ export default {
 }
 
 #learningCornerChat .mainContainer .studyContainer .catalogueContainer .catalogueScrollbar .catalogue {
+  margin: 0 auto 0 auto;
+
+  width: 90%;
   height: 100%;
 
   font-size: 20px;
@@ -1598,6 +1601,8 @@ export default {
 
 #learningCornerChat /deep/ .markdown .github-markdown-body p {
   margin-bottom: 0 !important;
+
+  line-height: 30px;
 
   font-family: 'Source Han Serif' !important;
 }

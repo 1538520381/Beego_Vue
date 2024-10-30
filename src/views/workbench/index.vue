@@ -3,7 +3,7 @@
     <el-menu class="robotMenu" default-active="0" @select="selectRobotMenu">
       <el-scrollbar class="robotMenuScrollbar">
         <el-menu-item class="robotMenuItem" v-for="(item,value) in robots" :index="String(value)"
-                      :disabled="answeringFlag">
+                      :disabled="answeringFlag || imageAnalyzeFlag || sendQuestionFlag">
           <div class="robotMenuItemContainer">
             <el-image class="robotMenuItemImage" :src="item.avatar" fit="contain"/>
             <div class="robotMenuItemTitle">{{ item.name }}</div>
@@ -16,12 +16,12 @@
     </el-menu>
 
     <el-menu class="sessionMenu" default-active="0"
-             v-if="sessionMenuShow && !isEmpty(this.robots) && this.robots[this.robotActive].handle === 0"
+             v-if="sessionMenuShow && !isEmpty(this.robots) && this.robots[this.robotActive].handle !== 1"
              @select="selectSessionMenu">
       <el-button class="addSessionButton" link @click="addSession">新增对话</el-button>
       <el-scrollbar class="sessionMenuScrollbar">
         <el-menu-item class="sessionMenuItem" v-for="(item,value) in sessions" :index="String(value)"
-                      :disabled="answeringFlag">
+                      :disabled="answeringFlag || imageAnalyzeFlag || sendQuestionFlag">
           <!--          <div class="sessionMenuItemTitle">{{ item.id }}</div>-->
           <div class="sessionMenuItemTitle">{{
               isEmpty(item.message) || isEmpty(item.message.content) ? "new Chat" : item.message.content
@@ -41,16 +41,16 @@
     </el-menu>
 
     <el-button class="sessionMenuControllerButton sessionMenuControllerButtonOpen"
-               v-if="sessionMenuShow && !isEmpty(this.robots) && this.robots[this.robotActive].handle === 0"
+               v-if="sessionMenuShow && !isEmpty(this.robots) && this.robots[this.robotActive].handle !== 1"
                @click="closeSessionMenu"
                :icon="ArrowLeftBold" circle/>
     <el-button class="sessionMenuControllerButton sessionMenuControllerButtonClose"
-               v-else-if="!isEmpty(this.robots) && this.robots[this.robotActive].handle === 0" @click="openSessionMenu"
+               v-else-if="!isEmpty(this.robots) && this.robots[this.robotActive].handle " @click="openSessionMenu"
                :icon="ArrowRightBold" circle/>
 
 
     <div class="mainContainer"
-         :class="{mainContainerShort:sessionMenuShow && !isEmpty(this.robots) && this.robots[this.robotActive].handle === 0,mainContainerLong:!(sessionMenuShow && !isEmpty(this.robots) && this.robots[this.robotActive].handle === 0)}">
+         :class="{mainContainerShort:sessionMenuShow && !isEmpty(this.robots) && this.robots[this.robotActive].handle !== 1,mainContainerLong:!(sessionMenuShow && !isEmpty(this.robots) && this.robots[this.robotActive].handle !== 1)}">
       <div class="patterns">
         <el-image class="patternLeftRectangle patternRectangleUnactive" :src="F2F2F2_Square"
                   @click="toLearningCornerBook"></el-image>
@@ -71,7 +71,7 @@
       </div>
 
       <el-scrollbar class="chatArea" ref="chatArea" label="chatArea" id="chatArea"
-                    v-if="!isEmpty(this.robots) && this.robots[this.robotActive].handle === 0">
+                    v-if="!isEmpty(this.robots) && this.robots[this.robotActive].handle !== 1">
         <div class="chatAreaInner" ref="chatAreaInner">
           <div class="chatRow" v-for="(item,index) in messages">
             <div class="chatRobot" v-if="item.role === 'assistant'">
@@ -153,7 +153,7 @@
         <el-button class="scrollToBottomButton" :icon="ArrowDownBold" circle @click="scrollToBottom"></el-button>
       </el-scrollbar>
 
-      <div class="inputArea" v-if="!isEmpty(this.robots) && this.robots[this.robotActive].handle === 0">
+      <div class="inputArea" v-if="!isEmpty(this.robots) && this.robots[this.robotActive].handle !== 1">
         <el-upload
             class="upload-demo"
             action="/api/file/uploadPicture?bucketType=1"
@@ -232,7 +232,8 @@
             </div>
           </el-upload>
           <el-image class="image" :src="file.fileUrl" v-if="!isEmpty(file)" fit="contain"></el-image>
-          <el-button class="imageAnalyze" v-if="!isEmpty(file)" @click="imageAnalyze">开始分析</el-button>
+          <el-button class="imageAnalyze" v-if="!isEmpty(file)" @click="imageAnalyze" v-loading="false">开始分析
+          </el-button>
           <scrollbar class="latexContainer" ref="latexContainer"></scrollbar>
           <el-input
               class="latexInput"
@@ -241,10 +242,35 @@
               :autosize="{minRows:2,maxRows:8}"
               type="textarea"
               resize="none"
-              @input="renderLatex"
+              @input="renderLatex($refs.latexContainer,imageQuestiuonText)"
+              v-loading="imageAnalyzeFlag"
           />
+          <el-button class="sendQuestion" type="primary" @click="sendQuestion">发送题目</el-button>
         </div>
-        <div class="rightContainer"></div>
+        <el-scrollbar class="rightContainer">
+          <div class="chatRow">
+            <el-image class="chatRobotAvatar" :src="robots[robotActive].avatar"></el-image>
+            <!--              <div class="chatRobotMessage" v-html="markdownToHtml(item.content)"></div>-->
+            <div class="chatRobotMessage">
+              <v-md-preview class="chatRobotMessageText chatMessageText"
+                            :text="robots[robotActive].description">
+              </v-md-preview>
+            </div>
+          </div>
+          <div class="chatRow" v-if="!isEmpty(sendQuestionMessage) || sendQuestionFlag">
+            <el-image class="chatRobotAvatar" :src="robots[robotActive].avatar"></el-image>
+            <!--              <div class="chatRobotMessage" v-html="markdownToHtml(item.content)"></div>-->
+            <div class="chatRobotMessage">
+              <v-md-preview class="chatRobotMessageText chatMessageText"
+                            :text="sendQuestionIndex === 0 ?
+                              ((loadingTime % 3 === 0) ? '正在分析中.' : ((loadingTime % 3 === 1) ? '正在分析中. .' : '正在分析中. . .'))
+                               :
+                               sendQuestionMessage.substring(0,sendQuestionIndex)" v-if="sendQuestionFlag">
+              </v-md-preview>
+              <div class="chatRobotMessageText chatMessageText latexMessageText" ref="chatRobotMessageText" v-else></div>
+            </div>
+          </div>
+        </el-scrollbar>
       </div>
     </div>
 
@@ -335,6 +361,13 @@ export default {
       answeringIndex: 0,
       answeringClock: null,
 
+      imageAnalyzeFlag: false,
+
+      sendQuestionFlag: false,
+      sendQuestionMessage: "",
+      sendQuestionIndex: 0,
+      sendQuestionClock: null,
+
       loadingTime: 0,
       loadingClock: null,
       loadingFlag: false,
@@ -380,7 +413,6 @@ export default {
   },
   mounted() {
     this.loadLatexJS().then(() => {
-      this.renderLatex();
     });
   },
   methods: {
@@ -549,6 +581,21 @@ export default {
         this.$message.error('系统异常，请联系管理员')
       })
     },
+    contactUs() {
+      contactUs(this.contactUsForm.content, this.contactUsForm.fileId, this.contactUsForm.fileName, this.contactUsForm.fileUrl, this.contactUsForm.fileType).then((res) => {
+        if (res.data.code === 200) {
+          this.contactUsDialogVis = false
+          this.$message.success("反馈成功")
+        } else {
+          this.answeringFlag = false
+          this.$message.error(res.data.message)
+        }
+      }).catch((err) => {
+        this.answeringFlag = false
+        console.log(err)
+        this.$message.error('系统异常，请联系管理员')
+      })
+    },
     chat() {
       if (this.answeringFlag) {
         return
@@ -592,7 +639,7 @@ export default {
         body: JSON.stringify({
           bot_id: this.robots[this.robotActive].id,
           session_id: this.sessions[this.sessionActive].id,
-          bot_handle: 0,
+          bot_handle: this.robots[this.robotActive].handle,
           content: this.chatInput,
           file_type: isEmpty(this.file) ? null : this.file.fileType,
           file_name: isEmpty(this.file) ? null : this.file.fileName,
@@ -645,6 +692,8 @@ export default {
       this.removeFile()
     },
     imageAnalyze() {
+      this.imageAnalyzeFlag = true
+      this.imageQuestiuonText = ""
       const ctrl = new AbortController();
       fetchEventSource('/api/chat/agent', {
         method: 'POST',
@@ -665,39 +714,101 @@ export default {
         onmessage: (message) => {
           console.log(message)
           if (message.event === 'conversation') {
-            this.answeringMessage += isEmpty(message.data) ? '' : message.data
+            this.imageQuestiuonText += message.data
+            this.renderLatex(this.$refs.latexContainer, this.imageQuestiuonText)
           } else if (message.event === "done") {
           } else if (message.event === 'all') {
-            this.messages.push({
-              role: "assistant",
-              contentType: 'text',
-              content: message.data.replaceAll("\\n", "\n")
-            })
+            this.imageQuestiuonText = message.data.replaceAll("\\n", "\n")
+            this.renderLatex(this.$refs.latexContainer, this.imageQuestiuonText)
+            this.imageAnalyzeFlag = false
           }
         },
         onclose: () => {
+          this.imageAnalyzeFlag = false
         },
         onerror: (err) => {
+          this.imageAnalyzeFlag = false
           console.log(err)
           this.$message.error('系统异常，请联系管理员')
           throw err
         }
       });
     },
-    contactUs() {
-      contactUs(this.contactUsForm.content, this.contactUsForm.fileId, this.contactUsForm.fileName, this.contactUsForm.fileUrl, this.contactUsForm.fileType).then((res) => {
-        if (res.data.code === 200) {
-          this.contactUsDialogVis = false
-          this.$message.success("反馈成功")
-        } else {
-          this.answeringFlag = false
-          this.$message.error(res.data.message)
+    sendQuestion() {
+      if (this.answeringFlag || this.sendQuestionFlag || this.imageAnalyzeFlag) {
+        return
+      }
+
+      if (isEmpty(this.imageQuestiuonText)) {
+        this.$message.success("题目不能为空")
+        return;
+      }
+
+      this.sendQuestionFlag = true
+      this.sendQuestionMessage = ""
+      this.sendQuestionIndex = 0
+      this.sendQuestionClock = setInterval(() => {
+        this.sendQuestionIndex = Math.min(this.sendQuestionIndex + 1, this.sendQuestionMessage.length)
+      }, 20)
+
+      this.loadingTime = 0
+      this.loadingFlag = false
+      this.loadingClock = setInterval(() => {
+        this.loadingTime = this.loadingTime + 1;
+        if (this.loadingTime / 2 > Math.random() * 5 + 15) {
+          this.loadingFlag = true
         }
-      }).catch((err) => {
-        this.answeringFlag = false
-        console.log(err)
-        this.$message.error('系统异常，请联系管理员')
-      })
+      }, 500)
+
+      const ctrl = new AbortController();
+      fetchEventSource('/api/chat/agent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem("token")
+        },
+        body: JSON.stringify({
+          bot_id: this.robots[this.robotActive].id,
+          session_id: this.sessions[this.sessionActive].id,
+          bot_handle: 1,
+          content: this.imageQuestiuonText,
+        }),
+        signal: ctrl.signal,
+        openWhenHidden: true,
+        onmessage: (message) => {
+          if (message.event === 'conversation') {
+            this.sendQuestionMessage += isEmpty(message.data) ? '' : message.data
+          } else if (message.event === "done") {
+          } else if (message.event === 'all') {
+            this.sendQuestionFlag = false
+            clearInterval(this.sendQuestionClock)
+            this.loadingTime = 0
+            this.loadingFlag = false
+            clearInterval(this.loadingClock)
+            this.sendQuestionMessage = message.data.replaceAll("\\n", "\n")
+            this.$nextTick().then(() => {
+              this.renderLatex(this.$refs.chatRobotMessageText, this.sendQuestionMessage)
+            })
+          }
+        },
+        onclose: () => {
+          this.sendQuestionFlag = false
+          clearInterval(this.sendQuestionClock)
+          this.loadingTime = 0
+          this.loadingFlag = false
+          clearInterval(this.loadingClock)
+        },
+        onerror: (err) => {
+          this.sendQuestionFlag = false
+          clearInterval(this.sendQuestionClock)
+          this.loadingTime = 0
+          this.loadingFlag = false
+          clearInterval(this.loadingClock)
+          console.log(err)
+          this.$message.error('系统异常，请联系管理员')
+          throw err
+        }
+      });
     },
 
 
@@ -762,6 +873,10 @@ export default {
       this.getMessageList()
       this.answeringFlag = false
       this.answeringMessage = ""
+      this.sendQuestionFlag = false
+      this.sendQuestionMessage = ""
+      this.imageAnalyzeFlag = false
+      this.imageQuestiuonText = ""
     },
 
     downloadFile(url, name) {
@@ -798,13 +913,13 @@ export default {
         document.head.appendChild(script);
       });
     },
-    renderLatex() {
+    renderLatex(html, content) {
       try {
-        this.$refs.latexContainer.innerHTML = '';
-        const text = this.imageQuestiuonText
+        html.innerHTML = '';
         const generator = new latexjs.HtmlGenerator({hyphenate: false});
-        const document = latexjs.parse(text, {generator});
-        this.$refs.latexContainer.appendChild(generator.domFragment());
+        const document = latexjs.parse(content, {generator});
+        html.appendChild(generator.domFragment());
+        console.log(1)
       } catch (e) {
         console.log(e)
       }
@@ -1474,15 +1589,60 @@ export default {
   width: 80%;
 }
 
+#workbench .mainContainer .mathematicalModel .leftContainer .sendQuestion {
+  width: 100px;
+
+  margin: 0 10% 0 auto;
+}
+
 #workbench .mainContainer .mathematicalModel .rightContainer {
   display: inline-block;
 
   vertical-align: top;
 
-  width: 50%;
+  width: calc(50% - 10px * 2 - 2px);
   height: 100%;
 
-  background: #46A2FF;
+  border-left: 2px solid darkgrey;
+}
+
+#workbench .mainContainer .mathematicalModel .rightContainer .chatRow {
+  padding: 15px 20px 15px 20px;
+
+  width: calc(100% - 20px * 2);
+}
+
+#workbench .mainContainer .mathematicalModel .rightContainer .chatRow .chatRobotAvatar {
+  display: inline-block;
+
+  vertical-align: top;
+
+  width: 50px;
+  height: 50px;
+
+  border-radius: 50%;
+}
+
+#workbench .mainContainer .mathematicalModel .rightContainer .chatRow .chatRobotMessage {
+  display: inline-block;
+
+  vertical-align: top;
+
+  margin: 0 0 0 10px;
+
+  max-width: calc(80% - 40px - 50px);
+
+  border-radius: 20px;
+
+  background: #F2F2F2;
+}
+
+#workbench .mainContainer .mathematicalModel .rightContainer .chatRow .chatRobotMessage .chatRobotMessageText {
+
+}
+
+#workbench .mainContainer .mathematicalModel .rightContainer .chatRow .chatRobotMessage .latexMessageText{
+  padding: 10px 20px 10px 20px;
 }
 
 #workbench .el-menu-item.is-disabled {

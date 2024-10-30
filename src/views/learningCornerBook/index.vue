@@ -24,7 +24,8 @@
       <!--        <input class="searchInput">-->
       <!--      </div>-->
       <el-scrollbar class="firstMenuScrollbar">
-        <el-menu-item class="firstMenuItem" v-for="(item,index) in firstMenuItems" :index="String(index)">
+        <el-menu-item class="firstMenuItem" v-for="(item,index) in firstMenuItems" :index="String(index)"
+                      :disabled="flags.indexOf(item.name) === -1">
           <div class="firstMenuItemName">{{ item.name }}</div>
         </el-menu-item>
       </el-scrollbar>
@@ -149,6 +150,8 @@ export default {
       secondMenuShow: true,
 
       contactUsDialogVis: false,
+
+      flags: ['全部', '通识文科', '通识理科']
     }
   },
   async created() {
@@ -201,9 +204,13 @@ export default {
             for (let i in res.data.data) {
               this.firstMenuItems.push({
                 id: res.data.data[i]['lib_id'],
-                name: res.data.data[i]['lib_name']
+                name: res.data.data[i]['lib_name'],
+                sort: res.data.data[i]['sort']
               })
             }
+            this.firstMenuItems.sort((o1, o2) => {
+              return o1.sort - o2.sort
+            })
           }
         } else {
           this.$message.error(res.data.message)
@@ -871,9 +878,5 @@ export default {
 
   width: 24px;
   height: 24px;
-}
-
-#learningCornerBook .el-menu-item.is-disabled {
-  opacity: 1
 }
 </style>

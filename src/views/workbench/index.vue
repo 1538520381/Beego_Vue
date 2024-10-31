@@ -267,7 +267,8 @@
                                :
                                sendQuestionMessage.substring(0,sendQuestionIndex)" v-if="sendQuestionFlag">
               </v-md-preview>
-              <div class="chatRobotMessageText chatMessageText latexMessageText" ref="chatRobotMessageText" v-else></div>
+              <div class="chatRobotMessageText chatMessageText latexMessageText" ref="chatRobotMessageText"
+                   v-else></div>
             </div>
           </div>
         </el-scrollbar>
@@ -715,10 +716,9 @@ export default {
           console.log(message)
           if (message.event === 'conversation') {
             this.imageQuestiuonText += message.data
-            this.renderLatex(this.$refs.latexContainer, this.imageQuestiuonText)
           } else if (message.event === "done") {
           } else if (message.event === 'all') {
-            this.imageQuestiuonText = message.data.replaceAll("\\n", "\n")
+            this.imageQuestiuonText = message.data.replaceAll("\\n", "\n").replaceAll("\\\\", "\\")
             this.renderLatex(this.$refs.latexContainer, this.imageQuestiuonText)
             this.imageAnalyzeFlag = false
           }
@@ -785,7 +785,8 @@ export default {
             this.loadingTime = 0
             this.loadingFlag = false
             clearInterval(this.loadingClock)
-            this.sendQuestionMessage = message.data.replaceAll("\\n", "\n")
+            this.sendQuestionMessage = message.data.replaceAll("\\n", "\n").replaceAll("\\\\", "\\")
+            console.log(this.sendQuestionMessage)
             this.$nextTick().then(() => {
               this.renderLatex(this.$refs.chatRobotMessageText, this.sendQuestionMessage)
             })
@@ -1630,8 +1631,6 @@ export default {
 
   margin: 0 0 0 10px;
 
-  max-width: calc(80% - 40px - 50px);
-
   border-radius: 20px;
 
   background: #F2F2F2;
@@ -1641,8 +1640,10 @@ export default {
 
 }
 
-#workbench .mainContainer .mathematicalModel .rightContainer .chatRow .chatRobotMessage .latexMessageText{
+#workbench .mainContainer .mathematicalModel .rightContainer .chatRow .chatRobotMessage .latexMessageText {
   padding: 10px 20px 10px 20px;
+
+  max-width: none;
 }
 
 #workbench .el-menu-item.is-disabled {

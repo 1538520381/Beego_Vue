@@ -16,7 +16,7 @@
     </el-menu>
 
     <el-menu class="sessionMenu" default-active="0"
-             v-if="sessionMenuShow && !isEmpty(this.robots) && this.robots[this.robotActive].handle !== 1"
+             v-if="sessionMenuShow && !isEmpty(robots) && robots[robotActive].handle !== 1"
              @select="selectSessionMenu">
       <el-button class="addSessionButton" link @click="addSession">新增对话</el-button>
       <el-scrollbar class="sessionMenuScrollbar">
@@ -41,16 +41,16 @@
     </el-menu>
 
     <el-button class="sessionMenuControllerButton sessionMenuControllerButtonOpen"
-               v-if="sessionMenuShow && !isEmpty(this.robots) && this.robots[this.robotActive].handle !== 1"
+               v-if="sessionMenuShow && !isEmpty(robots) && robots[robotActive].handle !== 1"
                @click="closeSessionMenu"
                :icon="ArrowLeftBold" circle/>
     <el-button class="sessionMenuControllerButton sessionMenuControllerButtonClose"
-               v-else-if="!isEmpty(this.robots) && this.robots[this.robotActive].handle " @click="openSessionMenu"
+               v-else-if="!isEmpty(robots) && robots[robotActive].handle " @click="openSessionMenu"
                :icon="ArrowRightBold" circle/>
 
 
     <div class="mainContainer"
-         :class="{mainContainerShort:sessionMenuShow && !isEmpty(this.robots) && this.robots[this.robotActive].handle !== 1,mainContainerLong:!(sessionMenuShow && !isEmpty(this.robots) && this.robots[this.robotActive].handle !== 1)}">
+         :class="{mainContainerShort:sessionMenuShow && !isEmpty(robots) && robots[robotActive].handle !== 1,mainContainerLong:!(sessionMenuShow && !isEmpty(robots) && robots[robotActive].handle !== 1)}">
       <div class="patterns">
         <el-image class="patternLeftRectangle patternRectangleUnactive" :src="F2F2F2_Square"
                   @click="toLearningCornerBook"></el-image>
@@ -71,7 +71,7 @@
       </div>
 
       <el-scrollbar class="chatArea" ref="chatArea" label="chatArea" id="chatArea"
-                    v-if="!isEmpty(this.robots) && this.robots[this.robotActive].handle !== 1">
+                    v-if="!isEmpty(robots) && robots[robotActive].handle !== 1">
         <div class="chatAreaInner" ref="chatAreaInner">
           <div class="chatRow" v-for="(item,index) in messages">
             <div class="chatRobot" v-if="item.role === 'assistant'">
@@ -153,7 +153,7 @@
         <el-button class="scrollToBottomButton" :icon="ArrowDownBold" circle @click="scrollToBottom"></el-button>
       </el-scrollbar>
 
-      <div class="inputArea" v-if="!isEmpty(this.robots) && this.robots[this.robotActive].handle !== 1">
+      <div class="inputArea" v-if="!isEmpty(robots) && robots[robotActive].handle !== 1">
         <el-upload
             class="upload-demo"
             action="/api/file/uploadPicture?bucketType=1"
@@ -164,6 +164,7 @@
           <el-button class="fileUploadButton" :icon="Folder" circle></el-button>
         </el-upload>
         <div class="input">
+<!--          <el-button v-for="robots[robotsActive].p></el-button>-->
           <el-tooltip :content="file.fileName + '.' + file.fileType" placement="top" effect="light"
                       v-if="!isEmpty(file)">
             <div class="file">
@@ -217,7 +218,7 @@
         </el-button>
       </div>
 
-      <div class="mathematicalModel" v-else-if="!isEmpty(this.robots) && this.robots[this.robotActive].handle === 1">
+      <div class="mathematicalModel" v-else-if="!isEmpty(robots) && robots[robotActive].handle === 1">
         <div class="leftContainer">
           <el-upload
               class="dragUpload"

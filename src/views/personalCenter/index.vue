@@ -128,7 +128,7 @@ import SvgIcon from "@/components/svgIcon/index.vue";
 
 import schoolCategoryMajor from '@/jsons/schoolCategoryMajor.json'
 
-import {getUserByToken, improvePersonalInformation, logout} from "@/apis/user";
+import {getUserByToken, improvePersonalInformation, logout, updateInformation} from "@/apis/user";
 import {isEmpty} from "@/utils/common";
 
 export default {
@@ -241,7 +241,7 @@ export default {
       } else if (isEmpty(this.personalInformationForm.enterTime)) {
         this.$message.error("请选择入学年份")
       } else {
-        improvePersonalInformation({
+        updateInformation({
           userName: this.personalInformationForm.userName,
           gender: this.personalInformationForm.gender,
           school: this.personalInformationForm.school,

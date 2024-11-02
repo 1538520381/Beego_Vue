@@ -37,6 +37,18 @@ export function improvePersonalInformation(personalInformationForm) {
     })
 }
 
+export function updateInformation(personalInformationForm) {
+    return request({
+        url: '/user/update', method: 'post', data: {
+            user_name: personalInformationForm.userName,
+            gender: personalInformationForm.gender,
+            school: personalInformationForm.school,
+            major: personalInformationForm.major,
+            enter_time: personalInformationForm.enterTime
+        }
+    })
+}
+
 export function getUserByToken() {
     return request({
         url: '/user/token', method: 'post'

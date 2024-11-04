@@ -164,7 +164,12 @@
           <el-button class="fileUploadButton" :icon="Folder" circle></el-button>
         </el-upload>
         <div class="input">
-<!--          <el-button v-for="robots[robotsActive].p></el-button>-->
+          <!--          <el-button v-for="robots[robotsActive].p></el-button>-->
+          <div class="prompts">
+            <el-button class="prompt" v-for="(item,value) in robots[robotActive].prompts" @click="chatPrompts(item)">
+              {{ item }}
+            </el-button>
+          </div>
           <el-tooltip :content="file.fileName + '.' + file.fileType" placement="top" effect="light"
                       v-if="!isEmpty(file)">
             <div class="file">
@@ -487,7 +492,8 @@ export default {
               name: res.data.data[robot]['bot_name'],
               description: res.data.data[robot]['description'],
               handle: res.data.data[robot]['bot_handle'],
-              type: res.data.data[robot]['bot_type']
+              type: res.data.data[robot]['bot_type'],
+              prompts: res.data.data[robot]['prompts'],
             })
           }
           console.log(this.robots)
@@ -692,6 +698,92 @@ export default {
 
       this.chatInput = ""
       this.removeFile()
+    },
+    chatPrompts(prompt) {
+      if (this.answeringFlag) {
+        return
+      }
+
+      this.answeringFlag = true
+      this.answeringMessage = ""
+      this.answeringIndex = 0
+      this.answeringClock = setInterval(() => {
+        this.answeringIndex = Math.min(this.answeringIndex + 1, this.answeringMessage.length)
+      }, 20)
+
+      this.loadingTime = 0
+      this.loadingFlag = false
+      this.loadingClock = setInterval(() => {
+        this.loadingTime = this.loadingTime + 1;
+        if (this.loadingTime / 2 > Math.random() * 5 + 15) {
+          this.loadingFlag = true
+        }
+      }, 500)
+
+      this.messages.push({
+        role: "user",
+        content: prompt,
+      })
+
+      this.$nextTick(() => {
+        this.scrollToBottom()
+      })
+
+      const ctrl = new AbortController();
+      fetchEventSource('/api/chat/agent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem("token")
+        },
+        body: JSON.stringify({
+          bot_id: this.robots[this.robotActive].id,
+          session_id: this.sessions[this.sessionActive].id,
+          bot_handle: this.robots[this.robotActive].handle,
+          content: prompt,
+        }),
+        signal: ctrl.signal,
+        openWhenHidden: true,
+        onmessage: (message) => {
+          if (message.event === 'conversation') {
+            this.answeringMessage += isEmpty(message.data) ? '' : message.data
+          } else if (message.event === "done") {
+          } else if (message.event === 'all') {
+            this.answeringFlag = false
+            clearInterval(this.answeringClock)
+            this.loadingTime = 0
+            this.loadingFlag = false
+            clearInterval(this.loadingClock)
+            this.messages.push({
+              role: "assistant",
+              contentType: 'text',
+              content: message.data.replaceAll("\\n", "\n")
+            })
+          }
+        },
+        onclose: () => {
+          this.answeringFlag = false
+          clearInterval(this.answeringClock)
+          this.loadingTime = 0
+          this.loadingFlag = false
+          clearInterval(this.loadingClock)
+        },
+        onerror: (err) => {
+          this.answeringFlag = false
+          clearInterval(this.answeringClock)
+          this.loadingTime = 0
+          this.loadingFlag = false
+          clearInterval(this.loadingClock)
+          this.messages.push({
+            role: "assistant",
+            contentType: 'text',
+            content: '系统异常，请联系管理员'
+          })
+          console.log(err)
+          this.$message.error('系统异常，请联系管理员')
+          throw err
+        }
+      });
     },
     imageAnalyze() {
       this.imageAnalyzeFlag = true
@@ -1461,6 +1553,12 @@ export default {
   margin: 0 0 0 100px;
 
   width: calc(100% - 100px - 120px);
+}
+
+#workbench .mainContainer .inputArea .input .prompts .prompt {
+  display: block;
+
+  margin: 0 0 4px 0;
 }
 
 #workbench .mainContainer .inputArea .input .file {

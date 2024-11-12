@@ -323,6 +323,7 @@ import {ref} from 'vue'
 import {fetchEventSource} from "@microsoft/fetch-event-source";
 
 import {ArrowLeftBold, ArrowRightBold, ArrowDownBold, Folder} from '@element-plus/icons-vue'
+import { parse, HtmlGenerator } from 'latex.js'
 
 import {addSession, deleteSession, getMessageList, getWorkbenchRobotList, getSessionList} from "@/apis/chat";
 import {contactUs, getUserByToken} from "@/apis/user";
@@ -421,8 +422,8 @@ export default {
     this.initFlag = true
   },
   mounted() {
-    this.loadLatexJS().then(() => {
-    });
+    // this.loadLatexJS().then(() => {
+    // });
   },
   methods: {
     initContactUsForm() {
@@ -1019,8 +1020,8 @@ export default {
     renderLatex(html, content) {
       try {
         html.innerHTML = '';
-        const generator = new latexjs.HtmlGenerator({hyphenate: false});
-        const document = latexjs.parse(content, {generator});
+        const generator = new HtmlGenerator({hyphenate: false});
+        const document = parse(content, {generator});
         html.appendChild(generator.domFragment());
         console.log(1)
       } catch (e) {

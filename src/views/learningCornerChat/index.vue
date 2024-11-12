@@ -237,7 +237,7 @@
       </template>
     </el-dialog>
 
-    <input type="text" id="copyVal" value="假装有分享链接" style="opacity:0; position:absolute;top: 0;left: 0"/>
+    <input type="text" id="copyVal" value="http://54.222.173.61:81/home" style="opacity:0; position:absolute;top: 0;left: 0"/>
 
     <SuspendedBall @handlepaly="openContactUsDialog" style="cursor:pointer"></SuspendedBall>
   </div>
@@ -755,6 +755,7 @@ export default {
 
     selectBookMenu(index) {
       this.bookActive = parseInt(index)
+      this.$store.commit('setBook', this.bookMenuItems[this.bookActive])
       this.getCatalogueByBookId()
       this.getSessionList()
     },

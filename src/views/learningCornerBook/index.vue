@@ -13,7 +13,8 @@
         <!--        Beego-->
         <!--        <br/>-->
         <!--        必过-->
-        <el-image class="logoImage" :src="logo" fit="contain"/>
+        <div class="schoolName">{{ user.school + "版" }}</div>
+        <el-image class="logoImage" :src="logo" fit="contain" @click="toHome"/>
       </div>
     </el-menu>
 
@@ -96,7 +97,7 @@
       </template>
     </el-dialog>
 
-    <input type="text" id="copyVal" value="假装有分享链接" style="opacity:0; position:absolute;top: 0;left: 0"/>
+    <input type="text" id="copyVal" value="http://54.222.173.61:81/home" style="opacity:0; position:absolute;top: 0;left: 0"/>
 
     <SuspendedBall @handlepaly="openContactUsDialog" style="cursor:pointer"></SuspendedBall>
   </div>
@@ -186,6 +187,7 @@ export default {
             gender: res.data.data['gender'],
             userName: res.data.data['user_name'],
             avatarUrl: res.data.data['avatar_url'],
+            school: res.data.data['school']
           }
         } else {
           this.$router.push("/home");
@@ -348,6 +350,9 @@ export default {
       this.getBookList()
     },
 
+    toHome() {
+      this.$router.push("/home")
+    },
     toWorkbench() {
       this.$router.push('/workbench')
     },
@@ -448,7 +453,7 @@ export default {
 
 #learningCornerBook .firstMenu .firstMenuScrollbar {
   width: 100%;
-  height: calc(100% - 120px - 10px - 40px - 8px);
+  height: calc(100% - 100px - 10px - 40px - 8px);
 }
 
 #learningCornerBook .firstMenu .firstMenuScrollbar .firstMenuItem .firstMenuItemName {
@@ -468,7 +473,7 @@ export default {
 }
 
 #learningCornerBook .firstMenu .user {
-  margin: 30px 20px 30px 20px;
+  margin: 20px 20px 20px 20px;
 
   width: calc(100% - 20px * 2);
   height: 60px;
@@ -557,7 +562,7 @@ export default {
 
 #learningCornerBook .secondMenu .secondMenuScrollbar {
   width: 100%;
-  height: calc(100% - 120px - 10px - 40px - 8px);
+  height: calc(100% - 100px - 10px - 40px - 20px * 2 - 4px * 2);
 }
 
 #learningCornerBook .secondMenu .secondMenuScrollbar .secondMenuItem .secondMenuItemName {
@@ -590,9 +595,9 @@ export default {
 }
 
 #learningCornerBook .secondMenu .slogan {
-  padding: 0 0 0 0;
+  margin: 20px 0 20px 0;
 
-  height: calc(120px - 20px);
+  height: 100px;
 
   text-align: center;
 
@@ -600,8 +605,19 @@ export default {
   font-weight: bold;
 }
 
+#learningCornerBook .secondMenu .slogan .schoolName{
+  height: 40px;
+
+  font-size: 14px;
+  font-weight: bold;
+
+  line-height: 20px;
+}
+
 #learningCornerBook .secondMenu .slogan .logoImage {
-  height: 80px;
+  height: 60px;
+
+  cursor: pointer;
 }
 
 #learningCornerBook .secondMenuControllerButton {

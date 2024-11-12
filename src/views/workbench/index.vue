@@ -11,7 +11,8 @@
         </el-menu-item>
       </el-scrollbar>
       <div class="logo">
-        <el-image class="logoImage" :src="logo" fit="fill"/>
+        <div class="schoolName">{{ user.school + "版" }}</div>
+        <el-image class="logoImage" :src="logo" fit="fill" @click="toHome"/>
       </div>
     </el-menu>
 
@@ -215,7 +216,7 @@
               :autosize="{minRows:2,maxRows:8}"
               type="textarea"
               resize="none"
-              placeholder="开始创作你的提示词吧"
+              placeholder="开始你的提问吧"
           />
         </div>
         <el-button class="sendButton" @click="chat">
@@ -301,7 +302,8 @@
       </template>
     </el-dialog>
 
-    <input type="text" id="copyVal" value="假装有分享链接" style="opacity:0; position:absolute;top: 0;left: 0"/>
+    <input type="text" id="copyVal" value="http://54.222.173.61:81/home"
+           style="opacity:0; position:absolute;top: 0;left: 0"/>
 
     <SuspendedBall @handlepaly="openContactUsDialog" style="cursor:pointer"></SuspendedBall>
   </div>
@@ -467,6 +469,7 @@ export default {
             gender: res.data.data['gender'],
             userName: res.data.data['user_name'],
             avatarUrl: res.data.data['avatar_url'],
+            school: res.data.data['school']
           }
         } else {
           this.$router.push("/home");
@@ -699,91 +702,94 @@ export default {
       this.chatInput = ""
       this.removeFile()
     },
+    // chatPrompts(prompt) {
+    //   if (this.answeringFlag) {
+    //     return
+    //   }
+    //
+    //   this.answeringFlag = true
+    //   this.answeringMessage = ""
+    //   this.answeringIndex = 0
+    //   this.answeringClock = setInterval(() => {
+    //     this.answeringIndex = Math.min(this.answeringIndex + 1, this.answeringMessage.length)
+    //   }, 20)
+    //
+    //   this.loadingTime = 0
+    //   this.loadingFlag = false
+    //   this.loadingClock = setInterval(() => {
+    //     this.loadingTime = this.loadingTime + 1;
+    //     if (this.loadingTime / 2 > Math.random() * 5 + 15) {
+    //       this.loadingFlag = true
+    //     }
+    //   }, 500)
+    //
+    //   this.messages.push({
+    //     role: "user",
+    //     content: prompt,
+    //   })
+    //
+    //   this.$nextTick(() => {
+    //     this.scrollToBottom()
+    //   })
+    //
+    //   const ctrl = new AbortController();
+    //   fetchEventSource('/api/chat/agent', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       'Authorization': localStorage.getItem("token")
+    //     },
+    //     body: JSON.stringify({
+    //       bot_id: this.robots[this.robotActive].id,
+    //       session_id: this.sessions[this.sessionActive].id,
+    //       bot_handle: this.robots[this.robotActive].handle,
+    //       content: prompt,
+    //     }),
+    //     signal: ctrl.signal,
+    //     openWhenHidden: true,
+    //     onmessage: (message) => {
+    //       if (message.event === 'conversation') {
+    //         this.answeringMessage += isEmpty(message.data) ? '' : message.data
+    //       } else if (message.event === "done") {
+    //       } else if (message.event === 'all') {
+    //         this.answeringFlag = false
+    //         clearInterval(this.answeringClock)
+    //         this.loadingTime = 0
+    //         this.loadingFlag = false
+    //         clearInterval(this.loadingClock)
+    //         this.messages.push({
+    //           role: "assistant",
+    //           contentType: 'text',
+    //           content: message.data.replaceAll("\\n", "\n")
+    //         })
+    //       }
+    //     },
+    //     onclose: () => {
+    //       this.answeringFlag = false
+    //       clearInterval(this.answeringClock)
+    //       this.loadingTime = 0
+    //       this.loadingFlag = false
+    //       clearInterval(this.loadingClock)
+    //     },
+    //     onerror: (err) => {
+    //       this.answeringFlag = false
+    //       clearInterval(this.answeringClock)
+    //       this.loadingTime = 0
+    //       this.loadingFlag = false
+    //       clearInterval(this.loadingClock)
+    //       this.messages.push({
+    //         role: "assistant",
+    //         contentType: 'text',
+    //         content: '系统异常，请联系管理员'
+    //       })
+    //       console.log(err)
+    //       this.$message.error('系统异常，请联系管理员')
+    //       throw err
+    //     }
+    //   });
+    // },
     chatPrompts(prompt) {
-      if (this.answeringFlag) {
-        return
-      }
-
-      this.answeringFlag = true
-      this.answeringMessage = ""
-      this.answeringIndex = 0
-      this.answeringClock = setInterval(() => {
-        this.answeringIndex = Math.min(this.answeringIndex + 1, this.answeringMessage.length)
-      }, 20)
-
-      this.loadingTime = 0
-      this.loadingFlag = false
-      this.loadingClock = setInterval(() => {
-        this.loadingTime = this.loadingTime + 1;
-        if (this.loadingTime / 2 > Math.random() * 5 + 15) {
-          this.loadingFlag = true
-        }
-      }, 500)
-
-      this.messages.push({
-        role: "user",
-        content: prompt,
-      })
-
-      this.$nextTick(() => {
-        this.scrollToBottom()
-      })
-
-      const ctrl = new AbortController();
-      fetchEventSource('/api/chat/agent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': localStorage.getItem("token")
-        },
-        body: JSON.stringify({
-          bot_id: this.robots[this.robotActive].id,
-          session_id: this.sessions[this.sessionActive].id,
-          bot_handle: this.robots[this.robotActive].handle,
-          content: prompt,
-        }),
-        signal: ctrl.signal,
-        openWhenHidden: true,
-        onmessage: (message) => {
-          if (message.event === 'conversation') {
-            this.answeringMessage += isEmpty(message.data) ? '' : message.data
-          } else if (message.event === "done") {
-          } else if (message.event === 'all') {
-            this.answeringFlag = false
-            clearInterval(this.answeringClock)
-            this.loadingTime = 0
-            this.loadingFlag = false
-            clearInterval(this.loadingClock)
-            this.messages.push({
-              role: "assistant",
-              contentType: 'text',
-              content: message.data.replaceAll("\\n", "\n")
-            })
-          }
-        },
-        onclose: () => {
-          this.answeringFlag = false
-          clearInterval(this.answeringClock)
-          this.loadingTime = 0
-          this.loadingFlag = false
-          clearInterval(this.loadingClock)
-        },
-        onerror: (err) => {
-          this.answeringFlag = false
-          clearInterval(this.answeringClock)
-          this.loadingTime = 0
-          this.loadingFlag = false
-          clearInterval(this.loadingClock)
-          this.messages.push({
-            role: "assistant",
-            contentType: 'text',
-            content: '系统异常，请联系管理员'
-          })
-          console.log(err)
-          this.$message.error('系统异常，请联系管理员')
-          throw err
-        }
-      });
+      this.chatInput = prompt
     },
     imageAnalyze() {
       this.imageAnalyzeFlag = true
@@ -948,6 +954,9 @@ export default {
       this.sessionMenuShow = true
     },
 
+    toHome() {
+      this.$router.push("/home")
+    },
     toLearningCornerBook() {
       this.$router.push("/learningCornerBook")
     },
@@ -1059,7 +1068,7 @@ export default {
 
 #workbench .robotMenu .robotMenuScrollbar {
   width: 100%;
-  height: calc(100% - 100px);
+  height: calc(100% - 100px - 40px);
 }
 
 #workbench .robotMenu .robotMenuScrollbar .robotMenuItem {
@@ -1093,9 +1102,18 @@ export default {
   text-align: center;
 }
 
+#workbench .robotMenu .logo .schoolName {
+  font-size: 14px;
+  font-weight: bold;
+
+  line-height: 20px;
+}
+
 #workbench .robotMenu .logo .logoImage {
   width: 80px;
   height: 60px;
+
+  cursor: pointer;
 }
 
 #workbench .sessionMenu {

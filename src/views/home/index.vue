@@ -28,7 +28,7 @@
       <!--        &lt;!&ndash;        <div class="cursor">|</div>&ndash;&gt;-->
       <!--      </div>-->
       <div class="example">
-        <div class="example2">{{ '我可以帮你' + chats[chatIndex].substring(0, chatLen) + '|' }}</div>
+        <div class="example2">{{ chats[chatIndex].substring(0, chatLen) + '|' }}</div>
         <div class="example1">贴合高校使用场景，最懂大学生的AI学习软件</div>
       </div>
       <el-button class="experienceNow" @click="isEmpty(token) ? openTabsDialog('0') : toWorkBench() ">开始体验，Let's
@@ -153,7 +153,7 @@
         <el-form-item class="formItem" prop="enterTime">
           <el-date-picker
               class="formInput" size="large" v-model="personalInformationForm.enterTime" type="year"
-              placeholder="请选择入学年份"/>
+              :disabled-date="disabledDate" placeholder="请选择入学年份"/>
         </el-form-item>
       </el-form>
       <div class="control">
@@ -282,9 +282,7 @@ export default {
       tabsValue: '0',
 
       chats: [
-        "查询常见的机器学习算法",
-        "解释第一类错误是什么意思",
-        "写一篇以文化多元化为主题的调研报告"
+        "用Beego，一天学完一学期"
       ],
       chatIndex: 0,
       chatLen: 0,
@@ -498,6 +496,10 @@ export default {
           this.$message.error('系统异常，请联系管理员')
         })
       }
+    },
+
+    disabledDate(date) {
+      return date.getFullYear() < 2010 || date.getFullYear() > new Date().getFullYear()
     },
 
     openTabsDialog(tabsValue) {

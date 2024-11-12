@@ -22,7 +22,16 @@
       <div class="informationContainer">
         <div class="item">
           <div class="key">账号ID：</div>
-          <div class="value">{{ user.id }}</div>
+          <div class="value">{{
+              user.id + "  " + "『" +
+              (user.tag === '0' ? '开发者' :
+                      (user.tag === '1' ? '内测用户' :
+                              (user.tag === '2' ? '普通用户' : '会员')
+                      )
+              )
+              + "』"
+            }}
+          </div>
         </div>
         <div class="item">
           <div class="key">昵称：</div>
@@ -110,7 +119,7 @@
         <el-form-item class="formItem" prop="enterTime">
           <el-date-picker
               class="formInput" size="large" v-model="personalInformationForm.enterTime" type="year"
-              placeholder="请选择入学年份"/>
+              :disabled-date="disabledDate" placeholder="请选择入学年份"/>
         </el-form-item>
       </el-form>
       <div class="control">
@@ -219,6 +228,7 @@ export default {
             school: res.data.data['school'],
             avatarUrl: res.data.data['avatar_url'],
             enterTime: res.data.data['enter_time'],
+            tag: res.data.data["tag"]
           }
         } else {
           this.$router.push("/home");
@@ -278,7 +288,6 @@ export default {
       })
     },
 
-
     avatarUpload(res, file, fileList) {
       if (res.code === 200) {
         this.$message.success("上传成功")
@@ -286,6 +295,10 @@ export default {
       } else {
         this.$message.error(res.message)
       }
+    },
+
+    disabledDate(date) {
+      return date.getFullYear() < 2010 || date.getFullYear() > new Date().getFullYear()
     },
 
     openPersonalInformationDialog() {

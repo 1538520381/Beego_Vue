@@ -1,7 +1,12 @@
 const {defineConfig} = require('@vue/cli-service')
 const path = require("path");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 module.exports = defineConfig({
-    devServer: {
+    configureWebpack: {
+        plugins: [new MiniCssExtractPlugin({
+            filename: 'css/[name].[contenthash:8].css', chunkFilename: 'css/[name].[contenthash:8].css',
+        }),],
+    }, devServer: {
         client: {
             overlay: false
         }, proxy: {

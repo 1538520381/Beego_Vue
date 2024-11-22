@@ -2,10 +2,18 @@
   <div id="workbench">
     <el-menu class="robotMenu" default-active="0" @select="selectRobotMenu">
       <el-scrollbar class="robotMenuScrollbar">
-        <el-menu-item class="robotMenuItem" v-for="(item,value) in robots" :index="String(value)"
-                      :disabled="answeringFlag || imageAnalyzeFlag || sendQuestionFlag">
+        <el-menu-item
+            class="robotMenuItem"
+            v-for="(item, value) in robots"
+            :index="String(value)"
+            :disabled="answeringFlag || imageAnalyzeFlag || sendQuestionFlag"
+        >
           <div class="robotMenuItemContainer">
-            <el-image class="robotMenuItemImage" :src="item.avatar" fit="contain"/>
+            <el-image
+                class="robotMenuItemImage"
+                :src="item.avatar"
+                fit="contain"
+            />
             <div class="robotMenuItemTitle">{{ item.name }}</div>
           </div>
         </el-menu-item>
@@ -16,24 +24,52 @@
       </div>
     </el-menu>
 
-    <el-menu class="sessionMenu" default-active="0"
-             v-if="sessionMenuShow && !isEmpty(robots) && robots[robotActive].handle !== 1"
-             @select="selectSessionMenu">
-      <el-button class="addSessionButton" link @click="addSession">新增对话</el-button>
+    <el-menu
+        class="sessionMenu"
+        default-active="0"
+        v-if="
+        sessionMenuShow && !isEmpty(robots) && robots[robotActive].handle !== 1
+      "
+        @select="selectSessionMenu"
+    >
+      <el-button class="addSessionButton" link @click="addSession"
+      >新增对话
+      </el-button
+      >
       <el-scrollbar class="sessionMenuScrollbar">
-        <el-menu-item class="sessionMenuItem" v-for="(item,value) in sessions" :index="String(value)"
-                      :disabled="answeringFlag || imageAnalyzeFlag || sendQuestionFlag">
+        <el-menu-item
+            class="sessionMenuItem"
+            v-for="(item, value) in sessions"
+            :index="String(value)"
+            :disabled="answeringFlag || imageAnalyzeFlag || sendQuestionFlag"
+        >
           <!--          <div class="sessionMenuItemTitle">{{ item.id }}</div>-->
-          <div class="sessionMenuItemTitle">{{
-              isEmpty(item.message) || isEmpty(item.message.content) ? "new Chat" : item.message.content
+          <div class="sessionMenuItemTitle">
+            {{
+              isEmpty(item.message) || isEmpty(item.message.content)
+                  ? "new Chat"
+                  : item.message.content
             }}
           </div>
-          <svg-icon class="sessionMenuDeleteIcon" icon-class="delete" @click="deleteSession(value)"></svg-icon>
+          <svg-icon
+              class="sessionMenuDeleteIcon"
+              icon-class="delete"
+              @click="deleteSession(value)"
+          ></svg-icon>
         </el-menu-item>
       </el-scrollbar>
       <div class="user" @click="toPersonalCenter">
-        <el-image class="userAvatar" round
-                  :src="isEmpty(user.avatarUrl) ? ((user.gender === 0 || isEmpty(user.gender))? BoyAvatar : GirlAvatar) : user.avatarUrl"></el-image>
+        <el-image
+            class="userAvatar"
+            round
+            :src="
+            isEmpty(user.avatarUrl)
+              ? user.gender === 0 || isEmpty(user.gender)
+                ? BoyAvatar
+                : GirlAvatar
+              : user.avatarUrl
+          "
+        ></el-image>
         <div class="userInformation">
           <div class="userId">{{ user.id }}</div>
           <div class="userName">{{ user.userName }}</div>
@@ -41,26 +77,59 @@
       </div>
     </el-menu>
 
-    <el-button class="sessionMenuControllerButton sessionMenuControllerButtonOpen"
-               v-if="sessionMenuShow && !isEmpty(robots) && robots[robotActive].handle !== 1"
-               @click="closeSessionMenu"
-               :icon="ArrowLeftBold" circle/>
-    <el-button class="sessionMenuControllerButton sessionMenuControllerButtonClose"
-               v-else-if="!isEmpty(robots) && robots[robotActive].handle " @click="openSessionMenu"
-               :icon="ArrowRightBold" circle/>
+    <el-button
+        class="sessionMenuControllerButton sessionMenuControllerButtonOpen"
+        v-if="
+        sessionMenuShow && !isEmpty(robots) && robots[robotActive].handle !== 1
+      "
+        @click="closeSessionMenu"
+        :icon="ArrowLeftBold"
+        circle
+    />
+    <el-button
+        class="sessionMenuControllerButton sessionMenuControllerButtonClose"
+        v-else-if="!isEmpty(robots) && robots[robotActive].handle"
+        @click="openSessionMenu"
+        :icon="ArrowRightBold"
+        circle
+    />
 
-
-    <div class="mainContainer"
-         :class="{mainContainerShort:sessionMenuShow && !isEmpty(robots) && robots[robotActive].handle !== 1,mainContainerLong:!(sessionMenuShow && !isEmpty(robots) && robots[robotActive].handle !== 1)}">
+    <div
+        class="mainContainer"
+        :class="{
+        mainContainerShort:
+          sessionMenuShow &&
+          !isEmpty(robots) &&
+          robots[robotActive].handle !== 1,
+        mainContainerLong: !(
+          sessionMenuShow &&
+          !isEmpty(robots) &&
+          robots[robotActive].handle !== 1
+        ),
+      }"
+    >
       <div class="patterns">
-        <el-image class="patternLeftRectangle patternRectangleUnactive" :src="F2F2F2_Square"
-                  @click="toLearningCornerBook"></el-image>
-        <el-image class="patternAngledTriangle patternBottomLeftAngledTriangleUnactive"
-                  :src="F2F2F2_BottomLeftAngledTriangle" @click="toLearningCornerBook"></el-image>
-        <div class="leftTitleUnactive" @click="toLearningCornerBook">学习角</div>
-        <el-image class="patternRightRectangle patternRectangleActive" :src="C9C9C9_Square"></el-image>
-        <el-image class="patternAngledTriangle patternTopRightAngledTriangleActive"
-                  :src="C9C9C9_TopRightAngledTriangle"></el-image>
+        <el-image
+            class="patternLeftRectangle patternRectangleUnactive"
+            :src="F2F2F2_Square"
+            @click="toLearningCornerBook"
+        ></el-image>
+        <el-image
+            class="patternAngledTriangle patternBottomLeftAngledTriangleUnactive"
+            :src="F2F2F2_BottomLeftAngledTriangle"
+            @click="toLearningCornerBook"
+        ></el-image>
+        <div class="leftTitleUnactive" @click="toLearningCornerBook">
+          学习角
+        </div>
+        <el-image
+            class="patternRightRectangle patternRectangleActive"
+            :src="C9C9C9_Square"
+        ></el-image>
+        <el-image
+            class="patternAngledTriangle patternTopRightAngledTriangleActive"
+            :src="C9C9C9_TopRightAngledTriangle"
+        ></el-image>
         <div class="rightTitleActive">工作台</div>
         <!--        <div class="pattern1 pattern1unactive" @click="toLearningCornerBook">-->
         <!--          学习角-->
@@ -68,93 +137,239 @@
         <!--        <div class="pattern2 pattern2active">-->
         <!--          工作台-->
         <!--        </div>-->
-        <svg-icon class="shareIcon" icon-class="share" @click="share"></svg-icon>
+        <svg-icon
+            class="shareIcon"
+            icon-class="share"
+            @click="share"
+        ></svg-icon>
       </div>
 
-      <el-scrollbar class="chatArea" ref="chatArea" label="chatArea" id="chatArea"
-                    v-if="!isEmpty(robots) && robots[robotActive].handle !== 1">
+      <el-scrollbar
+          class="chatArea"
+          ref="chatArea"
+          label="chatArea"
+          id="chatArea"
+          v-if="!isEmpty(robots) && robots[robotActive].handle === 0"
+      >
         <div class="chatAreaInner" ref="chatAreaInner">
-          <div class="chatRow" v-for="(item,index) in messages">
+          <div class="chatRow" v-for="(item, index) in messages">
             <div class="chatRobot" v-if="item.role === 'assistant'">
-              <el-image class="chatRobotAvatar" :src="robots[robotActive].avatar"></el-image>
+              <el-image
+                  class="chatRobotAvatar"
+                  :src="robots[robotActive].avatar"
+              ></el-image>
               <!--              <div class="chatRobotMessage" v-html="markdownToHtml(item.content)"></div>-->
               <div class="chatRobotMessage">
-                <v-md-preview class="chatRobotMessageText chatMessageText" :text="item.content"></v-md-preview>
+                <v-md-preview
+                    class="chatRobotMessageText chatMessageText"
+                    :text="item.content"
+                ></v-md-preview>
               </div>
             </div>
 
             <div class="chatUser" v-if="item.role === 'user'">
               <div class="chatUserMessage">
-                <el-tooltip :content="item.fileName + '.' +item.fileType" placement="top" effect="light"
-                            v-if="!isEmpty(item.fileType)">
-                  <el-image class="chatUserFilePicture" :src="item.fileUrl" fit="fill"
-                            v-if="['jpg','png'].indexOf(item.fileType) !== -1"
-                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></el-image>
-                  <svg-icon class="chatUserFileSvg" icon-class="csv"
-                            v-else-if="['csv'].indexOf(item.fileType) !== -1"
-                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
-                  <svg-icon class="chatUserFileSvg" icon-class="excel"
-                            v-else-if="['xlsx','xls'].indexOf(item.fileType) !== -1"
-                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
-                  <svg-icon class="chatUserFileSvg" icon-class="mp4"
-                            v-else-if="['mp4'].indexOf(item.fileType) !== -1"
-                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
-                  <svg-icon class="chatUserFileSvg" icon-class="pdf"
-                            v-else-if="['pdf'].indexOf(item.fileType) !== -1"
-                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
-                  <svg-icon class="chatUserFileSvg" icon-class="ppt"
-                            v-else-if="['ppt'].indexOf(item.fileType) !== -1"
-                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
-                  <svg-icon class="chatUserFileSvg" icon-class="rar"
-                            v-else-if="['rar'].indexOf(item.fileType) !== -1"
-                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
-                  <svg-icon class="chatUserFileSvg" icon-class="txt"
-                            v-else-if="['txt'].indexOf(item.fileType) !== -1"
-                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
-                  <svg-icon class="chatUserFileSvg" icon-class="word"
-                            v-else-if="['docx','doc'].indexOf(item.fileType) !== -1"
-                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
-                  <svg-icon class="chatUserFileSvg" icon-class="zip"
-                            v-else-if="['zip'].indexOf(item.fileType) !== -1"
-                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
-                  <svg-icon class="chatUserFileSvg" icon-class="unknownFile" v-else
-                            @click="downloadFile(item.fileUrl,item.fileName + '.' +item.fileType)"></svg-icon>
+                <el-tooltip
+                    :content="item.fileName + '.' + item.fileType"
+                    placement="top"
+                    effect="light"
+                    v-if="!isEmpty(item.fileType)"
+                >
+                  <el-image
+                      class="chatUserFilePicture"
+                      :src="item.fileUrl"
+                      fit="fill"
+                      v-if="['jpg', 'png'].indexOf(item.fileType) !== -1"
+                      @click="
+                      downloadFile(
+                        item.fileUrl,
+                        item.fileName + '.' + item.fileType
+                      )
+                    "
+                  ></el-image>
+                  <svg-icon
+                      class="chatUserFileSvg"
+                      icon-class="csv"
+                      v-else-if="['csv'].indexOf(item.fileType) !== -1"
+                      @click="
+                      downloadFile(
+                        item.fileUrl,
+                        item.fileName + '.' + item.fileType
+                      )
+                    "
+                  ></svg-icon>
+                  <svg-icon
+                      class="chatUserFileSvg"
+                      icon-class="excel"
+                      v-else-if="['xlsx', 'xls'].indexOf(item.fileType) !== -1"
+                      @click="
+                      downloadFile(
+                        item.fileUrl,
+                        item.fileName + '.' + item.fileType
+                      )
+                    "
+                  ></svg-icon>
+                  <svg-icon
+                      class="chatUserFileSvg"
+                      icon-class="mp4"
+                      v-else-if="['mp4'].indexOf(item.fileType) !== -1"
+                      @click="
+                      downloadFile(
+                        item.fileUrl,
+                        item.fileName + '.' + item.fileType
+                      )
+                    "
+                  ></svg-icon>
+                  <svg-icon
+                      class="chatUserFileSvg"
+                      icon-class="pdf"
+                      v-else-if="['pdf'].indexOf(item.fileType) !== -1"
+                      @click="
+                      downloadFile(
+                        item.fileUrl,
+                        item.fileName + '.' + item.fileType
+                      )
+                    "
+                  ></svg-icon>
+                  <svg-icon
+                      class="chatUserFileSvg"
+                      icon-class="ppt"
+                      v-else-if="['ppt'].indexOf(item.fileType) !== -1"
+                      @click="
+                      downloadFile(
+                        item.fileUrl,
+                        item.fileName + '.' + item.fileType
+                      )
+                    "
+                  ></svg-icon>
+                  <svg-icon
+                      class="chatUserFileSvg"
+                      icon-class="rar"
+                      v-else-if="['rar'].indexOf(item.fileType) !== -1"
+                      @click="
+                      downloadFile(
+                        item.fileUrl,
+                        item.fileName + '.' + item.fileType
+                      )
+                    "
+                  ></svg-icon>
+                  <svg-icon
+                      class="chatUserFileSvg"
+                      icon-class="txt"
+                      v-else-if="['txt'].indexOf(item.fileType) !== -1"
+                      @click="
+                      downloadFile(
+                        item.fileUrl,
+                        item.fileName + '.' + item.fileType
+                      )
+                    "
+                  ></svg-icon>
+                  <svg-icon
+                      class="chatUserFileSvg"
+                      icon-class="word"
+                      v-else-if="['docx', 'doc'].indexOf(item.fileType) !== -1"
+                      @click="
+                      downloadFile(
+                        item.fileUrl,
+                        item.fileName + '.' + item.fileType
+                      )
+                    "
+                  ></svg-icon>
+                  <svg-icon
+                      class="chatUserFileSvg"
+                      icon-class="zip"
+                      v-else-if="['zip'].indexOf(item.fileType) !== -1"
+                      @click="
+                      downloadFile(
+                        item.fileUrl,
+                        item.fileName + '.' + item.fileType
+                      )
+                    "
+                  ></svg-icon>
+                  <svg-icon
+                      class="chatUserFileSvg"
+                      icon-class="unknownFile"
+                      v-else
+                      @click="
+                      downloadFile(
+                        item.fileUrl,
+                        item.fileName + '.' + item.fileType
+                      )
+                    "
+                  ></svg-icon>
                 </el-tooltip>
                 <!--              <div class="chatUserMessage" v-html="markdownToHtml(item.content)"></div>-->
-                <v-md-preview class="chatUserMessageText chatMessageText" :text="item.content"
-                              v-if="!isEmpty(item.content)"></v-md-preview>
+                <v-md-preview
+                    class="chatUserMessageText chatMessageText"
+                    :text="item.content"
+                    v-if="!isEmpty(item.content)"
+                ></v-md-preview>
               </div>
-              <el-image class="chatUserAvatar"
-                        :src="isEmpty(user.avatarUrl) ? ((user.gender === 0 || isEmpty(user.gender))? BoyAvatar : GirlAvatar) : user.avatarUrl"></el-image>
+              <el-image
+                  class="chatUserAvatar"
+                  :src="
+                  isEmpty(user.avatarUrl)
+                    ? user.gender === 0 || isEmpty(user.gender)
+                      ? BoyAvatar
+                      : GirlAvatar
+                    : user.avatarUrl
+                "
+              ></el-image>
             </div>
           </div>
           <div class="chatRowLoading">
             <div class="chatRobot" v-if="answeringFlag && loadingTime !== 0">
-              <el-image class="chatRobotAvatar" :src="robots[robotActive].avatar"></el-image>
+              <el-image
+                  class="chatRobotAvatar"
+                  :src="robots[robotActive].avatar"
+              ></el-image>
               <div class="chatRobotMessage">
-                <v-md-preview class="chatRobotMessageText chatMessageText"
-                              :text="answeringIndex === 0 ?
-                              ((loadingTime % 3 === 0) ? '正在分析中.' : ((loadingTime % 3 === 1) ? '正在分析中. .' : '正在分析中. . .'))
-                               :
-                               answeringMessage.substring(0,answeringIndex)">
+                <v-md-preview
+                    class="chatRobotMessageText chatMessageText"
+                    :text="
+                    answeringIndex === 0
+                      ? loadingTime % 3 === 0
+                        ? '正在分析中.'
+                        : loadingTime % 3 === 1
+                        ? '正在分析中. .'
+                        : '正在分析中. . .'
+                      : answeringMessage.substring(0, answeringIndex)
+                  "
+                >
                 </v-md-preview>
               </div>
             </div>
           </div>
           <div class="chatRowLoading">
-            <div class="chatRobot" v-if="answeringFlag && loadingFlag && answeringIndex === 0 ">
-              <el-image class="chatRobotAvatar" :src="robots[robotActive].avatar"></el-image>
+            <div
+                class="chatRobot"
+                v-if="answeringFlag && loadingFlag && answeringIndex === 0"
+            >
+              <el-image
+                  class="chatRobotAvatar"
+                  :src="robots[robotActive].avatar"
+              ></el-image>
               <div class="chatRobotMessage">
-                <v-md-preview class="chatRobotMessageText chatMessageText"
-                              text="快要生成出来了，请耐心等待"></v-md-preview>
+                <v-md-preview
+                    class="chatRobotMessageText chatMessageText"
+                    text="快要生成出来了，请耐心等待"
+                ></v-md-preview>
               </div>
             </div>
           </div>
         </div>
-        <el-button class="scrollToBottomButton" :icon="ArrowDownBold" circle @click="scrollToBottom"></el-button>
+        <el-button
+            class="scrollToBottomButton"
+            :icon="ArrowDownBold"
+            circle
+            @click="scrollToBottom"
+        ></el-button>
       </el-scrollbar>
 
-      <div class="inputArea" v-if="!isEmpty(robots) && robots[robotActive].handle !== 1">
+      <div
+          class="inputArea"
+          v-if="!isEmpty(robots) && robots[robotActive].handle === 0"
+      >
         <el-upload
             class="upload-demo"
             action="/api/file/uploadPicture?bucketType=1"
@@ -167,53 +382,155 @@
         <div class="input">
           <!--          <el-button v-for="robots[robotsActive].p></el-button>-->
           <div class="prompts">
-            <el-button class="prompt" v-for="(item,value) in robots[robotActive].prompts" @click="chatPrompts(item)">
+            <el-button
+                class="prompt"
+                v-for="(item, value) in robots[robotActive].prompts"
+                @click="chatPrompts(item)"
+            >
               {{ item }}
             </el-button>
           </div>
-          <el-tooltip :content="file.fileName + '.' + file.fileType" placement="top" effect="light"
-                      v-if="!isEmpty(file)">
+          <el-tooltip
+              :content="file.fileName + '.' + file.fileType"
+              placement="top"
+              effect="light"
+              v-if="!isEmpty(file)"
+          >
             <div class="file">
-              <el-image class="picture" :src="file.fileUrl" fit="contain"
-                        v-if="['jpg','png'].indexOf(file.fileType) !== -1"
-                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></el-image>
-              <svg-icon class="fileSvg" icon-class="csv"
-                        v-else-if="['csv'].indexOf(file.fileType) !== -1"
-                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
-              <svg-icon class="fileSvg" icon-class="excel"
-                        v-else-if="['xlsx','xls'].indexOf(file.fileType) !== -1"
-                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
-              <svg-icon class="fileSvg" icon-class="mp4"
-                        v-else-if="['mp4'].indexOf(file.fileType) !== -1"
-                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
-              <svg-icon class="fileSvg" icon-class="pdf"
-                        v-else-if="['pdf'].indexOf(file.fileType) !== -1"
-                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
-              <svg-icon class="fileSvg" icon-class="ppt"
-                        v-else-if="['ppt'].indexOf(file.fileType) !== -1"
-                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
-              <svg-icon class="fileSvg" icon-class="rar"
-                        v-else-if="['rar'].indexOf(file.fileType) !== -1"
-                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
-              <svg-icon class="fileSvg" icon-class="txt"
-                        v-else-if="['txt'].indexOf(file.fileType) !== -1"
-                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
-              <svg-icon class="fileSvg" icon-class="word"
-                        v-else-if="['docx','doc'].indexOf(file.fileType) !== -1"
-                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
-              <svg-icon class="fileSvg" icon-class="zip"
-                        v-else-if="['zip'].indexOf(file.fileType) !== -1"
-                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
-              <svg-icon class="fileSvg" icon-class="unknownFile" v-else
-                        @click="downloadFile(file.fileUrl,file.fileName + '.' +file.fileType)"></svg-icon>
-              <svg-icon class="deleteFile" icon-class="fork" @click="removeFile"></svg-icon>
+              <el-image
+                  class="picture"
+                  :src="file.fileUrl"
+                  fit="contain"
+                  v-if="['jpg', 'png'].indexOf(file.fileType) !== -1"
+                  @click="
+                  downloadFile(
+                    file.fileUrl,
+                    file.fileName + '.' + file.fileType
+                  )
+                "
+              ></el-image>
+              <svg-icon
+                  class="fileSvg"
+                  icon-class="csv"
+                  v-else-if="['csv'].indexOf(file.fileType) !== -1"
+                  @click="
+                  downloadFile(
+                    file.fileUrl,
+                    file.fileName + '.' + file.fileType
+                  )
+                "
+              ></svg-icon>
+              <svg-icon
+                  class="fileSvg"
+                  icon-class="excel"
+                  v-else-if="['xlsx', 'xls'].indexOf(file.fileType) !== -1"
+                  @click="
+                  downloadFile(
+                    file.fileUrl,
+                    file.fileName + '.' + file.fileType
+                  )
+                "
+              ></svg-icon>
+              <svg-icon
+                  class="fileSvg"
+                  icon-class="mp4"
+                  v-else-if="['mp4'].indexOf(file.fileType) !== -1"
+                  @click="
+                  downloadFile(
+                    file.fileUrl,
+                    file.fileName + '.' + file.fileType
+                  )
+                "
+              ></svg-icon>
+              <svg-icon
+                  class="fileSvg"
+                  icon-class="pdf"
+                  v-else-if="['pdf'].indexOf(file.fileType) !== -1"
+                  @click="
+                  downloadFile(
+                    file.fileUrl,
+                    file.fileName + '.' + file.fileType
+                  )
+                "
+              ></svg-icon>
+              <svg-icon
+                  class="fileSvg"
+                  icon-class="ppt"
+                  v-else-if="['ppt'].indexOf(file.fileType) !== -1"
+                  @click="
+                  downloadFile(
+                    file.fileUrl,
+                    file.fileName + '.' + file.fileType
+                  )
+                "
+              ></svg-icon>
+              <svg-icon
+                  class="fileSvg"
+                  icon-class="rar"
+                  v-else-if="['rar'].indexOf(file.fileType) !== -1"
+                  @click="
+                  downloadFile(
+                    file.fileUrl,
+                    file.fileName + '.' + file.fileType
+                  )
+                "
+              ></svg-icon>
+              <svg-icon
+                  class="fileSvg"
+                  icon-class="txt"
+                  v-else-if="['txt'].indexOf(file.fileType) !== -1"
+                  @click="
+                  downloadFile(
+                    file.fileUrl,
+                    file.fileName + '.' + file.fileType
+                  )
+                "
+              ></svg-icon>
+              <svg-icon
+                  class="fileSvg"
+                  icon-class="word"
+                  v-else-if="['docx', 'doc'].indexOf(file.fileType) !== -1"
+                  @click="
+                  downloadFile(
+                    file.fileUrl,
+                    file.fileName + '.' + file.fileType
+                  )
+                "
+              ></svg-icon>
+              <svg-icon
+                  class="fileSvg"
+                  icon-class="zip"
+                  v-else-if="['zip'].indexOf(file.fileType) !== -1"
+                  @click="
+                  downloadFile(
+                    file.fileUrl,
+                    file.fileName + '.' + file.fileType
+                  )
+                "
+              ></svg-icon>
+              <svg-icon
+                  class="fileSvg"
+                  icon-class="unknownFile"
+                  v-else
+                  @click="
+                  downloadFile(
+                    file.fileUrl,
+                    file.fileName + '.' + file.fileType
+                  )
+                "
+              ></svg-icon>
+              <svg-icon
+                  class="deleteFile"
+                  icon-class="fork"
+                  @click="removeFile"
+              ></svg-icon>
             </div>
           </el-tooltip>
           <el-input
               class="chatInput"
               v-model="chatInput"
               :rows="2"
-              :autosize="{minRows:2,maxRows:8}"
+              :autosize="{ minRows: 2, maxRows: 8 }"
               type="textarea"
               resize="none"
               placeholder="开始你的提问吧"
@@ -224,7 +541,10 @@
         </el-button>
       </div>
 
-      <div class="mathematicalModel" v-else-if="!isEmpty(robots) && robots[robotActive].handle === 1">
+      <div
+          class="mathematicalModel"
+          v-else-if="!isEmpty(robots) && robots[robotActive].handle === 1"
+      >
         <div class="leftContainer">
           <el-upload
               class="dragUpload"
@@ -234,57 +554,481 @@
               :on-success="fileUpload"
           >
             <i class="el-icon-upload"></i>
-            <div class="el-upload__text">
-              拖拽上传或<em>点击上传</em>
-            </div>
+            <div class="el-upload__text">拖拽上传或<em>点击上传</em></div>
           </el-upload>
-          <el-image class="image" :src="file.fileUrl" v-if="!isEmpty(file)" fit="contain"></el-image>
-          <el-button class="imageAnalyze" v-if="!isEmpty(file)" @click="imageAnalyze" v-loading="false">开始分析
+          <el-image
+              class="image"
+              :src="file.fileUrl"
+              v-if="!isEmpty(file)"
+              fit="contain"
+          ></el-image>
+          <el-button
+              class="imageAnalyze"
+              v-if="!isEmpty(file)"
+              @click="imageAnalyze"
+              v-loading="false"
+          >开始分析
           </el-button>
-          <scrollbar class="latexContainer" ref="latexContainer"></scrollbar>
+          <!--          <scrollbar class="latexContainer" ref="latexContainer"></scrollbar>-->
+          <v-md-preview
+              class="latexContainer"
+              :text="imageQuestiuonText"
+          ></v-md-preview>
           <el-input
               class="latexInput"
               v-model="imageQuestiuonText"
               :rows="2"
-              :autosize="{minRows:2,maxRows:8}"
+              :autosize="{ minRows: 2, maxRows: 8 }"
               type="textarea"
               resize="none"
-              @input="renderLatex($refs.latexContainer,imageQuestiuonText)"
+              @input="renderLatex($refs.latexContainer, imageQuestiuonText)"
               v-loading="imageAnalyzeFlag"
           />
-          <el-button class="sendQuestion" type="primary" @click="sendQuestion">发送题目</el-button>
+          <el-button class="sendQuestion" type="primary" @click="sendQuestion"
+          >发送题目
+          </el-button
+          >
         </div>
         <el-scrollbar class="rightContainer">
           <div class="chatRow">
-            <el-image class="chatRobotAvatar" :src="robots[robotActive].avatar"></el-image>
+            <el-image
+                class="chatRobotAvatar"
+                :src="robots[robotActive].avatar"
+            ></el-image>
             <!--              <div class="chatRobotMessage" v-html="markdownToHtml(item.content)"></div>-->
             <div class="chatRobotMessage">
-              <v-md-preview class="chatRobotMessageText chatMessageText"
-                            :text="robots[robotActive].description">
+              <v-md-preview
+                  class="chatRobotMessageText chatMessageText"
+                  :text="robots[robotActive].description"
+              >
               </v-md-preview>
             </div>
           </div>
-          <div class="chatRow" v-if="!isEmpty(sendQuestionMessage) || sendQuestionFlag">
-            <el-image class="chatRobotAvatar" :src="robots[robotActive].avatar"></el-image>
+          <div
+              class="chatRow"
+              v-if="!isEmpty(sendQuestionMessage) || sendQuestionFlag"
+          >
+            <el-image
+                class="chatRobotAvatar"
+                :src="robots[robotActive].avatar"
+            ></el-image>
             <!--              <div class="chatRobotMessage" v-html="markdownToHtml(item.content)"></div>-->
             <div class="chatRobotMessage">
-              <v-md-preview class="chatRobotMessageText chatMessageText"
-                            :text="sendQuestionIndex === 0 ?
-                              ((loadingTime % 3 === 0) ? '正在分析中.' : ((loadingTime % 3 === 1) ? '正在分析中. .' : '正在分析中. . .'))
-                               :
-                               sendQuestionMessage.substring(0,sendQuestionIndex)" v-if="sendQuestionFlag">
+              <v-md-preview
+                  class="chatRobotMessageText chatMessageText"
+                  :text="
+                  sendQuestionIndex === 0
+                    ? loadingTime % 3 === 0
+                      ? '正在分析中.'
+                      : loadingTime % 3 === 1
+                      ? '正在分析中. .'
+                      : '正在分析中. . .'
+                    : sendQuestionMessage.substring(0, sendQuestionIndex)
+                "
+                  v-if="sendQuestionFlag"
+              >
               </v-md-preview>
-              <div class="chatRobotMessageText chatMessageText latexMessageText" ref="chatRobotMessageText"
-                   v-else></div>
+              <div
+                  class="chatRobotMessageText chatMessageText latexMessageText"
+                  ref="chatRobotMessageText"
+                  v-else
+              ></div>
             </div>
           </div>
         </el-scrollbar>
       </div>
+
+      <el-scrollbar
+          class="chatArea"
+          ref="chatArea"
+          label="chatArea"
+          id="chatArea"
+          v-if="!isEmpty(robots) && robots[robotActive].handle === 2"
+      >
+        <div class="chatAreaInner" ref="chatAreaInner">
+          <div class="chatRow" v-for="(item, index) in messages">
+            <div class="chatRobot" v-if="item.role === 'assistant'">
+              <el-image
+                  class="chatRobotAvatar"
+                  :src="robots[robotActive].avatar"
+              ></el-image>
+              <!--              <div class="chatRobotMessage" v-html="markdownToHtml(item.content)"></div>-->
+              <div class="chatRobotMessage">
+                <v-md-preview
+                    class="chatRobotMessageText chatMessageText"
+                    :text="item.content"
+                ></v-md-preview>
+              </div>
+            </div>
+
+            <div class="chatUser" v-if="item.role === 'user'">
+              <div class="chatUserMessage">
+                <el-tooltip
+                    :content="item.fileName + '.' + item.fileType"
+                    placement="top"
+                    effect="light"
+                    v-if="!isEmpty(item.fileType)"
+                >
+                  <el-image
+                      class="chatUserFilePicture"
+                      :src="item.fileUrl"
+                      fit="fill"
+                      v-if="['jpg', 'png'].indexOf(item.fileType) !== -1"
+                      @click="
+                      downloadFile(
+                        item.fileUrl,
+                        item.fileName + '.' + item.fileType
+                      )
+                    "
+                  ></el-image>
+                  <svg-icon
+                      class="chatUserFileSvg"
+                      icon-class="csv"
+                      v-else-if="['csv'].indexOf(item.fileType) !== -1"
+                      @click="
+                      downloadFile(
+                        item.fileUrl,
+                        item.fileName + '.' + item.fileType
+                      )
+                    "
+                  ></svg-icon>
+                  <svg-icon
+                      class="chatUserFileSvg"
+                      icon-class="excel"
+                      v-else-if="['xlsx', 'xls'].indexOf(item.fileType) !== -1"
+                      @click="
+                      downloadFile(
+                        item.fileUrl,
+                        item.fileName + '.' + item.fileType
+                      )
+                    "
+                  ></svg-icon>
+                  <svg-icon
+                      class="chatUserFileSvg"
+                      icon-class="mp4"
+                      v-else-if="['mp4'].indexOf(item.fileType) !== -1"
+                      @click="
+                      downloadFile(
+                        item.fileUrl,
+                        item.fileName + '.' + item.fileType
+                      )
+                    "
+                  ></svg-icon>
+                  <svg-icon
+                      class="chatUserFileSvg"
+                      icon-class="pdf"
+                      v-else-if="['pdf'].indexOf(item.fileType) !== -1"
+                      @click="
+                      downloadFile(
+                        item.fileUrl,
+                        item.fileName + '.' + item.fileType
+                      )
+                    "
+                  ></svg-icon>
+                  <svg-icon
+                      class="chatUserFileSvg"
+                      icon-class="ppt"
+                      v-else-if="['ppt'].indexOf(item.fileType) !== -1"
+                      @click="
+                      downloadFile(
+                        item.fileUrl,
+                        item.fileName + '.' + item.fileType
+                      )
+                    "
+                  ></svg-icon>
+                  <svg-icon
+                      class="chatUserFileSvg"
+                      icon-class="rar"
+                      v-else-if="['rar'].indexOf(item.fileType) !== -1"
+                      @click="
+                      downloadFile(
+                        item.fileUrl,
+                        item.fileName + '.' + item.fileType
+                      )
+                    "
+                  ></svg-icon>
+                  <svg-icon
+                      class="chatUserFileSvg"
+                      icon-class="txt"
+                      v-else-if="['txt'].indexOf(item.fileType) !== -1"
+                      @click="
+                      downloadFile(
+                        item.fileUrl,
+                        item.fileName + '.' + item.fileType
+                      )
+                    "
+                  ></svg-icon>
+                  <svg-icon
+                      class="chatUserFileSvg"
+                      icon-class="word"
+                      v-else-if="['docx', 'doc'].indexOf(item.fileType) !== -1"
+                      @click="
+                      downloadFile(
+                        item.fileUrl,
+                        item.fileName + '.' + item.fileType
+                      )
+                    "
+                  ></svg-icon>
+                  <svg-icon
+                      class="chatUserFileSvg"
+                      icon-class="zip"
+                      v-else-if="['zip'].indexOf(item.fileType) !== -1"
+                      @click="
+                      downloadFile(
+                        item.fileUrl,
+                        item.fileName + '.' + item.fileType
+                      )
+                    "
+                  ></svg-icon>
+                  <svg-icon
+                      class="chatUserFileSvg"
+                      icon-class="unknownFile"
+                      v-else
+                      @click="
+                      downloadFile(
+                        item.fileUrl,
+                        item.fileName + '.' + item.fileType
+                      )
+                    "
+                  ></svg-icon>
+                </el-tooltip>
+                <!--              <div class="chatUserMessage" v-html="markdownToHtml(item.content)"></div>-->
+                <v-md-preview
+                    class="chatUserMessageText chatMessageText"
+                    :text="item.content"
+                    v-if="!isEmpty(item.content)"
+                ></v-md-preview>
+              </div>
+              <el-image
+                  class="chatUserAvatar"
+                  :src="
+                  isEmpty(user.avatarUrl)
+                    ? user.gender === 0 || isEmpty(user.gender)
+                      ? BoyAvatar
+                      : GirlAvatar
+                    : user.avatarUrl
+                "
+              ></el-image>
+            </div>
+          </div>
+          <div class="chatRowLoading">
+            <div class="chatRobot" v-if="isGenerating()">
+              <el-image
+                  class="chatRobotAvatar"
+                  :src="robots[robotActive].avatar"
+              ></el-image>
+              <div class="chatRobotMessage">
+                <v-md-preview
+                    class="chatRobotMessageText chatMessageText"
+                    :text="
+                    loadingTime % 3 === 0
+                      ? '正在分析中.'
+                      : loadingTime % 3 === 1
+                      ? '正在分析中. .'
+                      : '正在分析中. . .'
+                  "
+                >
+                </v-md-preview>
+              </div>
+            </div>
+          </div>
+        </div>
+        <el-button
+            class="scrollToBottomButton"
+            :icon="ArrowDownBold"
+            circle
+            @click="scrollToBottom"
+        ></el-button>
+      </el-scrollbar>
+
+      <div
+          class="inputArea"
+          v-if="!isEmpty(robots) && robots[robotActive].handle === 2"
+      >
+        <el-upload
+            class="upload-demo"
+            action="/api/file/uploadPicture?bucketType=1"
+            :show-file-list="false"
+            :on-remove="removeFile"
+            :on-success="fileUpload"
+        >
+          <el-button class="fileUploadButton" :icon="Folder" circle></el-button>
+        </el-upload>
+        <div class="input">
+          <!--          <el-button v-for="robots[robotsActive].p></el-button>-->
+          <div class="prompts">
+            <el-button
+                class="prompt"
+                v-for="(item, value) in robots[robotActive].prompts"
+                @click="chatPrompts(item)"
+            >
+              {{ item }}
+            </el-button>
+          </div>
+          <el-tooltip
+              :content="file.fileName + '.' + file.fileType"
+              placement="top"
+              effect="light"
+              v-if="!isEmpty(file)"
+          >
+            <div class="file">
+              <el-image
+                  class="picture"
+                  :src="file.fileUrl"
+                  fit="contain"
+                  v-if="['jpg', 'png'].indexOf(file.fileType) !== -1"
+                  @click="
+                  downloadFile(
+                    file.fileUrl,
+                    file.fileName + '.' + file.fileType
+                  )
+                "
+              ></el-image>
+              <svg-icon
+                  class="fileSvg"
+                  icon-class="csv"
+                  v-else-if="['csv'].indexOf(file.fileType) !== -1"
+                  @click="
+                  downloadFile(
+                    file.fileUrl,
+                    file.fileName + '.' + file.fileType
+                  )
+                "
+              ></svg-icon>
+              <svg-icon
+                  class="fileSvg"
+                  icon-class="excel"
+                  v-else-if="['xlsx', 'xls'].indexOf(file.fileType) !== -1"
+                  @click="
+                  downloadFile(
+                    file.fileUrl,
+                    file.fileName + '.' + file.fileType
+                  )
+                "
+              ></svg-icon>
+              <svg-icon
+                  class="fileSvg"
+                  icon-class="mp4"
+                  v-else-if="['mp4'].indexOf(file.fileType) !== -1"
+                  @click="
+                  downloadFile(
+                    file.fileUrl,
+                    file.fileName + '.' + file.fileType
+                  )
+                "
+              ></svg-icon>
+              <svg-icon
+                  class="fileSvg"
+                  icon-class="pdf"
+                  v-else-if="['pdf'].indexOf(file.fileType) !== -1"
+                  @click="
+                  downloadFile(
+                    file.fileUrl,
+                    file.fileName + '.' + file.fileType
+                  )
+                "
+              ></svg-icon>
+              <svg-icon
+                  class="fileSvg"
+                  icon-class="ppt"
+                  v-else-if="['ppt'].indexOf(file.fileType) !== -1"
+                  @click="
+                  downloadFile(
+                    file.fileUrl,
+                    file.fileName + '.' + file.fileType
+                  )
+                "
+              ></svg-icon>
+              <svg-icon
+                  class="fileSvg"
+                  icon-class="rar"
+                  v-else-if="['rar'].indexOf(file.fileType) !== -1"
+                  @click="
+                  downloadFile(
+                    file.fileUrl,
+                    file.fileName + '.' + file.fileType
+                  )
+                "
+              ></svg-icon>
+              <svg-icon
+                  class="fileSvg"
+                  icon-class="txt"
+                  v-else-if="['txt'].indexOf(file.fileType) !== -1"
+                  @click="
+                  downloadFile(
+                    file.fileUrl,
+                    file.fileName + '.' + file.fileType
+                  )
+                "
+              ></svg-icon>
+              <svg-icon
+                  class="fileSvg"
+                  icon-class="word"
+                  v-else-if="['docx', 'doc'].indexOf(file.fileType) !== -1"
+                  @click="
+                  downloadFile(
+                    file.fileUrl,
+                    file.fileName + '.' + file.fileType
+                  )
+                "
+              ></svg-icon>
+              <svg-icon
+                  class="fileSvg"
+                  icon-class="zip"
+                  v-else-if="['zip'].indexOf(file.fileType) !== -1"
+                  @click="
+                  downloadFile(
+                    file.fileUrl,
+                    file.fileName + '.' + file.fileType
+                  )
+                "
+              ></svg-icon>
+              <svg-icon
+                  class="fileSvg"
+                  icon-class="unknownFile"
+                  v-else
+                  @click="
+                  downloadFile(
+                    file.fileUrl,
+                    file.fileName + '.' + file.fileType
+                  )
+                "
+              ></svg-icon>
+              <svg-icon
+                  class="deleteFile"
+                  icon-class="fork"
+                  @click="removeFile"
+              ></svg-icon>
+            </div>
+          </el-tooltip>
+          <el-input
+              class="chatInput"
+              v-model="chatInput"
+              :rows="2"
+              :autosize="{ minRows: 2, maxRows: 8 }"
+              type="textarea"
+              resize="none"
+              placeholder="开始你的提问吧"
+          />
+        </div>
+        <el-button class="sendButton" @click="longTextDialogueSubmit">
+          <svg-icon class="sendButtonIcon" icon-class="send"></svg-icon>
+        </el-button>
+      </div>
     </div>
 
-    <el-dialog v-model="contactUsDialogVis" title="意见反馈" width="350" :close-on-click-modal="false"
-               :show-close="false">
-      <el-input v-model="contactUsForm.content" type="textarea" placeholder="请描述您需要的问题"></el-input>
+    <el-dialog
+        v-model="contactUsDialogVis"
+        title="意见反馈"
+        width="350"
+        :close-on-click-modal="false"
+        :show-close="false"
+    >
+      <el-input
+          v-model="contactUsForm.content"
+          type="textarea"
+          placeholder="请描述您需要的问题"
+      ></el-input>
       <el-upload
           ref="contactUsUpload"
           action="/api/file/uploadPicture?bucketType=3"
@@ -296,45 +1040,67 @@
       </el-upload>
       <template #footer>
         <div class="dialog-footer">
-          <el-button type="danger" @click="closeContactUsDialog">取消</el-button>
+          <el-button type="danger" @click="closeContactUsDialog"
+          >取消
+          </el-button
+          >
           <el-button type="primary" @click="contactUs">确定</el-button>
         </div>
       </template>
     </el-dialog>
 
-    <input type="text" id="copyVal" value="http://54.222.173.61:81/home"
-           style="opacity:0; position:absolute;top: 0;left: 0"/>
+    <input
+        type="text"
+        id="copyVal"
+        value="http://54.222.173.61:81/home"
+        style="opacity: 0; position: absolute; top: 0; left: 0"
+    />
 
-    <SuspendedBall @handlepaly="openContactUsDialog" style="cursor:pointer"></SuspendedBall>
+    <SuspendedBall
+        @handlepaly="openContactUsDialog"
+        style="cursor: pointer"
+    ></SuspendedBall>
   </div>
 </template>
 
 <script>
-import BoyAvatar from '@/assets/pictures/boyAvatar.png';
-import GirlAvatar from '@/assets/pictures/girlAvatar.png';
-import logo from '@/assets/pictures/logo.png'
-import F2F2F2_Square from '@/assets/pictures/F2F2F2_Square.png'
-import C9C9C9_Square from '@/assets/pictures/C9C9C9_Square.png'
-import F2F2F2_BottomLeftAngledTriangle from '@/assets/pictures/F2F2F2_BottomLeftAngledTriangle.png'
-import C9C9C9_TopRightAngledTriangle from '@/assets/pictures/C9C9C9_TopRightAngledTriangle.png'
+import BoyAvatar from "@/assets/pictures/boyAvatar.png";
+import GirlAvatar from "@/assets/pictures/girlAvatar.png";
+import logo from "@/assets/pictures/logo.png";
+import F2F2F2_Square from "@/assets/pictures/F2F2F2_Square.png";
+import C9C9C9_Square from "@/assets/pictures/C9C9C9_Square.png";
+import F2F2F2_BottomLeftAngledTriangle from "@/assets/pictures/F2F2F2_BottomLeftAngledTriangle.png";
+import C9C9C9_TopRightAngledTriangle from "@/assets/pictures/C9C9C9_TopRightAngledTriangle.png";
 
-
-import {ref} from 'vue'
+import {ref} from "vue";
 import {fetchEventSource} from "@microsoft/fetch-event-source";
 
-import {ArrowLeftBold, ArrowRightBold, ArrowDownBold, Folder} from '@element-plus/icons-vue'
-import { parse, HtmlGenerator } from 'latex.js'
+import {
+  ArrowLeftBold,
+  ArrowRightBold,
+  ArrowDownBold,
+  Folder,
+} from "@element-plus/icons-vue";
+import {parse, HtmlGenerator} from "latex.js";
 
-import {addSession, deleteSession, getMessageList, getWorkbenchRobotList, getSessionList} from "@/apis/chat";
+import {
+  addSession,
+  deleteSession,
+  getMessageList,
+  getWorkbenchRobotList,
+  getSessionList,
+  longTextDialogueSubmit,
+  longTextDialogueQuery,
+} from "@/apis/chat";
 import {contactUs, getUserByToken} from "@/apis/user";
 
 import {isEmpty} from "@/utils/common";
 
 import SvgIcon from "@/components/svgIcon/index.vue";
-import SuspendedBall from '@/components/suspendedBall'
+import SuspendedBall from "@/components/suspendedBall";
 
 export default {
-  name: 'Workbench',
+  name: "Workbench",
   components: {SvgIcon, SuspendedBall},
   data() {
     return {
@@ -378,6 +1144,8 @@ export default {
       sendQuestionIndex: 0,
       sendQuestionClock: null,
 
+      longTextDialogueExecuteEntitys: [],
+
       loadingTime: 0,
       loadingClock: null,
       loadingFlag: false,
@@ -388,7 +1156,7 @@ export default {
       sessionActive: 0,
 
       initFlag: false,
-    }
+    };
   },
   setup() {
     const chatArea = ref(null);
@@ -399,27 +1167,44 @@ export default {
         const bottom = chatAreaInner.value.clientHeight;
         chatArea.value.setScrollTop(bottom);
       } catch (err) {
-        console.log(err)
+        console.log(err);
       }
     };
 
     return {
-      chatAreaInner, chatArea, scrollToBottom
-    }
+      chatAreaInner,
+      chatArea,
+      scrollToBottom,
+    };
   },
   async created() {
-    this.token = localStorage.getItem("token");
-    if (isEmpty(this.token)) {
-      this.$router.push("/home");
-      this.$message.error("请先登录")
-    }
+    // this.token = localStorage.getItem("token");
+    // if (isEmpty(this.token)) {
+    //   this.$router.push("/home");
+    //   this.$message.error("请先登录");
+    // }
 
-    await this.getUserByToken()
-    await this.getRobotList()
+    this.longTextDialogueExecuteEntitys =
+        this.$store.state.longTextDialogueExecuteEntitys;
+    setInterval(() => {
+      this.longTextDialogueQuery();
+    }, 1000 * 60);
 
-    this.initContactUsForm()
+    await this.getUserByToken();
+    await this.getRobotList();
 
-    this.initFlag = true
+    this.initContactUsForm();
+
+    this.loadingTime = 0;
+    this.loadingFlag = false;
+    this.loadingClock = setInterval(() => {
+      this.loadingTime = this.loadingTime + 1;
+      if (this.loadingTime / 2 > Math.random() * 5 + 15) {
+        this.loadingFlag = true;
+      }
+    }, 500);
+
+    this.initFlag = true;
   },
   mounted() {
     // this.loadLatexJS().then(() => {
@@ -432,202 +1217,222 @@ export default {
         fileId: null,
         fileName: null,
         fileUrl: null,
-        fileType: null
-      }
+        fileType: null,
+      };
     },
 
     addSession() {
-      addSession(this.robots[this.robotActive].id).then((res) => {
-        if (res.data.code === 200) {
-          this.sessionActive = 0
-          this.getSessionList()
-        } else {
-          this.$message.error(res.data.message)
-        }
-      }).catch((err) => {
-        console.log(err)
-        this.$message.error('系统异常，请联系管理员')
-      })
+      addSession(this.robots[this.robotActive].id)
+          .then((res) => {
+            if (res.data.code === 200) {
+              this.sessionActive = 0;
+              this.getSessionList();
+            } else {
+              this.$message.error(res.data.message);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            this.$message.error("系统异常，请联系管理员");
+          });
     },
     deleteSession(index) {
-      deleteSession(this.sessions[index].id).then((res) => {
-        if (res.data.code === 200) {
-          this.getSessionList();
-        } else {
-          this.$message.error(res.data.message)
-        }
-      }).catch((err) => {
-        console.log(err)
-        this.$message.error('系统异常，请联系管理员')
-      })
+      deleteSession(this.sessions[index].id)
+          .then((res) => {
+            if (res.data.code === 200) {
+              this.getSessionList();
+            } else {
+              this.$message.error(res.data.message);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            this.$message.error("系统异常，请联系管理员");
+          });
     },
     getUserByToken() {
-      return getUserByToken().then((res) => {
-        if (res.data.code === 200) {
-          this.user = {
-            id: res.data.data['user_id'],
-            email: res.data.data['email'],
-            gender: res.data.data['gender'],
-            userName: res.data.data['user_name'],
-            avatarUrl: res.data.data['avatar_url'],
-            school: res.data.data['school']
-          }
-        } else {
-          this.$router.push("/home");
-          this.$message.error(res.data.message)
-        }
-      }).catch((err) => {
-        console.log(err)
-        this.$message.error('系统异常，请联系管理员')
-      })
+      return getUserByToken()
+          .then((res) => {
+            if (res.data.code === 200) {
+              this.user = {
+                id: res.data.data["user_id"],
+                email: res.data.data["email"],
+                gender: res.data.data["gender"],
+                userName: res.data.data["user_name"],
+                avatarUrl: res.data.data["avatar_url"],
+                school: res.data.data["school"],
+              };
+            } else {
+              this.$router.push("/home");
+              this.$message.error(res.data.message);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            this.$message.error("系统异常，请联系管理员");
+          });
     },
     getRobotList() {
-      this.answeringFlag = true
-      return getWorkbenchRobotList().then((res) => {
-        if (res.data.code === 200) {
-          res.data.data.sort((o1, o2) => {
-            return o1.sort - o2.sort
+      this.answeringFlag = true;
+      return getWorkbenchRobotList()
+          .then((res) => {
+            if (res.data.code === 200) {
+              res.data.data.sort((o1, o2) => {
+                return o1.sort - o2.sort;
+              });
+              this.robots = [];
+              for (let robot in res.data.data) {
+                this.robots.push({
+                  id: res.data.data[robot]["bot_id"],
+                  avatar: res.data.data[robot]["bot_avatar"],
+                  name: res.data.data[robot]["bot_name"],
+                  description: res.data.data[robot]["description"],
+                  handle: res.data.data[robot]["bot_handle"],
+                  type: res.data.data[robot]["bot_type"],
+                  prompts: res.data.data[robot]["prompts"],
+                });
+              }
+              this.answeringFlag = false;
+              this.getSessionList();
+            } else {
+              this.answeringFlag = false;
+              this.$message.error(res.data.message);
+            }
           })
-          this.robots = []
-          for (let robot in res.data.data) {
-            this.robots.push({
-              id: res.data.data[robot]['bot_id'],
-              avatar: res.data.data[robot]['bot_avatar'],
-              name: res.data.data[robot]['bot_name'],
-              description: res.data.data[robot]['description'],
-              handle: res.data.data[robot]['bot_handle'],
-              type: res.data.data[robot]['bot_type'],
-              prompts: res.data.data[robot]['prompts'],
-            })
-          }
-          console.log(this.robots)
-          this.answeringFlag = false
-          this.getSessionList()
-        } else {
-          this.answeringFlag = false
-          this.$message.error(res.data.message)
-        }
-      }).catch((err) => {
-        this.answeringFlag = false
-        console.log(err)
-        this.$message.error('系统异常，请联系管理员')
-      })
+          .catch((err) => {
+            this.answeringFlag = false;
+            console.log(err);
+            this.$message.error("系统异常，请联系管理员");
+          });
     },
     getSessionList() {
-      this.answeringFlag = true
-      return getSessionList(this.robots[this.robotActive].id).then((res) => {
-        if (res.data.code === 200) {
-          if (isEmpty(res.data.data)) {
-            this.answeringFlag = false
-            this.addSession()
-          } else {
-            this.sessions = []
-            for (let i in res.data.data) {
-              this.sessions.push({
-                id: res.data.data[i]['session_id'],
-                botId: res.data.data[i]['bot_id'],
-                userId: res.data.data[i]["user_id"],
-                createTime: res.data.data[i]['created_time'],
-                updateTime: res.data.data[i]['updated_time'],
-                message: isEmpty(res.data.data[i]["message"]) ? null : {
-                  id: res.data.data[i]["message"]["message_id"],
-                  sessionId: res.data.data[i]["message"]["session_id"],
-                  role: res.data.data[i]["message"]["role"],
-                  content: res.data.data[i]["message"]["content"],
-                  fileType: res.data.data[i]["message"]["file_type"],
-                  fileName: res.data.data[i]["message"]["file_name"],
-                  fileUrl: res.data.data[i]["message"]["file_url"],
-                  createTime: res.data.data[i]["message"]["created_time"],
+      this.answeringFlag = true;
+      return getSessionList(this.robots[this.robotActive].id)
+          .then((res) => {
+            if (res.data.code === 200) {
+              if (isEmpty(res.data.data)) {
+                this.answeringFlag = false;
+                this.addSession();
+              } else {
+                this.sessions = [];
+                for (let i in res.data.data) {
+                  this.sessions.push({
+                    id: res.data.data[i]["session_id"],
+                    botId: res.data.data[i]["bot_id"],
+                    userId: res.data.data[i]["user_id"],
+                    createTime: res.data.data[i]["created_time"],
+                    updateTime: res.data.data[i]["updated_time"],
+                    message: isEmpty(res.data.data[i]["message"])
+                        ? null
+                        : {
+                          id: res.data.data[i]["message"]["message_id"],
+                          sessionId: res.data.data[i]["message"]["session_id"],
+                          role: res.data.data[i]["message"]["role"],
+                          content: res.data.data[i]["message"]["content"],
+                          fileType: res.data.data[i]["message"]["file_type"],
+                          fileName: res.data.data[i]["message"]["file_name"],
+                          fileUrl: res.data.data[i]["message"]["file_url"],
+                          createTime: res.data.data[i]["message"]["created_time"],
+                        },
+                  });
                 }
-              })
+                this.sessions.sort((o1, o2) => {
+                  return new Date(o2.createTime) - new Date(o1.createTime);
+                });
+                this.answeringFlag = false;
+                this.sessionActive = Math.min(
+                    this.sessions.length - 1,
+                    this.sessionActive
+                );
+                this.getMessageList();
+              }
+            } else {
+              this.answeringFlag = false;
+              this.$message.error(res.data.message);
             }
-            this.sessions.sort((o1, o2) => {
-              return new Date(o2.createTime) - new Date(o1.createTime)
-            })
-            this.answeringFlag = false
-            this.sessionActive = Math.min(this.sessions.length - 1, this.sessionActive)
-            this.getMessageList()
-          }
-        } else {
-          this.answeringFlag = false
-          this.$message.error(res.data.message)
-        }
-      }).catch((err) => {
-        this.answeringFlag = false
-        console.log(err)
-        this.$message.error('系统异常，请联系管理员')
-      })
+          })
+          .catch((err) => {
+            this.answeringFlag = false;
+            console.log(err);
+            this.$message.error("系统异常，请联系管理员");
+          });
     },
     getMessageList() {
-      this.answeringFlag = true
-      return getMessageList(this.sessions[this.sessionActive].id).then((res) => {
-        if (res.data.code === 200) {
-          this.messages = [{
-            role: "assistant",
-            contentType: 'text',
-            content: this.robots[this.robotActive].description,
-          }]
-          for (let i in res.data.data) {
-            this.messages.push({
-              id: res.data.data[i]['message_id'],
-              sessionId: res.data.data[i]['session_id'],
-              role: res.data.data[i]['role'],
-              content: res.data.data[i]['content'],
-              fileType: res.data.data[i]['file_type'],
-              fileName: res.data.data[i]['file_name'],
-              fileUrl: res.data.data[i]['file_url'],
-              createTime: res.data.data[i]['created_time']
-            })
-          }
-          this.answeringFlag = false
-          this.$nextTick(() => {
-            this.scrollToBottom()
+      this.answeringFlag = true;
+      return getMessageList(this.sessions[this.sessionActive].id)
+          .then((res) => {
+            if (res.data.code === 200) {
+              this.messages = [
+                {
+                  role: "assistant",
+                  contentType: "text",
+                  content: this.robots[this.robotActive].description,
+                },
+              ];
+              for (let i in res.data.data) {
+                this.messages.push({
+                  id: res.data.data[i]["message_id"],
+                  sessionId: res.data.data[i]["session_id"],
+                  role: res.data.data[i]["role"],
+                  content: res.data.data[i]["content"],
+                  fileType: res.data.data[i]["file_type"],
+                  fileName: res.data.data[i]["file_name"],
+                  fileUrl: res.data.data[i]["file_url"],
+                  createTime: res.data.data[i]["created_time"],
+                });
+              }
+              this.answeringFlag = false;
+              this.$nextTick(() => {
+                this.scrollToBottom();
+              });
+            } else {
+              this.answeringFlag = false;
+              this.$message.error(res.data.message);
+            }
           })
-        } else {
-          this.answeringFlag = false
-          this.$message.error(res.data.message)
-        }
-      }).catch((err) => {
-        this.answeringFlag = false
-        console.log(err)
-        this.$message.error('系统异常，请联系管理员')
-      })
+          .catch((err) => {
+            this.answeringFlag = false;
+            console.log(err);
+            this.$message.error("系统异常，请联系管理员");
+          });
     },
     contactUs() {
-      contactUs(this.contactUsForm.content, this.contactUsForm.fileId, this.contactUsForm.fileName, this.contactUsForm.fileUrl, this.contactUsForm.fileType).then((res) => {
-        if (res.data.code === 200) {
-          this.contactUsDialogVis = false
-          this.$message.success("反馈成功")
-        } else {
-          this.answeringFlag = false
-          this.$message.error(res.data.message)
-        }
-      }).catch((err) => {
-        this.answeringFlag = false
-        console.log(err)
-        this.$message.error('系统异常，请联系管理员')
-      })
+      contactUs(
+          this.contactUsForm.content,
+          this.contactUsForm.fileId,
+          this.contactUsForm.fileName,
+          this.contactUsForm.fileUrl,
+          this.contactUsForm.fileType
+      )
+          .then((res) => {
+            if (res.data.code === 200) {
+              this.contactUsDialogVis = false;
+              this.$message.success("反馈成功");
+            } else {
+              this.answeringFlag = false;
+              this.$message.error(res.data.message);
+            }
+          })
+          .catch((err) => {
+            this.answeringFlag = false;
+            console.log(err);
+            this.$message.error("系统异常，请联系管理员");
+          });
     },
     chat() {
       if (this.answeringFlag) {
-        return
+        return;
       }
 
-      this.answeringFlag = true
-      this.answeringMessage = ""
-      this.answeringIndex = 0
+      this.answeringFlag = true;
+      this.answeringMessage = "";
+      this.answeringIndex = 0;
       this.answeringClock = setInterval(() => {
-        this.answeringIndex = Math.min(this.answeringIndex + 1, this.answeringMessage.length)
-      }, 20)
-
-      this.loadingTime = 0
-      this.loadingFlag = false
-      this.loadingClock = setInterval(() => {
-        this.loadingTime = this.loadingTime + 1;
-        if (this.loadingTime / 2 > Math.random() * 5 + 15) {
-          this.loadingFlag = true
-        }
-      }, 500)
+        this.answeringIndex = Math.min(
+            this.answeringIndex + 1,
+            this.answeringMessage.length
+        );
+      }, 20);
 
       this.messages.push({
         role: "user",
@@ -635,18 +1440,18 @@ export default {
         fileType: isEmpty(this.file) ? null : this.file.fileType,
         fileName: isEmpty(this.file) ? null : this.file.fileName,
         fileUrl: isEmpty(this.file) ? null : this.file.fileUrl,
-      })
+      });
 
       this.$nextTick(() => {
-        this.scrollToBottom()
-      })
+        this.scrollToBottom();
+      });
 
       const ctrl = new AbortController();
-      fetchEventSource('/api/chat/agent', {
-        method: 'POST',
+      fetchEventSource("/api/chat/agent", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': localStorage.getItem("token")
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("token"),
         },
         body: JSON.stringify({
           bot_id: this.robots[this.robotActive].id,
@@ -660,48 +1465,39 @@ export default {
         signal: ctrl.signal,
         openWhenHidden: true,
         onmessage: (message) => {
-          if (message.event === 'conversation') {
-            this.answeringMessage += isEmpty(message.data) ? '' : message.data
+          if (message.event === "conversation") {
+            this.answeringMessage += isEmpty(message.data) ? "" : message.data;
           } else if (message.event === "done") {
-          } else if (message.event === 'all') {
-            this.answeringFlag = false
-            clearInterval(this.answeringClock)
-            this.loadingTime = 0
-            this.loadingFlag = false
-            clearInterval(this.loadingClock)
+          } else if (message.event === "all") {
+            this.answeringFlag = false;
+            clearInterval(this.answeringClock);
             this.messages.push({
               role: "assistant",
-              contentType: 'text',
-              content: message.data.replaceAll("\\n", "\n")
-            })
+              contentType: "text",
+              content: message.data.replaceAll("\\n", "\n"),
+            });
           }
         },
         onclose: () => {
-          this.answeringFlag = false
-          clearInterval(this.answeringClock)
-          this.loadingTime = 0
-          this.loadingFlag = false
-          clearInterval(this.loadingClock)
+          this.answeringFlag = false;
+          clearInterval(this.answeringClock);
         },
         onerror: (err) => {
-          this.answeringFlag = false
-          clearInterval(this.answeringClock)
-          this.loadingTime = 0
-          this.loadingFlag = false
-          clearInterval(this.loadingClock)
+          this.answeringFlag = false;
+          clearInterval(this.answeringClock);
           this.messages.push({
             role: "assistant",
-            contentType: 'text',
-            content: '系统异常，请联系管理员'
-          })
-          console.log(err)
-          this.$message.error('系统异常，请联系管理员')
-          throw err
-        }
+            contentType: "text",
+            content: "系统异常，请联系管理员",
+          });
+          console.log(err);
+          this.$message.error("系统异常，请联系管理员");
+          throw err;
+        },
       });
 
-      this.chatInput = ""
-      this.removeFile()
+      this.chatInput = "";
+      this.removeFile();
     },
     // chatPrompts(prompt) {
     //   if (this.answeringFlag) {
@@ -790,17 +1586,17 @@ export default {
     //   });
     // },
     chatPrompts(prompt) {
-      this.chatInput = prompt
+      this.chatInput = prompt;
     },
     imageAnalyze() {
-      this.imageAnalyzeFlag = true
-      this.imageQuestiuonText = ""
+      this.imageAnalyzeFlag = true;
+      this.imageQuestiuonText = "";
       const ctrl = new AbortController();
-      fetchEventSource('/api/chat/agent', {
-        method: 'POST',
+      fetchEventSource("/api/chat/agent", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': localStorage.getItem("token")
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("token"),
         },
         body: JSON.stringify({
           bot_id: this.robots[this.robotActive].id,
@@ -813,59 +1609,59 @@ export default {
         signal: ctrl.signal,
         openWhenHidden: true,
         onmessage: (message) => {
-          console.log(message)
-          if (message.event === 'conversation') {
-            this.imageQuestiuonText += message.data
+          console.log(message);
+          if (message.event === "conversation") {
+            this.imageQuestiuonText += message.data;
           } else if (message.event === "done") {
-          } else if (message.event === 'all') {
-            this.imageQuestiuonText = message.data.replaceAll("\\n", "\n").replaceAll("\\\\", "\\")
-            this.renderLatex(this.$refs.latexContainer, this.imageQuestiuonText)
-            this.imageAnalyzeFlag = false
+          } else if (message.event === "all") {
+            this.imageQuestiuonText = message.data
+                .replaceAll("\\n", "\n")
+                .replaceAll("\\\\", "\\")
+                .replaceAll("#", "\\#");
+            this.imageAnalyzeFlag = false;
           }
         },
         onclose: () => {
-          this.imageAnalyzeFlag = false
+          this.imageAnalyzeFlag = false;
         },
         onerror: (err) => {
-          this.imageAnalyzeFlag = false
-          console.log(err)
-          this.$message.error('系统异常，请联系管理员')
-          throw err
-        }
+          this.imageAnalyzeFlag = false;
+          console.log(err);
+          this.$message.error("系统异常，请联系管理员");
+          throw err;
+        },
       });
     },
     sendQuestion() {
-      if (this.answeringFlag || this.sendQuestionFlag || this.imageAnalyzeFlag) {
-        return
-      }
-
-      if (isEmpty(this.imageQuestiuonText)) {
-        this.$message.success("题目不能为空")
+      if (
+          this.answeringFlag ||
+          this.sendQuestionFlag ||
+          this.imageAnalyzeFlag
+      ) {
         return;
       }
 
-      this.sendQuestionFlag = true
-      this.sendQuestionMessage = ""
-      this.sendQuestionIndex = 0
-      this.sendQuestionClock = setInterval(() => {
-        this.sendQuestionIndex = Math.min(this.sendQuestionIndex + 1, this.sendQuestionMessage.length)
-      }, 20)
+      if (isEmpty(this.imageQuestiuonText)) {
+        this.$message.success("题目不能为空");
+        return;
+      }
 
-      this.loadingTime = 0
-      this.loadingFlag = false
-      this.loadingClock = setInterval(() => {
-        this.loadingTime = this.loadingTime + 1;
-        if (this.loadingTime / 2 > Math.random() * 5 + 15) {
-          this.loadingFlag = true
-        }
-      }, 500)
+      this.sendQuestionFlag = true;
+      this.sendQuestionMessage = "";
+      this.sendQuestionIndex = 0;
+      this.sendQuestionClock = setInterval(() => {
+        this.sendQuestionIndex = Math.min(
+            this.sendQuestionIndex + 1,
+            this.sendQuestionMessage.length
+        );
+      }, 20);
 
       const ctrl = new AbortController();
-      fetchEventSource('/api/chat/agent', {
-        method: 'POST',
+      fetchEventSource("/api/chat/agent", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': localStorage.getItem("token")
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("token"),
         },
         body: JSON.stringify({
           bot_id: this.robots[this.robotActive].id,
@@ -876,45 +1672,121 @@ export default {
         signal: ctrl.signal,
         openWhenHidden: true,
         onmessage: (message) => {
-          if (message.event === 'conversation') {
-            this.sendQuestionMessage += isEmpty(message.data) ? '' : message.data
+          if (message.event === "conversation") {
+            this.sendQuestionMessage += isEmpty(message.data)
+                ? ""
+                : message.data;
           } else if (message.event === "done") {
-          } else if (message.event === 'all') {
-            this.sendQuestionFlag = false
-            clearInterval(this.sendQuestionClock)
-            this.loadingTime = 0
-            this.loadingFlag = false
-            clearInterval(this.loadingClock)
-            this.sendQuestionMessage = message.data.replaceAll("\\n", "\n").replaceAll("\\\\", "\\")
-            console.log(this.sendQuestionMessage)
+          } else if (message.event === "all") {
+            this.sendQuestionFlag = false;
+            clearInterval(this.sendQuestionClock);
+            this.sendQuestionMessage = message.data
+                .replaceAll("\\n", "\n")
+                .replaceAll("\\\\", "\\")
+                .replaceAll("#", "\\#");
+            console.log(this.sendQuestionMessage);
             this.$nextTick().then(() => {
-              this.renderLatex(this.$refs.chatRobotMessageText, this.sendQuestionMessage)
-            })
+              this.renderLatex(
+                  this.$refs.chatRobotMessageText,
+                  this.sendQuestionMessage
+              );
+            });
           }
         },
         onclose: () => {
-          this.sendQuestionFlag = false
-          clearInterval(this.sendQuestionClock)
-          this.loadingTime = 0
-          this.loadingFlag = false
-          clearInterval(this.loadingClock)
+          this.sendQuestionFlag = false;
+          clearInterval(this.sendQuestionClock);
         },
         onerror: (err) => {
-          this.sendQuestionFlag = false
-          clearInterval(this.sendQuestionClock)
-          this.loadingTime = 0
-          this.loadingFlag = false
-          clearInterval(this.loadingClock)
-          console.log(err)
-          this.$message.error('系统异常，请联系管理员')
-          throw err
-        }
+          this.sendQuestionFlag = false;
+          clearInterval(this.sendQuestionClock);
+          this.loadingTime = 0;
+          this.loadingFlag = false;
+          console.log(err);
+          this.$message.error("系统异常，请联系管理员");
+          throw err;
+        },
       });
     },
-
+    longTextDialogueSubmit() {
+      if (!this.isGenerating()) {
+        this.messages.push({
+          role: "user",
+          content: this.chatInput,
+          fileType: isEmpty(this.file) ? null : this.file.fileType,
+          fileName: isEmpty(this.file) ? null : this.file.fileName,
+          fileUrl: isEmpty(this.file) ? null : this.file.fileUrl,
+        });
+        longTextDialogueSubmit(
+            this.robots[this.robotActive].id,
+            this.sessions[this.sessionActive].id,
+            this.robots[this.robotActive].handle,
+            this.chatInput,
+            isEmpty(this.file) ? null : this.fileType,
+            isEmpty(this.file) ? null : this.file.fileName,
+            isEmpty(this.file) ? null : this.file.fileUrl
+        )
+            .then((res) => {
+              if (res.data.code === 200) {
+                this.longTextDialogueExecuteEntitys.push({
+                  robotId: this.robots[this.robotActive].id,
+                  sessionId: this.sessions[this.sessionActive].id,
+                  executeId: res.data.data["execute_id"],
+                  count: 0,
+                });
+                this.$store.commit(
+                    "setLongTextDialogueExecuteEntitys",
+                    this.longTextDialogueExecuteEntitys
+                );
+              } else {
+                this.$message.error(res.data.message);
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+              this.$message.error("系统异常，请联系管理员");
+            });
+        this.chatInput = ""
+      }
+    },
+    longTextDialogueQuery() {
+      for (let i = 0; i < this.longTextDialogueExecuteEntitys.length; i++) {
+        longTextDialogueQuery(
+            this.longTextDialogueExecuteEntitys[i].robotId,
+            this.longTextDialogueExecuteEntitys[i].sessionId,
+            this.longTextDialogueExecuteEntitys[i].executeId
+        )
+            .then((res) => {
+              if (res.data.code === 200) {
+                this.$message.success("长文本生成完成");
+                if (
+                    this.sessions[this.sessionActive].id ===
+                    this.longTextDialogueExecuteEntitys[i].sessionId
+                ) {
+                  this.getMessageList();
+                }
+                this.longTextDialogueExecuteEntitys.splice(i, 1);
+                i--;
+              } else if (this.longTextDialogueExecuteEntitys[i].count >= 7) {
+                // this.longTextDialogueExecuteEntitys.splice(i, 1);
+                // i--;
+              } else {
+                this.longTextDialogueExecuteEntitys[i].count += 1;
+              }
+              this.$store.commit(
+                  "setLongTextDialogueExecuteEntitys",
+                  this.longTextDialogueExecuteEntitys
+              );
+            })
+            .catch((err) => {
+              console.log(err);
+              this.$message.error("系统异常，请联系管理员");
+            });
+      }
+    },
 
     removeFile(file, fileList) {
-      this.file = null
+      this.file = null;
     },
     fileUpload(res, file, fileList) {
       if (res.code === 200) {
@@ -922,130 +1794,143 @@ export default {
           id: res.data["file_id"],
           fileName: res.data["file_name"],
           fileType: res.data["file_type"],
-          fileUrl: res.data['file_url'],
+          fileUrl: res.data["file_url"],
           createTime: res.data["create_time"],
-        }
-        console.log(this.file)
+        };
+        console.log(this.file);
       } else {
-        this.$message.error(res.message)
+        this.$message.error(res.message);
       }
     },
     contactUsFileUpload(res, file, fileList) {
       if (res.code === 200) {
-        this.contactUsForm.fileId = res.data["file_id"]
-        this.contactUsForm.fileName = res.data["file_name"]
-        this.contactUsForm.fileType = res.data["file_type"]
-        this.contactUsForm.fileUrl = res.data['file_url']
+        this.contactUsForm.fileId = res.data["file_id"];
+        this.contactUsForm.fileName = res.data["file_name"];
+        this.contactUsForm.fileType = res.data["file_type"];
+        this.contactUsForm.fileUrl = res.data["file_url"];
       } else {
-        this.$message.error(res.message)
+        this.$message.error(res.message);
       }
     },
 
     share() {
       var copyVal = document.getElementById("copyVal");
       copyVal.select();
-      document.execCommand('copy')
-      this.$message.success("分享链接已复制到剪切板")
+      document.execCommand("copy");
+      this.$message.success("分享链接已复制到剪切板");
+    },
+
+    isGenerating() {
+      for (let i = 0; i < this.longTextDialogueExecuteEntitys.length; i++) {
+        if (
+            this.longTextDialogueExecuteEntitys[i].sessionId ===
+            this.sessions[this.sessionActive].id
+        ) {
+          return true;
+        }
+      }
+      return false;
     },
 
     closeSessionMenu() {
-      this.sessionMenuShow = false
+      this.sessionMenuShow = false;
     },
     openSessionMenu() {
-      this.sessionMenuShow = true
+      this.sessionMenuShow = true;
     },
 
     toHome() {
-      this.$router.push("/home")
+      this.$router.push("/home");
     },
     toLearningCornerBook() {
-      this.$router.push("/learningCornerBook")
+      this.$router.push("/learningCornerBook");
     },
     toPersonalCenter() {
-      this.$router.push('/personalCenter')
+      this.$router.push("/personalCenter");
     },
 
     selectRobotMenu(index) {
       this.robotActive = parseInt(index);
-      this.sessionActive = 0
-      this.chatInput = ""
-      this.file = null
-      this.getSessionList()
+      this.sessionActive = 0;
+      this.chatInput = "";
+      this.file = null;
+      this.getSessionList();
     },
     selectSessionMenu(index) {
       this.sessionActive = parseInt(index);
-      this.getMessageList()
-      this.answeringFlag = false
-      this.answeringMessage = ""
-      this.sendQuestionFlag = false
-      this.sendQuestionMessage = ""
-      this.imageAnalyzeFlag = false
-      this.imageQuestiuonText = ""
+      this.getMessageList();
+      this.answeringFlag = false;
+      this.answeringMessage = "";
+      this.sendQuestionFlag = false;
+      this.sendQuestionMessage = "";
+      this.imageAnalyzeFlag = false;
+      this.imageQuestiuonText = "";
     },
 
     downloadFile(url, name) {
-      const xhr = new XMLHttpRequest()
-      xhr.open('get', url)
-      xhr.responseType = 'blob'
-      xhr.onload = e => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("get", url);
+      xhr.responseType = "blob";
+      xhr.onload = (e) => {
         if (xhr.status === 200) {
-          const response = xhr.response
+          const response = xhr.response;
           if (window.navigator.msSaveOrOpenBlob) {
-            window.navigator.msSaveOrOpenBlob(response, name)
+            window.navigator.msSaveOrOpenBlob(response, name);
           } else {
-            const href = URL.createObjectURL(response)
-            let ele = document.createElement('a')
-            ele.target = '_blank'
-            ele.href = href
-            ele.download = name
-            ele.click()
-            ele = null
-            URL.revokeObjectURL(href)
+            const href = URL.createObjectURL(response);
+            let ele = document.createElement("a");
+            ele.target = "_blank";
+            ele.href = href;
+            ele.download = name;
+            ele.click();
+            ele = null;
+            URL.revokeObjectURL(href);
           }
         } else {
-          this.$message.error('下载失败')
+          this.$message.error("下载失败");
         }
-      }
-      xhr.send(null)
+      };
+      xhr.send(null);
     },
 
     loadLatexJS() {
       return new Promise((resolve) => {
-        const script = document.createElement('script');
-        script.src = './latex.js/dist/latex.js';
+        const script = document.createElement("script");
+        script.src = "./latex.js/dist/latex.js";
         script.onload = resolve;
         document.head.appendChild(script);
       });
     },
     renderLatex(html, content) {
       try {
-        html.innerHTML = '';
+        console.log(content);
+        html.innerHTML = "";
         const generator = new HtmlGenerator({hyphenate: false});
         const document = parse(content, {generator});
         html.appendChild(generator.domFragment());
-        console.log(1)
+        console.log(1);
       } catch (e) {
-        console.log(e)
+        console.log(e);
       }
     },
 
     closeContactUsDialog() {
       this.$refs.contactUsUpload.clearFiles();
-      this.contactUsDialogVis = false
+      this.contactUsDialogVis = false;
     },
     openContactUsDialog() {
-      this.initContactUsForm()
-      this.contactUsDialogVis = true
+      this.initContactUsForm();
+      this.contactUsDialogVis = true;
       this.$nextTick(() => {
         this.$refs.contactUsUpload.clearFiles();
-      })
+      });
     },
 
     isEmpty(field) {
-      return isEmpty(field)
+      return isEmpty(field);
     },
   },
-}
+};
 </script>
 
 <style scoped>
@@ -1064,7 +1949,7 @@ export default {
 
   border: 0;
 
-  background: #E6E6E6;
+  background: #e6e6e6;
 }
 
 #workbench .robotMenu .robotMenuScrollbar {
@@ -1078,12 +1963,22 @@ export default {
   padding: 5px 20px 5px 20px;
 }
 
-#workbench .robotMenu .robotMenuScrollbar .robotMenuItem .robotMenuItemContainer .robotMenuItemImage {
+#workbench
+.robotMenu
+.robotMenuScrollbar
+.robotMenuItem
+.robotMenuItemContainer
+.robotMenuItemImage {
   width: 80px;
   height: 80px;
 }
 
-#workbench .robotMenu .robotMenuScrollbar .robotMenuItem .robotMenuItemContainer .robotMenuItemTitle {
+#workbench
+.robotMenu
+.robotMenuScrollbar
+.robotMenuItem
+.robotMenuItemContainer
+.robotMenuItemTitle {
   width: 100%;
 
   line-height: 20px;
@@ -1129,7 +2024,7 @@ export default {
 
   text-align: center;
 
-  background: #C9C9C9;
+  background: #c9c9c9;
 }
 
 #workbench .sessionMenu .sessionMenuScrollbar {
@@ -1143,7 +2038,11 @@ export default {
   justify-content: space-between;
 }
 
-#workbench .sessionMenu .sessionMenuScrollbar .sessionMenuItem .sessionMenuItemTitle {
+#workbench
+.sessionMenu
+.sessionMenuScrollbar
+.sessionMenuItem
+.sessionMenuItemTitle {
   width: calc(100% - 30px);
 
   overflow: hidden;
@@ -1155,7 +2054,11 @@ export default {
   font-size: 18px;
 }
 
-#workbench .sessionMenu .sessionMenuScrollbar .sessionMenuItem .sessionMenuDeleteIcon {
+#workbench
+.sessionMenu
+.sessionMenuScrollbar
+.sessionMenuItem
+.sessionMenuDeleteIcon {
   width: 20px;
   height: 20px;
 }
@@ -1169,7 +2072,7 @@ export default {
   border: 2px dotted #000000;
 
   font-size: 20px;
-  font-family: 'Source Han Serif' !important;
+  font-family: "Source Han Serif" !important;
 }
 
 #workbench .sessionMenuControllerButton {
@@ -1399,7 +2302,13 @@ export default {
   text-align: left;
 }
 
-#workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatRobot .chatRobotAvatar {
+#workbench
+.mainContainer
+.chatArea
+.chatAreaInner
+.chatRow
+.chatRobot
+.chatRobotAvatar {
   display: inline-block;
 
   vertical-align: top;
@@ -1410,7 +2319,13 @@ export default {
   border-radius: 50%;
 }
 
-#workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatRobot .chatRobotMessage {
+#workbench
+.mainContainer
+.chatArea
+.chatAreaInner
+.chatRow
+.chatRobot
+.chatRobotMessage {
   display: inline-block;
 
   vertical-align: top;
@@ -1421,18 +2336,30 @@ export default {
 
   border-radius: 20px;
 
-  background: #F2F2F2;
+  background: #f2f2f2;
 }
 
-#workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatRobot .chatRobotMessage .chatRobotMessageText {
-
+#workbench
+.mainContainer
+.chatArea
+.chatAreaInner
+.chatRow
+.chatRobot
+.chatRobotMessage
+.chatRobotMessageText {
 }
 
 #workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatUser {
   text-align: right;
 }
 
-#workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatUser .chatUserMessage {
+#workbench
+.mainContainer
+.chatArea
+.chatAreaInner
+.chatRow
+.chatUser
+.chatUserMessage {
   display: inline-block;
 
   vertical-align: top;
@@ -1445,10 +2372,17 @@ export default {
 
   text-align: left;
 
-  background: #F2F2F2;
+  background: #f2f2f2;
 }
 
-#workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatUser .chatUserMessage .chatUserFilePicture {
+#workbench
+.mainContainer
+.chatArea
+.chatAreaInner
+.chatRow
+.chatUser
+.chatUserMessage
+.chatUserFilePicture {
   margin: 10px 10px 10px 10px;
 
   max-width: 300px;
@@ -1457,7 +2391,14 @@ export default {
   cursor: pointer;
 }
 
-#workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatUser .chatUserMessage .chatUserFileSvg {
+#workbench
+.mainContainer
+.chatArea
+.chatAreaInner
+.chatRow
+.chatUser
+.chatUserMessage
+.chatUserFileSvg {
   margin: 10px 10px 10px 10px;
 
   width: 50px;
@@ -1469,11 +2410,23 @@ export default {
   cursor: pointer;
 }
 
-#workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatUser .chatUserMessage .chatUserMessageText {
-
+#workbench
+.mainContainer
+.chatArea
+.chatAreaInner
+.chatRow
+.chatUser
+.chatUserMessage
+.chatUserMessageText {
 }
 
-#workbench .mainContainer .chatArea .chatAreaInner .chatRow .chatUser .chatUserAvatar {
+#workbench
+.mainContainer
+.chatArea
+.chatAreaInner
+.chatRow
+.chatUser
+.chatUserAvatar {
   display: inline-block;
 
   vertical-align: top;
@@ -1494,7 +2447,13 @@ export default {
   text-align: left;
 }
 
-#workbench .mainContainer .chatArea .chatAreaInner .chatRowLoading .chatRobot .chatRobotAvatar {
+#workbench
+.mainContainer
+.chatArea
+.chatAreaInner
+.chatRowLoading
+.chatRobot
+.chatRobotAvatar {
   display: inline-block;
 
   vertical-align: top;
@@ -1505,7 +2464,13 @@ export default {
   border-radius: 50%;
 }
 
-#workbench .mainContainer .chatArea .chatAreaInner .chatRowLoading .chatRobot .chatRobotMessage {
+#workbench
+.mainContainer
+.chatArea
+.chatAreaInner
+.chatRowLoading
+.chatRobot
+.chatRobotMessage {
   display: inline-block;
 
   vertical-align: top;
@@ -1517,19 +2482,19 @@ export default {
 
   border-radius: 20px;
 
-  background: #F2F2F2;
+  background: #f2f2f2;
 }
 
 #workbench /deep/ .chatMessageText .github-markdown-body {
   padding: 16px 32px 16px 32px;
 
-  font-family: 'Source Han Serif' !important;
+  font-family: "Source Han Serif" !important;
 }
 
 #workbench /deep/ .chatMessageText .github-markdown-body p {
   margin-bottom: 0 !important;
 
-  font-family: 'Source Han Serif' !important;
+  font-family: "Source Han Serif" !important;
 }
 
 #workbench .mainContainer .inputArea {
@@ -1614,7 +2579,7 @@ export default {
 
   border-radius: 50%;
 
-  background: #C9C9C9;
+  background: #c9c9c9;
 
   cursor: pointer;
 }
@@ -1731,7 +2696,12 @@ export default {
   width: calc(100% - 20px * 2);
 }
 
-#workbench .mainContainer .mathematicalModel .rightContainer .chatRow .chatRobotAvatar {
+#workbench
+.mainContainer
+.mathematicalModel
+.rightContainer
+.chatRow
+.chatRobotAvatar {
   display: inline-block;
 
   vertical-align: top;
@@ -1742,7 +2712,12 @@ export default {
   border-radius: 50%;
 }
 
-#workbench .mainContainer .mathematicalModel .rightContainer .chatRow .chatRobotMessage {
+#workbench
+.mainContainer
+.mathematicalModel
+.rightContainer
+.chatRow
+.chatRobotMessage {
   display: inline-block;
 
   vertical-align: top;
@@ -1751,21 +2726,32 @@ export default {
 
   border-radius: 20px;
 
-  background: #F2F2F2;
+  background: #f2f2f2;
 }
 
-#workbench .mainContainer .mathematicalModel .rightContainer .chatRow .chatRobotMessage .chatRobotMessageText {
-
+#workbench
+.mainContainer
+.mathematicalModel
+.rightContainer
+.chatRow
+.chatRobotMessage
+.chatRobotMessageText {
 }
 
-#workbench .mainContainer .mathematicalModel .rightContainer .chatRow .chatRobotMessage .latexMessageText {
+#workbench
+.mainContainer
+.mathematicalModel
+.rightContainer
+.chatRow
+.chatRobotMessage
+.latexMessageText {
   padding: 10px 20px 10px 20px;
 
   max-width: none;
 }
 
 #workbench .el-menu-item.is-disabled {
-  opacity: 1
+  opacity: 1;
 }
 </style>
 

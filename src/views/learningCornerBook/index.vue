@@ -3,9 +3,21 @@
     <el-menu class="secondMenu" default-active="0" v-if="secondMenuShow">
       <div class="secondMenuTitle">收藏夹</div>
       <el-scrollbar class="secondMenuScrollbar">
-        <el-menu-item class="secondMenuItem" v-for="(item,index) in secondMenuItems">
-          <div class="secondMenuItemName" @click="toLearningCornerChat(2,item)">{{ item.bookName }}</div>
-          <svg-icon class="secondMenuItemDelete" icon-class="delete" @click="uncollection(item.id)"></svg-icon>
+        <el-menu-item
+          class="secondMenuItem"
+          v-for="(item, index) in secondMenuItems"
+        >
+          <div
+            class="secondMenuItemName"
+            @click="toLearningCornerChat(2, item)"
+          >
+            {{ item.bookName }}
+          </div>
+          <svg-icon
+            class="secondMenuItemDelete"
+            icon-class="delete"
+            @click="uncollection(item.id)"
+          ></svg-icon>
         </el-menu-item>
       </el-scrollbar>
 
@@ -14,7 +26,7 @@
         <!--        <br/>-->
         <!--        必过-->
         <div class="schoolName">{{ user.school + "版" }}</div>
-        <el-image class="logoImage" :src="logo" fit="contain" @click="toHome"/>
+        <el-image class="logoImage" :src="logo" fit="contain" @click="toHome" />
       </div>
     </el-menu>
 
@@ -25,14 +37,27 @@
       <!--        <input class="searchInput">-->
       <!--      </div>-->
       <el-scrollbar class="firstMenuScrollbar">
-        <el-menu-item class="firstMenuItem" v-for="(item,index) in firstMenuItems" :index="String(index)"
-                      :disabled="flags.indexOf(item.name) === -1">
+        <el-menu-item
+          class="firstMenuItem"
+          v-for="(item, index) in firstMenuItems"
+          :index="String(index)"
+          :disabled="flags.indexOf(item.name) === -1"
+        >
           <div class="firstMenuItemName">{{ item.name }}</div>
         </el-menu-item>
       </el-scrollbar>
       <div class="user" @click="toPersonalCenter">
-        <el-image class="userAvatar" round
-                  :src="isEmpty(user.avatarUrl) ? ((user.gender === 0 || isEmpty(user.gender))? BoyAvatar : GirlAvatar) : user.avatarUrl"></el-image>
+        <el-image
+          class="userAvatar"
+          round
+          :src="
+            isEmpty(user.avatarUrl)
+              ? user.gender === 0 || isEmpty(user.gender)
+                ? BoyAvatar
+                : GirlAvatar
+              : user.avatarUrl
+          "
+        ></el-image>
         <div class="userInformation">
           <div class="userId">{{ user.id }}</div>
           <div class="userName">{{ user.userName }}</div>
@@ -40,22 +65,48 @@
       </div>
     </el-menu>
 
-    <el-button class="secondMenuControllerButton secondMenuControllerButtonOpen" v-if="secondMenuShow"
-               @click="closeSecondMenu"
-               :icon="ArrowLeftBold" circle/>
-    <el-button class="secondMenuControllerButton secondMenuControllerButtonClose" v-else @click="openSecondMenu"
-               :icon="ArrowRightBold" circle/>
+    <el-button
+      class="secondMenuControllerButton secondMenuControllerButtonOpen"
+      v-if="secondMenuShow"
+      @click="closeSecondMenu"
+      :icon="ArrowLeftBold"
+      circle
+    />
+    <el-button
+      class="secondMenuControllerButton secondMenuControllerButtonClose"
+      v-else
+      @click="openSecondMenu"
+      :icon="ArrowRightBold"
+      circle
+    />
 
-    <div class="mainContainer" :class="{mainContainerShort:secondMenuShow,mainContainerLong:!secondMenuShow}">
+    <div
+      class="mainContainer"
+      :class="{
+        mainContainerShort: secondMenuShow,
+        mainContainerLong: !secondMenuShow,
+      }"
+    >
       <div class="patterns">
-        <el-image class="patternLeftRectangle patternRectangleActive" :src="F2F2F2_Square"></el-image>
-        <el-image class="patternAngledTriangle patternBottomLeftAngledTriangleActive"
-                  :src="F2F2F2_BottomLeftAngledTriangle"></el-image>
+        <el-image
+          class="patternLeftRectangle patternRectangleActive"
+          :src="F2F2F2_Square"
+        ></el-image>
+        <el-image
+          class="patternAngledTriangle patternBottomLeftAngledTriangleActive"
+          :src="F2F2F2_BottomLeftAngledTriangle"
+        ></el-image>
         <div class="leftTitleActive">学习角</div>
-        <el-image class="patternRightRectangle patternRectangleUnactive" :src="C9C9C9_Square"
-                  @click="toWorkbench"></el-image>
-        <el-image class="patternAngledTriangle patternTopRightAngledTriangleUnactive"
-                  :src="C9C9C9_TopRightAngledTriangle" @click="toWorkbench"></el-image>
+        <el-image
+          class="patternRightRectangle patternRectangleUnactive"
+          :src="C9C9C9_Square"
+          @click="toWorkbench"
+        ></el-image>
+        <el-image
+          class="patternAngledTriangle patternTopRightAngledTriangleUnactive"
+          :src="C9C9C9_TopRightAngledTriangle"
+          @click="toWorkbench"
+        ></el-image>
         <div class="rightTitleUnactive" @click="toWorkbench">工作台</div>
         <!--        <div class="pattern2 pattern2unactive" @click="toWorkbench">-->
         <!--          工作台-->
@@ -63,66 +114,110 @@
         <!--        <div class="pattern1 pattern1active">-->
         <!--          学习角-->
         <!--        </div>-->
-        <svg-icon class="shareIcon" icon-class="share" @click="share"></svg-icon>
+        <svg-icon
+          class="shareIcon"
+          icon-class="share"
+          @click="share"
+        ></svg-icon>
       </div>
       <el-scrollbar class="thirdMenu">
-        <div class="thirdMenuItem" v-for="(item,index) in thirdMenuItems">
-          <svg-icon class="bookIcon" icon-class="book" @click="toLearningCornerChat(3,item)"></svg-icon>
-          <div class="bookName" @click="toLearningCornerChat(3,item)">{{ item.bookName }}</div>
-          <svg-icon class="uncollectionIcon" icon-class="uncollection" v-if="secondMenuIds.indexOf(item.id) === -1"
-                    @click="collection(item.id)"></svg-icon>
-          <svg-icon class="uncollectionIcon" icon-class="collection" v-if="secondMenuIds.indexOf(item.id) !== -1"
-                    @click="uncollection(item.id)"></svg-icon>
+        <div class="thirdMenuItem" v-for="(item, index) in thirdMenuItems">
+          <svg-icon
+            class="bookIcon"
+            icon-class="book"
+            @click="toLearningCornerChat(3, item)"
+          ></svg-icon>
+          <div class="bookName" @click="toLearningCornerChat(3, item)">
+            {{ item.bookName }}
+          </div>
+          <svg-icon
+            class="uncollectionIcon"
+            icon-class="uncollection"
+            v-if="secondMenuIds.indexOf(item.id) === -1"
+            @click="collection(item.id)"
+          ></svg-icon>
+          <svg-icon
+            class="uncollectionIcon"
+            icon-class="collection"
+            v-if="secondMenuIds.indexOf(item.id) !== -1"
+            @click="uncollection(item.id)"
+          ></svg-icon>
         </div>
       </el-scrollbar>
     </div>
 
-    <el-dialog v-model="contactUsDialogVis" title="意见反馈" width="350" :close-on-click-modal="false"
-               :show-close="false">
-      <el-input v-model="contactUsForm.content" type="textarea" placeholder="请描述您需要的问题"></el-input>
+    <el-dialog
+      v-model="contactUsDialogVis"
+      title="意见反馈"
+      width="350"
+      :close-on-click-modal="false"
+      :show-close="false"
+    >
+      <el-input
+        v-model="contactUsForm.content"
+        type="textarea"
+        placeholder="请描述您需要的问题"
+      ></el-input>
       <el-upload
-          ref="contactUsUpload"
-          action="/api/file/uploadPicture?bucketType=3"
-          :on-success="contactUsFileUpload"
-          :limit="1"
-          style="margin: 3px 0 0 0"
+        ref="contactUsUpload"
+        action="/api/file/uploadPicture?bucketType=3"
+        :on-success="contactUsFileUpload"
+        :limit="1"
+        style="margin: 3px 0 0 0"
       >
         <el-button type="primary">上传附件</el-button>
       </el-upload>
       <template #footer>
         <div class="dialog-footer">
-          <el-button type="danger" @click="closeContactUsDialog">取消</el-button>
+          <el-button type="danger" @click="closeContactUsDialog"
+            >取消</el-button
+          >
           <el-button type="primary" @click="contactUs">确定</el-button>
         </div>
       </template>
     </el-dialog>
 
-    <input type="text" id="copyVal" value="http://54.222.173.61:81/home" style="opacity:0; position:absolute;top: 0;left: 0"/>
+    <input
+      type="text"
+      id="copyVal"
+      value="http://54.222.173.61:81/home"
+      style="opacity: 0; position: absolute; top: 0; left: 0"
+    />
 
-    <SuspendedBall @handlepaly="openContactUsDialog" style="cursor:pointer"></SuspendedBall>
+    <SuspendedBall
+      @handlepaly="openContactUsDialog"
+      style="cursor: pointer"
+    ></SuspendedBall>
   </div>
 </template>
 
 <script>
-import logo from '@/assets/pictures/logo.png'
-import BoyAvatar from '@/assets/pictures/boyAvatar.png';
-import GirlAvatar from '@/assets/pictures/girlAvatar.png';
+import logo from "@/assets/pictures/logo.png";
+import BoyAvatar from "@/assets/pictures/boyAvatar.png";
+import GirlAvatar from "@/assets/pictures/girlAvatar.png";
 import F2F2F2_Square from "@/assets/pictures/F2F2F2_Square.png";
 import C9C9C9_Square from "@/assets/pictures/C9C9C9_Square.png";
 import F2F2F2_BottomLeftAngledTriangle from "@/assets/pictures/F2F2F2_BottomLeftAngledTriangle.png";
 import C9C9C9_TopRightAngledTriangle from "@/assets/pictures/C9C9C9_TopRightAngledTriangle.png";
 
-import {ArrowLeftBold, ArrowRightBold} from '@element-plus/icons-vue'
+import { ArrowLeftBold, ArrowRightBold } from "@element-plus/icons-vue";
 
-import {collection, getBookCategoryList, getBookList, getCollectionBookList, uncollection} from "@/apis/book";
-import {contactUs, getUserByToken} from "@/apis/user";
+import {
+  collection,
+  getBookCategoryList,
+  getBookList,
+  getCollectionBookList,
+  uncollection,
+} from "@/apis/book";
+import { contactUs, getUserByToken } from "@/apis/user";
+import { longTextDialogueQuery } from "@/apis/chat";
 
-import {isEmpty} from "@/utils/common";
+import { isEmpty } from "@/utils/common";
 import SuspendedBall from "@/components/suspendedBall/index.vue";
 
 export default {
-  name: 'LearningCornerBook',
-  components: {SuspendedBall},
+  name: "LearningCornerBook",
+  components: { SuspendedBall },
   data() {
     return {
       logo: logo,
@@ -152,20 +247,29 @@ export default {
 
       contactUsDialogVis: false,
 
-      flags: ['全部', '通识文科', '通识理科']
-    }
+      longTextDialogueExecuteEntitys: [],
+
+      flags: ["全部", "通识文科", "通识理科"],
+    };
   },
   async created() {
     this.token = localStorage.getItem("token");
     if (isEmpty(this.token)) {
       this.$router.push("/home");
-      this.$message.error("请先登录")
+      this.$message.error("请先登录");
     }
 
-    await this.getUserByToken()
-    await this.getBookCategoryList()
-    await this.getCollectionBookList()
-    await this.getBookList()
+    await this.getUserByToken();
+
+    // this.longTextDialogueExecuteEntitys =
+    //   this.$store.state.longTextDialogueExecuteEntitys;
+    // setInterval(() => {
+    //   this.longTextDialogueQuery();
+    // }, 1000 * 60);
+
+    await this.getBookCategoryList();
+    await this.getCollectionBookList();
+    await this.getBookList();
   },
   methods: {
     initContactUsForm() {
@@ -174,203 +278,255 @@ export default {
         fileId: null,
         fileName: null,
         fileUrl: null,
-        fileType: null
-      }
+        fileType: null,
+      };
     },
 
     getUserByToken() {
-      return getUserByToken().then((res) => {
-        if (res.data.code === 200) {
-          this.user = {
-            id: res.data.data['user_id'],
-            email: res.data.data['email'],
-            gender: res.data.data['gender'],
-            userName: res.data.data['user_name'],
-            avatarUrl: res.data.data['avatar_url'],
-            school: res.data.data['school']
+      return getUserByToken()
+        .then((res) => {
+          if (res.data.code === 200) {
+            this.user = {
+              id: res.data.data["user_id"],
+              email: res.data.data["email"],
+              gender: res.data.data["gender"],
+              userName: res.data.data["user_name"],
+              avatarUrl: res.data.data["avatar_url"],
+              school: res.data.data["school"],
+            };
+          } else {
+            this.$router.push("/home");
+            this.$message.error(res.data.message);
           }
-        } else {
-          this.$router.push("/home");
-          this.$message.error(res.data.message)
-        }
-      }).catch((err) => {
-        console.log(err)
-        this.$message.error('系统异常，请联系管理员')
-      })
+        })
+        .catch((err) => {
+          console.log(err);
+          this.$message.error("系统异常，请联系管理员");
+        });
     },
     getBookCategoryList() {
-      return getBookCategoryList().then((res) => {
-        if (res.data.code === 200) {
-          this.firstMenuItems = []
-          if (!isEmpty(res.data.data)) {
-            for (let i in res.data.data) {
-              this.firstMenuItems.push({
-                id: res.data.data[i]['lib_id'],
-                name: res.data.data[i]['lib_name'],
-                sort: res.data.data[i]['sort']
-              })
+      return getBookCategoryList()
+        .then((res) => {
+          if (res.data.code === 200) {
+            this.firstMenuItems = [];
+            if (!isEmpty(res.data.data)) {
+              for (let i in res.data.data) {
+                this.firstMenuItems.push({
+                  id: res.data.data[i]["lib_id"],
+                  name: res.data.data[i]["lib_name"],
+                  sort: res.data.data[i]["sort"],
+                });
+              }
+              this.firstMenuItems.sort((o1, o2) => {
+                return o1.sort - o2.sort;
+              });
             }
-            this.firstMenuItems.sort((o1, o2) => {
-              return o1.sort - o2.sort
-            })
+          } else {
+            this.$message.error(res.data.message);
           }
-        } else {
-          this.$message.error(res.data.message)
-        }
-      }).catch((err) => {
-        console.log(err)
-        this.$message.error('系统异常，请联系管理员')
-      })
+        })
+        .catch((err) => {
+          console.log(err);
+          this.$message.error("系统异常，请联系管理员");
+        });
     },
     getBookList() {
-      return getBookList(this.firstMenuItems[this.firstActive].id).then((res) => {
-        if (res.data.code === 200) {
-          this.thirdMenuItems = []
-          if (!isEmpty(res.data.data)) {
-            for (let i = 0; i < res.data.data.length; i++) {
-              this.thirdMenuItems.push({
-                id: res.data.data[i]['book_id'],
-                bookName: res.data.data[i]['book_name'],
-                categoryId: res.data.data[i]['lib_id']
-              })
+      return getBookList(this.firstMenuItems[this.firstActive].id)
+        .then((res) => {
+          if (res.data.code === 200) {
+            this.thirdMenuItems = [];
+            if (!isEmpty(res.data.data)) {
+              for (let i = 0; i < res.data.data.length; i++) {
+                this.thirdMenuItems.push({
+                  id: res.data.data[i]["book_id"],
+                  bookName: res.data.data[i]["book_name"],
+                  categoryId: res.data.data[i]["lib_id"],
+                });
+              }
             }
+          } else {
+            this.$message.error(res.data.message);
           }
-        } else {
-          this.$message.error(res.data.message)
-        }
-      }).catch((err) => {
-        console.log(err)
-        this.$message.error('系统异常，请联系管理员')
-      })
+        })
+        .catch((err) => {
+          console.log(err);
+          this.$message.error("系统异常，请联系管理员");
+        });
     },
     getCollectionBookList() {
-      getCollectionBookList().then((res) => {
-        if (res.data.code === 200) {
-          this.secondMenuItems = []
-          this.secondMenuIds = []
-          if (!isEmpty(res.data.data)) {
-            for (let i = 0; i < res.data.data.length; i++) {
-              this.secondMenuItems.push({
-                id: res.data.data[i]['book_id'],
-                bookName: res.data.data[i]['book_name'],
-                categoryId: res.data.data[i]['lib_id']
-              })
-              this.secondMenuIds.push(res.data.data[i]['book_id'])
+      getCollectionBookList()
+        .then((res) => {
+          if (res.data.code === 200) {
+            this.secondMenuItems = [];
+            this.secondMenuIds = [];
+            if (!isEmpty(res.data.data)) {
+              for (let i = 0; i < res.data.data.length; i++) {
+                this.secondMenuItems.push({
+                  id: res.data.data[i]["book_id"],
+                  bookName: res.data.data[i]["book_name"],
+                  categoryId: res.data.data[i]["lib_id"],
+                });
+                this.secondMenuIds.push(res.data.data[i]["book_id"]);
+              }
             }
+          } else {
+            this.$message.error(res.data.message);
           }
-        } else {
-          this.$message.error(res.data.message)
-        }
-      }).catch((err) => {
-        console.log(err)
-        this.$message.error('系统异常，请联系管理员')
-      })
+        })
+        .catch((err) => {
+          console.log(err);
+          this.$message.error("系统异常，请联系管理员");
+        });
     },
     collection(id) {
-      collection(id).then((res) => {
-        if (res.data.code === 200) {
-          this.getCollectionBookList()
-          this.$message.success(res.data.message)
-        } else {
-          this.$message.error(res.data.message)
-        }
-      }).catch((err) => {
-        console.log(err)
-        this.$message.error('系统异常，请联系管理员')
-      })
+      collection(id)
+        .then((res) => {
+          if (res.data.code === 200) {
+            this.getCollectionBookList();
+            this.$message.success(res.data.message);
+          } else {
+            this.$message.error(res.data.message);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          this.$message.error("系统异常，请联系管理员");
+        });
     },
     uncollection(id) {
-      uncollection(id).then((res) => {
-        if (res.data.code === 200) {
-          this.getCollectionBookList()
-          this.$message.success(res.data.message)
-        } else {
-          this.$message.error(res.data.message)
-        }
-      }).catch((err) => {
-        console.log(err)
-        this.$message.error('系统异常，请联系管理员')
-      })
+      uncollection(id)
+        .then((res) => {
+          if (res.data.code === 200) {
+            this.getCollectionBookList();
+            this.$message.success(res.data.message);
+          } else {
+            this.$message.error(res.data.message);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          this.$message.error("系统异常，请联系管理员");
+        });
     },
     contactUs() {
-      contactUs(this.contactUsForm.content, this.contactUsForm.fileId, this.contactUsForm.fileName, this.contactUsForm.fileUrl, this.contactUsForm.fileType).then((res) => {
-        if (res.data.code === 200) {
-          this.contactUsDialogVis = false
-          this.$message.success("反馈成功")
-        } else {
-          this.answeringFlag = false
-          this.$message.error(res.data.message)
-        }
-      }).catch((err) => {
-        this.answeringFlag = false
-        console.log(err)
-        this.$message.error('系统异常，请联系管理员')
-      })
+      contactUs(
+        this.contactUsForm.content,
+        this.contactUsForm.fileId,
+        this.contactUsForm.fileName,
+        this.contactUsForm.fileUrl,
+        this.contactUsForm.fileType
+      )
+        .then((res) => {
+          if (res.data.code === 200) {
+            this.contactUsDialogVis = false;
+            this.$message.success("反馈成功");
+          } else {
+            this.answeringFlag = false;
+            this.$message.error(res.data.message);
+          }
+        })
+        .catch((err) => {
+          this.answeringFlag = false;
+          console.log(err);
+          this.$message.error("系统异常，请联系管理员");
+        });
+    },
+    longTextDialogueQuery() {
+      for (let i = 0; i < this.longTextDialogueExecuteEntitys.length; i++) {
+        longTextDialogueQuery(
+          this.longTextDialogueExecuteEntitys[i].robotId,
+          this.longTextDialogueExecuteEntitys[i].sessionId,
+          this.longTextDialogueExecuteEntitys[i].executeId
+        )
+          .then((res) => {
+            if (res.data.code === 200) {
+              this.$message.success("长文本生成完成");
+              this.longTextDialogueExecuteEntitys.splice(i, 1);
+              i--;
+            } else if (this.longTextDialogueExecuteEntitys[i].count >= 7) {
+              // this.longTextDialogueExecuteEntitys.splice(i, 1);
+              // i--;
+            } else {
+              this.longTextDialogueExecuteEntitys[i].count += 1;
+            }
+            this.$store.commit(
+              "setLongTextDialogueExecuteEntitys",
+              this.longTextDialogueExecuteEntitys
+            );
+          })
+          .catch((err) => {
+            console.log(err);
+            this.$message.error("系统异常，请联系管理员");
+          });
+      }
     },
 
     share() {
       var copyVal = document.getElementById("copyVal");
       copyVal.select();
-      document.execCommand('copy')
-      this.$message.success("分享链接已复制到剪切板")
+      document.execCommand("copy");
+      this.$message.success("分享链接已复制到剪切板");
     },
 
     contactUsFileUpload(res, file, fileList) {
       if (res.code === 200) {
-        this.contactUsForm.fileId = res.data["file_id"]
-        this.contactUsForm.fileName = res.data["file_name"]
-        this.contactUsForm.fileType = res.data["file_type"]
-        this.contactUsForm.fileUrl = res.data['file_url']
+        this.contactUsForm.fileId = res.data["file_id"];
+        this.contactUsForm.fileName = res.data["file_name"];
+        this.contactUsForm.fileType = res.data["file_type"];
+        this.contactUsForm.fileUrl = res.data["file_url"];
       } else {
-        this.$message.error(res.message)
+        this.$message.error(res.message);
       }
     },
 
     closeContactUsDialog() {
       this.$refs.contactUsUpload.clearFiles();
-      this.contactUsDialogVis = false
+      this.contactUsDialogVis = false;
     },
     openContactUsDialog() {
-      this.initContactUsForm()
-      this.contactUsDialogVis = true
+      this.initContactUsForm();
+      this.contactUsDialogVis = true;
       this.$nextTick(() => {
         this.$refs.contactUsUpload.clearFiles();
-      })
+      });
     },
 
     closeSecondMenu() {
-      this.secondMenuShow = false
+      this.secondMenuShow = false;
     },
     openSecondMenu() {
-      this.secondMenuShow = true
+      this.secondMenuShow = true;
     },
 
     selectFirstMenu(index) {
-      this.firstActive = parseInt(index)
-      this.getBookList()
+      this.firstActive = parseInt(index);
+      this.getBookList();
     },
 
     toHome() {
-      this.$router.push("/home")
+      this.$router.push("/home");
     },
     toWorkbench() {
-      this.$router.push('/workbench')
+      this.$router.push("/workbench");
     },
     toLearningCornerChat(index, book) {
-      console.log(book)
-      this.$store.commit('setBook', book)
-      this.$store.commit('setBookList', index === 2 ? this.secondMenuItems : this.thirdMenuItems)
-      this.$router.push('/learningCornerChat')
+      console.log(book);
+      this.$store.commit("setBook", book);
+      this.$store.commit(
+        "setBookList",
+        index === 2 ? this.secondMenuItems : this.thirdMenuItems
+      );
+      this.$router.push("/learningCornerChat");
     },
     toPersonalCenter() {
-      this.$router.push('/personalCenter')
+      this.$router.push("/personalCenter");
     },
 
     isEmpty(field) {
-      return isEmpty(field)
-    }
-  }
-}
+      return isEmpty(field);
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -389,7 +545,7 @@ export default {
 
   border: 0;
 
-  background: #E6E6E6;
+  background: #e6e6e6;
 }
 
 #learningCornerBook .firstMenu .firstMenuTitle {
@@ -401,7 +557,7 @@ export default {
   border: 4px dotted #000000;
   border-radius: 10px;
 
-  background: #CBCBCB;
+  background: #cbcbcb;
 
   text-align: center;
 
@@ -418,7 +574,7 @@ export default {
 
   border-radius: 10px;
 
-  background: #CBCBCB;
+  background: #cbcbcb;
 }
 
 #learningCornerBook .firstMenu .search .searchIcon {
@@ -448,7 +604,7 @@ export default {
 
   font-size: 15px;
 
-  background: #CBCBCB;
+  background: #cbcbcb;
 }
 
 #learningCornerBook .firstMenu .firstMenuScrollbar {
@@ -456,7 +612,11 @@ export default {
   height: calc(100% - 100px - 10px - 40px - 8px);
 }
 
-#learningCornerBook .firstMenu .firstMenuScrollbar .firstMenuItem .firstMenuItemName {
+#learningCornerBook
+  .firstMenu
+  .firstMenuScrollbar
+  .firstMenuItem
+  .firstMenuItemName {
   width: 100%;
   height: 40px;
 
@@ -467,7 +627,7 @@ export default {
 
   line-height: 40px;
 
-  background: #CBCBCB;
+  background: #cbcbcb;
 
   font-size: 20px;
 }
@@ -539,7 +699,7 @@ export default {
 
   border: 0;
 
-  background: #CBCBCB;
+  background: #cbcbcb;
 }
 
 #learningCornerBook .secondMenu .secondMenuTitle {
@@ -551,7 +711,7 @@ export default {
   border: 4px dotted #000000;
   border-radius: 10px;
 
-  background: #CBCBCB;
+  background: #cbcbcb;
 
   text-align: center;
 
@@ -565,7 +725,11 @@ export default {
   height: calc(100% - 100px - 10px - 40px - 20px * 2 - 4px * 2);
 }
 
-#learningCornerBook .secondMenu .secondMenuScrollbar .secondMenuItem .secondMenuItemName {
+#learningCornerBook
+  .secondMenu
+  .secondMenuScrollbar
+  .secondMenuItem
+  .secondMenuItemName {
   padding: 0 10px 0 10px;
 
   width: calc(100% - 10px * 2 - 25px);
@@ -578,7 +742,7 @@ export default {
 
   line-height: 40px;
 
-  background: #E7E6E6;
+  background: #e7e6e6;
 
   font-size: 15px;
 
@@ -587,7 +751,11 @@ export default {
   text-overflow: ellipsis;
 }
 
-#learningCornerBook .secondMenu .secondMenuScrollbar .secondMenuItem .secondMenuItemDelete {
+#learningCornerBook
+  .secondMenu
+  .secondMenuScrollbar
+  .secondMenuItem
+  .secondMenuItemDelete {
   margin: 0 0 0 5px;
 
   width: 20px;
@@ -605,7 +773,7 @@ export default {
   font-weight: bold;
 }
 
-#learningCornerBook .secondMenu .slogan .schoolName{
+#learningCornerBook .secondMenu .slogan .schoolName {
   height: 40px;
 
   font-size: 14px;
@@ -700,11 +868,17 @@ export default {
   height: 60px;
 }
 
-#learningCornerBook .mainContainer .patterns .patternBottomLeftAngledTriangleActive {
+#learningCornerBook
+  .mainContainer
+  .patterns
+  .patternBottomLeftAngledTriangleActive {
   left: calc(75% - 60px / 2);
 }
 
-#learningCornerBook .mainContainer .patterns .patternTopRightAngledTriangleUnactive {
+#learningCornerBook
+  .mainContainer
+  .patterns
+  .patternTopRightAngledTriangleUnactive {
   right: calc(25% - 60px / 2);
 
   cursor: pointer;
@@ -881,7 +1055,7 @@ export default {
 
   border-radius: 10px;
 
-  background: #F3F4F3;
+  background: #f3f4f3;
 
   line-height: 30px;
 

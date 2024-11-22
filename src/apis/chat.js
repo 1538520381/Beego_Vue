@@ -43,3 +43,25 @@ export function getMessageList(sessionId) {
         }
     })
 }
+
+export function longTextDialogueSubmit(robotId, sessionId, handle, content, fileUrl, fileName, fileType) {
+    return request({
+        url: '/chat/workflow/submit', method: 'post', data: {
+            bot_id: robotId,
+            session_id: sessionId,
+            bot_handle: handle,
+            content: content,
+            file_url: fileUrl,
+            file_type: fileType,
+            file_name: fileName,
+        }
+    })
+}
+
+export function longTextDialogueQuery(robotId, sessionId, executeId) {
+    return request({
+        url: '/chat/workflow/query', method: 'post', data: {
+            bot_id: robotId, session_id: sessionId, execute_id: executeId,
+        }
+    })
+}

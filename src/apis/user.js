@@ -49,6 +49,26 @@ export function updateInformation(personalInformationForm) {
     })
 }
 
+export function forgetPassword(forgetPasswordForm) {
+    return request({
+        url: '/forget/password', method: 'post', data: {
+            phoneOrEmail: forgetPasswordForm.email,
+            user_verify_code: forgetPasswordForm.verifyCode,
+            new_password: forgetPasswordForm.password
+        }
+    })
+}
+
+export function changePassword(changePasswordForm) {
+    return request({
+        url: '/user/update/password', method: 'post', data: {
+            phoneOrEmail: changePasswordForm.email,
+            user_verify_code: changePasswordForm.verifyCode,
+            new_password: changePasswordForm.password
+        }
+    })
+}
+
 export function getUserByToken() {
     return request({
         url: '/user/token', method: 'post'

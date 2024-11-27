@@ -5,8 +5,8 @@
       <div class="avatarContainer">
         <div class="mainContainer">
           <el-image
-            class="avatar"
-            :src="
+              class="avatar"
+              :src="
               isEmpty(user.avatarUrl)
                 ? user.gender === 0 || isEmpty(user.gender)
                   ? BoyAvatar
@@ -15,11 +15,11 @@
             "
           ></el-image>
           <el-upload
-            class="upload-demo"
-            action="/api/user/avatar"
-            :on-success="avatarUpload"
-            :show-file-list="false"
-            :headers="{
+              class="upload-demo"
+              action="/api/user/avatar"
+              :on-success="avatarUpload"
+              :show-file-list="false"
+              :headers="{
               Authorization: token,
             }"
           >
@@ -36,12 +36,12 @@
               "  " +
               "『" +
               (user.tag === "0"
-                ? "开发者"
-                : user.tag === "1"
-                ? "内测用户"
-                : user.tag === "2"
-                ? "普通用户"
-                : "会员") +
+                  ? "开发者"
+                  : user.tag === "1"
+                      ? "内测用户"
+                      : user.tag === "2"
+                          ? "普通用户"
+                          : "会员") +
               "』"
             }}
           </div>
@@ -74,38 +74,37 @@
           <div class="key">入学年份：</div>
           <div class="value">{{ user.enterTime }}</div>
         </div>
-        <el-button type="primary" @click="openPersonalInformationDialog"
-          >修改信息</el-button
-        >
+        <el-button type="primary" @click="openPersonalInformationDialog">修改信息</el-button>
+        <el-button type="primary" @click="openChangePasswordDialog">修改密码</el-button>
         <el-button type="danger" @click="logout">退出登录</el-button>
       </div>
     </div>
 
     <el-dialog
-      class="personalInformationDialog"
-      v-model="personalInformationDialogVis"
-      title="个人信息修改"
-      width="350"
-      :show-close="false"
-      :close-on-click-modal="false"
+        class="personalInformationDialog"
+        v-model="personalInformationDialogVis"
+        title="个人信息修改"
+        width="350"
+        :show-close="false"
+        :close-on-click-modal="false"
     >
       <el-form
-        class="form"
-        :model="personalInformationForm"
-        :rules="personalInformationRules"
+          class="form"
+          :model="personalInformationForm"
+          :rules="personalInformationRules"
       >
         <el-form-item class="formItem" prop="userName">
           <el-input
-            class="formInput"
-            size="large"
-            v-model="personalInformationForm.userName"
-            placeholder="请输入昵称"
+              class="formInput"
+              size="large"
+              v-model="personalInformationForm.userName"
+              placeholder="请输入昵称"
           ></el-input>
         </el-form-item>
         <el-form-item class="formInput">
           <el-radio-group
-            v-model="personalInformationForm.gender"
-            style="padding: 0 0 0 10px"
+              v-model="personalInformationForm.gender"
+              style="padding: 0 0 0 10px"
           >
             <el-radio :value="0" size="large">男</el-radio>
             <el-radio :value="1" size="large">女</el-radio>
@@ -113,68 +112,101 @@
         </el-form-item>
         <el-form-item class="formItem" prop="school">
           <el-select
-            class="formInput"
-            v-model="personalInformationForm.school"
-            size="large"
-            filterable
-            placeholder="请选择学校"
-            @change="getMajorBySchool"
+              class="formInput"
+              v-model="personalInformationForm.school"
+              size="large"
+              filterable
+              placeholder="请选择学校"
+              @change="getMajorBySchool"
           >
             <el-option
-              v-for="(item, index) in schools"
-              :key="index"
-              :label="item"
-              :value="item"
+                v-for="(item, index) in schools"
+                :key="index"
+                :label="item"
+                :value="item"
             />
           </el-select>
         </el-form-item>
         <el-form-item
-          class="formItem"
-          prop="major"
-          v-if="!isEmpty(personalInformationForm.school)"
+            class="formItem"
+            prop="major"
+            v-if="!isEmpty(personalInformationForm.school)"
         >
           <el-select
-            class="formInput"
-            v-model="personalInformationForm.major"
-            size="large"
-            filterable
-            placeholder="请选择专业"
+              class="formInput"
+              v-model="personalInformationForm.major"
+              size="large"
+              filterable
+              placeholder="请选择专业"
           >
             <el-option
-              v-for="(item, index) in majors"
-              :key="index"
-              :label="item"
-              :value="item"
+                v-for="(item, index) in majors"
+                :key="index"
+                :label="item"
+                :value="item"
             />
           </el-select>
         </el-form-item>
         <el-form-item
-          class="formItem"
-          prop="elseMajor"
-          v-if="personalInformationForm.major === '其他'"
+            class="formItem"
+            prop="elseMajor"
+            v-if="personalInformationForm.major === '其他'"
         >
           <el-input
-            class="formInput"
-            size="large"
-            v-model="personalInformationForm.elseMajor"
-            placeholder="请输入专业"
+              class="formInput"
+              size="large"
+              v-model="personalInformationForm.elseMajor"
+              placeholder="请输入专业"
           ></el-input>
         </el-form-item>
         <el-form-item class="formItem" prop="enterTime">
           <el-date-picker
-            class="formInput"
-            size="large"
-            v-model="personalInformationForm.enterTime"
-            type="year"
-            :disabled-date="disabledDate"
-            placeholder="请选择入学年份"
+              class="formInput"
+              size="large"
+              v-model="personalInformationForm.enterTime"
+              type="year"
+              :disabled-date="disabledDate"
+              placeholder="请选择入学年份"
           />
         </el-form-item>
       </el-form>
       <div class="control">
+        <el-button @click="closePersonalInformationDialog">取消</el-button>
         <el-button type="primary" @click="improvePersonalInformation"
-          >确定</el-button
+        >确定
+        </el-button
         >
+      </div>
+    </el-dialog>
+    <el-dialog class="changePasswordDialog" v-model="changePasswordDialogVis" title="修改密码" width="350"
+               :show-close="false" :close-on-click-modal="false">
+      <el-form class="changePasswordForm" :rules="changePasswordRules" :model="changePasswordForm">
+        <el-form-item class="formItem" prop="email">
+          <el-input class="formInput" size="large" v-model="changePasswordForm.email"
+                    placeholder="请输入邮箱"></el-input>
+        </el-form-item>
+        <el-form-item class="formItem" prop="verifyCode">
+          <el-input class="verifyCodeInput" size="large" v-model="changePasswordForm.verifyCode"
+                    placeholder="请输入验证码">
+          </el-input>
+          <el-button class="verifyCodeButton" type="primary" link @click="sendEmailVerifyCode">
+            {{
+              verifyCodeFlag ? "获取验证码" : verifyCodeTimer + "秒后重试"
+            }}
+          </el-button>
+        </el-form-item>
+        <el-form-item class="formItem" prop="password">
+          <el-input class="formInput" size="large" type="password" show-password
+                    v-model="changePasswordForm.password" placeholder="请输入密码"></el-input>
+        </el-form-item>
+        <el-form-item class="formItem" prop="passwordAgain">
+          <el-input class="formInput" size="large" type="password" show-password
+                    v-model="changePasswordForm.passwordAgain" placeholder="请再次输入密码"></el-input>
+        </el-form-item>
+      </el-form>
+      <div class="control">
+        <el-button @click="closeChangePasswordDialog">取消</el-button>
+        <el-button type="primary" @click="changePassword">修改</el-button>
       </div>
     </el-dialog>
   </div>
@@ -190,17 +222,39 @@ import schoolCategoryMajor from "@/jsons/schoolCategoryMajor.json";
 
 import {
   getUserByToken,
-  improvePersonalInformation,
   logout,
+  sendEmailVerifyCode,
   updateInformation,
+  changePassword
 } from "@/apis/user";
-import { isEmpty } from "@/utils/common";
-import { longTextDialogueQuery } from "@/apis/chat";
+import {isEmpty} from "@/utils/common";
+import {isEmail, isPassword} from "@/utils/validate";
 
 export default {
   name: "PersonalCenter",
-  components: { SvgIcon },
+  components: {SvgIcon},
   data() {
+    const validateEmail = (rule, value, callback) => {
+      if (!isEmail(value)) {
+        callback(new Error('请输入合法的邮箱地址'))
+      } else {
+        callback()
+      }
+    }
+    const validatePassword = (rule, value, callback) => {
+      if (!isPassword(value)) {
+        callback(new Error('请输入包含英文字母和数字的8-30位密码'))
+      } else {
+        callback()
+      }
+    }
+    const validatePasswordAgain = (rule, value, callback) => {
+      if (value !== this.changePasswordForm.password) {
+        callback(new Error('两次输入的密码不同'))
+      } else {
+        callback()
+      }
+    }
     return {
       BoyAvatar: BoyAvatar,
       GirlAvatar: GirlAvatar,
@@ -212,7 +266,12 @@ export default {
       categorys: [],
       majors: [],
 
+      verifyCodeFlag: true,
+      verifyCodeTimer: 60,
+      verifyCodeClock: null,
+
       personalInformationForm: {},
+      changePasswordForm: {},
 
       personalInformationRules: {
         userName: [
@@ -251,8 +310,31 @@ export default {
           },
         ],
       },
+      changePasswordRules: {
+        email: [{
+          required: true,
+          trigger: 'blur',
+          validator: validateEmail
+        }],
+        password: [{
+          required: true,
+          trigger: 'blur',
+          validator: validatePassword
+        }],
+        passwordAgain: [{
+          require: true,
+          trigger: 'blur',
+          validator: validatePasswordAgain
+        }],
+        verifyCode: [{
+          required: true,
+          trigger: 'blur',
+          message: '验证码不能为空'
+        }]
+      },
 
       personalInformationDialogVis: false,
+      changePasswordDialogVis: false,
 
       longTextDialogueExecuteEntitys: [],
     };
@@ -274,6 +356,7 @@ export default {
 
     this.initConstant();
     this.initPersonalInformationForm();
+    this.initChangePasswordInformationForm();
   },
   methods: {
     initConstant() {
@@ -289,31 +372,39 @@ export default {
         enterTime: new Date().setFullYear(this.user.enterTime),
       };
     },
+    initChangePasswordInformationForm() {
+      this.changePasswordForm = {
+        email: null,
+        verifyCode: null,
+        password: null,
+        passwordAgain: null
+      }
+    },
 
     getUserByToken() {
       return getUserByToken()
-        .then((res) => {
-          if (res.data.code === 200) {
-            this.user = {
-              id: res.data.data["user_id"],
-              email: res.data.data["email"],
-              gender: res.data.data["gender"],
-              userName: res.data.data["user_name"],
-              major: res.data.data["major"],
-              school: res.data.data["school"],
-              avatarUrl: res.data.data["avatar_url"],
-              enterTime: res.data.data["enter_time"],
-              tag: res.data.data["tag"],
-            };
-          } else {
-            this.$router.push("/home");
-            this.$message.error(res.data.message);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          this.$message.error("系统异常，请联系管理员");
-        });
+          .then((res) => {
+            if (res.data.code === 200) {
+              this.user = {
+                id: res.data.data["user_id"],
+                email: res.data.data["email"],
+                gender: res.data.data["gender"],
+                userName: res.data.data["user_name"],
+                major: res.data.data["major"],
+                school: res.data.data["school"],
+                avatarUrl: res.data.data["avatar_url"],
+                enterTime: res.data.data["enter_time"],
+                tag: res.data.data["tag"],
+              };
+            } else {
+              this.$router.push("/home");
+              this.$message.error(res.data.message);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            this.$message.error("系统异常，请联系管理员");
+          });
     },
     improvePersonalInformation() {
       if (isEmpty(this.personalInformationForm.userName)) {
@@ -323,8 +414,8 @@ export default {
       } else if (isEmpty(this.personalInformationForm.major)) {
         this.$message.error("请选择专业");
       } else if (
-        this.personalInformationForm.major === "其他" &&
-        isEmpty(this.personalInformationForm.elseMajor)
+          this.personalInformationForm.major === "其他" &&
+          isEmpty(this.personalInformationForm.elseMajor)
       ) {
         this.$message.error("请输入专业");
       } else if (isEmpty(this.personalInformationForm.enterTime)) {
@@ -335,18 +426,37 @@ export default {
           gender: this.personalInformationForm.gender,
           school: this.personalInformationForm.school,
           major:
-            this.personalInformationForm.major === "其他"
-              ? this.personalInformationForm.elseMajor
-              : this.personalInformationForm.major,
+              this.personalInformationForm.major === "其他"
+                  ? this.personalInformationForm.elseMajor
+                  : this.personalInformationForm.major,
           enterTime: new Date(
-            this.personalInformationForm.enterTime
+              this.personalInformationForm.enterTime
           ).getFullYear(),
         })
+            .then((res) => {
+              if (res.data.code === 200) {
+                this.personalInformationDialogVis = false;
+                this.getUserByToken();
+                this.$message.success(res.data.message);
+              } else {
+                this.$message.error(res.data.message);
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+              this.$message.error("系统异常，请联系管理员");
+            });
+      }
+    },
+    logout() {
+      logout()
           .then((res) => {
             if (res.data.code === 200) {
-              this.personalInformationDialogVis = false;
-              this.getUserByToken();
-              this.$message.success(res.data.message);
+              this.token = null;
+              this.user = {};
+              this.$router.push("/home");
+              localStorage.removeItem("token");
+              this.$message.success("注销成功");
             } else {
               this.$message.error(res.data.message);
             }
@@ -355,53 +465,68 @@ export default {
             console.log(err);
             this.$message.error("系统异常，请联系管理员");
           });
+    },
+    sendEmailVerifyCode() {
+      console.log(this.changePasswordForm.email)
+      if (this.verifyCodeFlag) {
+        if (isEmpty(this.changePasswordForm.email)) {
+          this.$message.error("请输入邮箱")
+        } else if (!isEmail(this.changePasswordForm.email)) {
+          this.$message.error('请输入正确的邮箱地址')
+        } else {
+          sendEmailVerifyCode(this.changePasswordForm.email).then((res) => {
+            if (res.data.code === 200) {
+              this.$message.success(res.data.message)
+              this.verifyCodeFlag = false
+              this.verifyCodeTimer = 60
+              this.verifyCodeClock = setInterval(() => {
+                this.verifyCodeTimer--;
+                if (this.verifyCodeTimer === 0) {
+                  clearInterval(this.verifyCodeTimer)
+                  this.verifyCodeFlag = true
+                }
+              }, 1000)
+            } else {
+              this.$message.error(res.data.message)
+            }
+          }).catch((err) => {
+            console.log(err)
+            this.$message.error('系统异常，请联系管理员')
+          })
+        }
       }
     },
-    logout() {
-      logout()
-        .then((res) => {
+    changePassword() {
+      if (isEmpty(this.changePasswordForm.email)) {
+        this.$message.error("请输入邮箱")
+      } else if (!isEmail(this.changePasswordForm.email)) {
+        this.$message.error('请输入合法的邮箱地址')
+      } else if (isEmpty(this.changePasswordForm.verifyCode)) {
+        this.$message.error('请输入验证码')
+      } else if (isEmpty(this.changePasswordForm.password)) {
+        this.$message.error('请输入密码')
+      } else if (!isPassword(this.changePasswordForm.password)) {
+        this.$message.error('请输入包含英文字母和数字的8-30位密码')
+      } else if (isEmpty(this.changePasswordForm.passwordAgain)) {
+        this.$message.error('请再次输入密码')
+      } else if (this.changePasswordForm.password !== this.changePasswordForm.passwordAgain) {
+        this.$message.error("两次输入的密码不一致")
+      } else {
+        changePassword({
+          email: this.changePasswordForm.email,
+          verifyCode: this.changePasswordForm.verifyCode,
+          password: this.changePasswordForm.password
+        }).then((res) => {
           if (res.data.code === 200) {
-            this.token = null;
-            this.user = {};
-            this.$router.push("/home");
-            localStorage.removeItem("token");
-            this.$message.success("注销成功");
+            this.$message.success(res.data.message)
+            this.closeChangePasswordDialog()
           } else {
-            this.$message.error(res.data.message);
+            this.$message.error(res.data.message)
           }
+        }).catch((err) => {
+          console.log(err)
+          this.$message.error('系统异常，请联系管理员')
         })
-        .catch((err) => {
-          console.log(err);
-          this.$message.error("系统异常，请联系管理员");
-        });
-    },
-    longTextDialogueQuery() {
-      for (let i = 0; i < this.longTextDialogueExecuteEntitys.length; i++) {
-        longTextDialogueQuery(
-          this.longTextDialogueExecuteEntitys[i].robotId,
-          this.longTextDialogueExecuteEntitys[i].sessionId,
-          this.longTextDialogueExecuteEntitys[i].executeId
-        )
-          .then((res) => {
-            if (res.data.code === 200) {
-              this.$message.success("长文本生成完成");
-              this.longTextDialogueExecuteEntitys.splice(i, 1);
-              i--;
-            } else if (this.longTextDialogueExecuteEntitys[i].count >= 7) {
-              // this.longTextDialogueExecuteEntitys.splice(i, 1);
-              // i--;
-            } else {
-              this.longTextDialogueExecuteEntitys[i].count += 1;
-            }
-            this.$store.commit(
-              "setLongTextDialogueExecuteEntitys",
-              this.longTextDialogueExecuteEntitys
-            );
-          })
-          .catch((err) => {
-            console.log(err);
-            this.$message.error("系统异常，请联系管理员");
-          });
       }
     },
 
@@ -416,14 +541,24 @@ export default {
 
     disabledDate(date) {
       return (
-        date.getFullYear() < 2010 ||
-        date.getFullYear() > new Date().getFullYear()
+          date.getFullYear() < 2010 ||
+          date.getFullYear() > new Date().getFullYear()
       );
     },
 
     openPersonalInformationDialog() {
       this.initPersonalInformationForm();
       this.personalInformationDialogVis = true;
+    },
+    openChangePasswordDialog() {
+      this.initChangePasswordInformationForm();
+      this.changePasswordDialogVis = true;
+    },
+    closePersonalInformationDialog() {
+      this.personalInformationDialogVis = false
+    },
+    closeChangePasswordDialog() {
+      this.changePasswordDialogVis = false;
     },
 
     back() {
@@ -437,14 +572,14 @@ export default {
     getMajorBySchool() {
       this.personalInformationForm.major = null;
       this.categorys = Object.keys(
-        schoolCategoryMajor[this.personalInformationForm.school]
+          schoolCategoryMajor[this.personalInformationForm.school]
       );
       this.majors = [];
       for (let i in this.categorys) {
         let majors =
-          schoolCategoryMajor[this.personalInformationForm.school][
-            this.categorys[i]
-          ];
+            schoolCategoryMajor[this.personalInformationForm.school][
+                this.categorys[i]
+                ];
         for (let j in majors) {
           this.majors.push(majors[j]);
         }
@@ -525,10 +660,10 @@ export default {
 }
 
 #personalCenter
-  .mainContainer
-  .avatarContainer
-  .mainContainer
-  .avatarUploadButton {
+.mainContainer
+.avatarContainer
+.mainContainer
+.avatarUploadButton {
   width: 80%;
   height: 25px;
 }
@@ -594,4 +729,17 @@ export default {
 #personalCenter .personalInformationDialog .form .formItem /deep/ .formInput {
   width: 100%;
 }
+
+#personalCenter .changePasswordDialog .changePasswordForm .formItem .verifyCodeInput {
+  width: 70%;
+}
+
+#personalCenter .changePasswordDialog .changePasswordForm .formItem .verifyCodeButton {
+  margin: 0 0 0 10px;
+}
+
+#personalCenter .changePasswordDialog .control {
+  text-align: right;
+}
+
 </style>

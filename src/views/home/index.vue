@@ -50,7 +50,7 @@
       </template>
       <el-tabs class="tabs" v-model="tabsValue">
         <el-tab-pane class="tabPane" label="登录">
-          <el-form class="form" :model="loginForm" :rules="loginRules">
+          <el-form class="form" :model="loginForm">
             <el-form-item class="formItem" prop="email">
               <el-input class="formInput" size="large" v-model="loginForm.email" placeholder="请输入邮箱"></el-input>
             </el-form-item>
@@ -60,6 +60,7 @@
             </el-form-item>
           </el-form>
           <div class="control">
+            <el-button link @click="openForgetPasswordDialog" style="color: #A0A0A0">忘记密码</el-button>
             <el-button @click="closeTabsDialog">取消</el-button>
             <el-button type="primary" @click="login">登录</el-button>
           </div>
@@ -73,7 +74,7 @@
               <el-input class="verifyCodeInput" size="large" v-model="registerForm.verifyCode"
                         placeholder="请输入验证码">
               </el-input>
-              <el-button class="verifyCodeButton" type="primary" link @click="sendEmailVerifyCode">
+              <el-button class="verifyCodeButton" type="primary" link @click="sendEmailVerifyCode(registerForm.email)">
                 {{
                   verifyCodeFlag ? "获取验证码" : verifyCodeTimer + "秒后重试"
                 }}
@@ -160,6 +161,39 @@
         <el-button type="primary" @click="improvePersonalInformation">确定</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog class="forgetPasswordDialog" v-model="forgetPasswordDialogVis" title="忘记密码" width="350"
+               :show-close="false" :close-on-click-modal="false">
+      <el-form class="forgetPasswordForm" :rules="forgetPasswordRules" :model="forgetPasswordForm">
+        <el-form-item class="formItem" prop="email">
+          <el-input class="formInput" size="large" v-model="forgetPasswordForm.email"
+                    placeholder="请输入邮箱"></el-input>
+        </el-form-item>
+        <el-form-item class="formItem" prop="verifyCode">
+          <el-input class="verifyCodeInput" size="large" v-model="forgetPasswordForm.verifyCode"
+                    placeholder="请输入验证码">
+          </el-input>
+          <el-button class="verifyCodeButton" type="primary" link
+                     @click="sendEmailVerifyCode(forgetPasswordForm.email)">
+            {{
+              verifyCodeFlag ? "获取验证码" : verifyCodeTimer + "秒后重试"
+            }}
+          </el-button>
+        </el-form-item>
+        <el-form-item class="formItem" prop="password">
+          <el-input class="formInput" size="large" type="password" show-password
+                    v-model="forgetPasswordForm.password" placeholder="请输入密码"></el-input>
+        </el-form-item>
+        <el-form-item class="formItem" prop="passwordAgain">
+          <el-input class="formInput" size="large" type="password" show-password
+                    v-model="forgetPasswordForm.passwordAgain" placeholder="请再次输入密码"></el-input>
+        </el-form-item>
+      </el-form>
+      <div class="control">
+        <el-button @click="closeForgetPasswordDialog">取消</el-button>
+        <el-button type="primary" @click="forgetPassword">修改</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -170,7 +204,15 @@ import schoolCategoryMajor from '@/jsons/schoolCategoryMajor.json'
 
 import {isEmpty, sleep} from "@/utils/common";
 import {isEmail, isPassword} from "@/utils/validate";
-import {getUserByToken, improvePersonalInformation, login, logout, register, sendEmailVerifyCode} from "@/apis/user";
+import {
+  forgetPassword,
+  getUserByToken,
+  improvePersonalInformation,
+  login,
+  logout,
+  register,
+  sendEmailVerifyCode
+} from "@/apis/user";
 
 export default {
   name: "Home",
@@ -196,6 +238,13 @@ export default {
         callback()
       }
     }
+    const validateForgetPasswordAgain = (rule, value, callback) => {
+      if (value !== this.forgetPasswordForm.password) {
+        callback(new Error('两次输入的密码不同'))
+      } else {
+        callback()
+      }
+    }
 
     return {
       // bee: bee,
@@ -211,9 +260,11 @@ export default {
       loginForm: {},
       registerForm: {},
       personalInformationForm: {},
+      forgetPasswordForm: {},
 
       tabsDialogVis: false,
       personalInformationDialogVis: false,
+      forgetPasswordDialogVis: false,
 
       loginRules: {
         email: [{
@@ -278,6 +329,28 @@ export default {
           message: '入学年份不能为空'
         }]
       },
+      forgetPasswordRules: {
+        email: [{
+          required: true,
+          trigger: 'blur',
+          validator: validateEmail
+        }],
+        password: [{
+          required: true,
+          trigger: 'blur',
+          validator: validatePassword
+        }],
+        passwordAgain: [{
+          require: true,
+          trigger: 'blur',
+          validator: validateForgetPasswordAgain
+        }],
+        verifyCode: [{
+          required: true,
+          trigger: 'blur',
+          message: '验证码不能为空'
+        }]
+      },
 
       tabsValue: '0',
 
@@ -306,6 +379,8 @@ export default {
     this.initLoginForm()
     this.initRegisterForm()
     this.initPersonalInformationForm()
+    this.initForgetPasswordInformationForm()
+
 
     this.createChatClock1();
 
@@ -341,6 +416,14 @@ export default {
         major: "",
         elseMajor: "",
         enterTime: "",
+      }
+    },
+    initForgetPasswordInformationForm() {
+      this.forgetPasswordForm = {
+        email: null,
+        verifyCode: null,
+        password: null,
+        passwordAgain: null
       }
     },
 
@@ -406,6 +489,8 @@ export default {
         this.$message.error('请输入包含英文字母和数字的8-30位密码')
       } else if (isEmpty(this.registerForm.passwordAgain)) {
         this.$message.error('请再次输入密码')
+      } else if (this.registerForm.password !== this.registerForm.passwordAgain) {
+        this.$message.error("两次输入的密码不一致")
       } else {
         register(this.registerForm).then((res) => {
           if (res.data.code === 200) {
@@ -421,14 +506,14 @@ export default {
         })
       }
     },
-    sendEmailVerifyCode() {
+    sendEmailVerifyCode(email) {
       if (this.verifyCodeFlag) {
-        if (isEmpty(this.registerForm.email)) {
+        if (isEmpty(email)) {
           this.$message.error("请输入邮箱")
-        } else if (!isEmail(this.registerForm.email)) {
+        } else if (!isEmail(email)) {
           this.$message.error('请输入正确的邮箱地址')
         } else {
-          sendEmailVerifyCode(this.registerForm.email).then((res) => {
+          sendEmailVerifyCode(email).then((res) => {
             if (res.data.code === 200) {
               this.$message.success(res.data.message)
               this.verifyCodeFlag = false
@@ -497,6 +582,39 @@ export default {
         })
       }
     },
+    forgetPassword() {
+      if (isEmpty(this.forgetPasswordForm.email)) {
+        this.$message.error("请输入邮箱")
+      } else if (!isEmail(this.forgetPasswordForm.email)) {
+        this.$message.error('请输入合法的邮箱地址')
+      } else if (isEmpty(this.forgetPasswordForm.verifyCode)) {
+        this.$message.error('请输入验证码')
+      } else if (isEmpty(this.forgetPasswordForm.password)) {
+        this.$message.error('请输入密码')
+      } else if (!isPassword(this.forgetPasswordForm.password)) {
+        this.$message.error('请输入包含英文字母和数字的8-30位密码')
+      } else if (isEmpty(this.forgetPasswordForm.passwordAgain)) {
+        this.$message.error('请再次输入密码')
+      } else if (this.forgetPasswordForm.password !== this.forgetPasswordForm.passwordAgain) {
+        this.$message.error("两次输入的密码不一致")
+      } else {
+        forgetPassword({
+          email: this.forgetPasswordForm.email,
+          verifyCode: this.forgetPasswordForm.verifyCode,
+          password: this.forgetPasswordForm.password
+        }).then((res) => {
+          if (res.data.code === 200) {
+            this.$message.success(res.data.message)
+            this.closeForgetPasswordDialog()
+          } else {
+            this.$message.error(res.data.message)
+          }
+        }).catch((err) => {
+          console.log(err)
+          this.$message.error('系统异常，请联系管理员')
+        })
+      }
+    },
 
     disabledDate(date) {
       return date.getFullYear() < 2010 || date.getFullYear() > new Date().getFullYear()
@@ -510,6 +628,13 @@ export default {
     },
     closeTabsDialog() {
       this.tabsDialogVis = false;
+    },
+    openForgetPasswordDialog() {
+      this.initForgetPasswordInformationForm();
+      this.forgetPasswordDialogVis = true;
+    },
+    closeForgetPasswordDialog() {
+      this.forgetPasswordDialogVis = false;
     },
 
     createChatClock1() {
@@ -773,4 +898,17 @@ export default {
 #home .gaussianBlur {
   filter: blur(10px);
 }
+
+#home .forgetPasswordDialog .forgetPasswordForm .formItem .verifyCodeInput {
+  width: 70%;
+}
+
+#home .forgetPasswordDialog .forgetPasswordForm .formItem .verifyCodeButton {
+  margin: 0 0 0 10px;
+}
+
+#home .forgetPasswordDialog .control {
+  text-align: right;
+}
+
 </style>

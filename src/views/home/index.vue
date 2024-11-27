@@ -50,20 +50,33 @@
       </template>
       <el-tabs class="tabs" v-model="tabsValue">
         <el-tab-pane class="tabPane" label="登录">
-          <el-form class="form" :model="loginForm">
-            <el-form-item class="formItem" prop="email">
-              <el-input class="formInput" size="large" v-model="loginForm.email" placeholder="请输入邮箱"></el-input>
-            </el-form-item>
-            <el-form-item class="formItem" prop="password">
-              <el-input class="formInput" size="large" type="password" show-password
-                        v-model="loginForm.password" placeholder="请输入密码"></el-input>
-            </el-form-item>
-          </el-form>
-          <div class="control">
-            <el-button link @click="openForgetPasswordDialog" style="color: #A0A0A0">忘记密码</el-button>
-            <el-button @click="closeTabsDialog">取消</el-button>
-            <el-button type="primary" @click="login">登录</el-button>
+          <div class="loginModel1" v-if="loginModel === 1">
+            <el-form class="form" :model="loginForm">
+              <el-form-item class="formItem" prop="email">
+                <el-input class="formInput" size="large" v-model="loginForm.email" placeholder="请输入邮箱"></el-input>
+              </el-form-item>
+              <el-form-item class="formItem" prop="password">
+                <el-input class="formInput" size="large" type="password" show-password
+                          v-model="loginForm.password" placeholder="请输入密码"></el-input>
+              </el-form-item>
+            </el-form>
+            <div class="control">
+              <el-button link @click="openForgetPasswordDialog" style="color: #A0A0A0">忘记密码</el-button>
+              <el-button @click="closeTabsDialog">取消</el-button>
+              <el-button type="primary" @click="login">登录</el-button>
+            </div>
           </div>
+          <div class="loginModel2" v-if="loginModel === 2">
+            <div id="wechatQRCode"></div>
+          </div>
+          <el-divider class="divider"></el-divider>
+          <el-button class="switchLoginMethodButton" v-if="loginModel === 1" @click="selectLoginModel(2)">
+            <svg-icon class="wechatIcon" icon-class="wechat"></svg-icon>
+            微信登录
+          </el-button>
+          <el-button class="switchLoginMethodButton" v-if="loginModel === 2" @click="selectLoginModel(1)">
+            账号密码登录
+          </el-button>
         </el-tab-pane>
         <el-tab-pane class="tabPane" label="注册">
           <el-form class="form" :model="registerForm" :rules="registerRules">
@@ -213,9 +226,11 @@ import {
   register,
   sendEmailVerifyCode
 } from "@/apis/user";
+import SvgIcon from "@/components/svgIcon/index.vue";
 
 export default {
   name: "Home",
+  components: {SvgIcon},
   data() {
     const validateEmail = (rule, value, callback) => {
       if (!isEmail(value)) {
@@ -247,7 +262,6 @@ export default {
     }
 
     return {
-      // bee: bee,
       logo: logo,
 
       token: null,
@@ -353,6 +367,7 @@ export default {
       },
 
       tabsValue: '0',
+      loginModel: 1,
 
       chats: [
         "用Beego，一天学完一学期"
@@ -385,6 +400,13 @@ export default {
     this.createChatClock1();
 
     this.initFlag = true
+  },
+  mounted() {
+    const script = document.createElement('script');
+    script.src = 'https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js'; // JS 文件路径
+    script.onload = () => {
+    };
+    document.body.appendChild(script);
   },
   unmounted() {
     clearInterval(this.chatClock);
@@ -616,6 +638,23 @@ export default {
       }
     },
 
+    selectLoginModel(index) {
+      if (index === 2) {
+        this.$message.error("暂不支持")
+        return
+        this.$nextTick(() => {
+          new WxLogin({
+            self_redirect: true,
+            id: "wechatQRCode",
+            appid: "wx20611587d7790906",
+            scope: "snsapi_base",
+            redirect_uri: "http://54.222.173.61:81/workBench",
+          });
+        });
+      }
+      this.loginModel = index
+    },
+
     disabledDate(date) {
       return date.getFullYear() < 2010 || date.getFullYear() > new Date().getFullYear()
     },
@@ -626,12 +665,12 @@ export default {
       this.tabsValue = tabsValue;
       this.tabsDialogVis = true;
     },
-    closeTabsDialog() {
-      this.tabsDialogVis = false;
-    },
     openForgetPasswordDialog() {
       this.initForgetPasswordInformationForm();
       this.forgetPasswordDialogVis = true;
+    },
+    closeTabsDialog() {
+      this.tabsDialogVis = false;
     },
     closeForgetPasswordDialog() {
       this.forgetPasswordDialogVis = false;
@@ -871,20 +910,42 @@ export default {
   margin: 0 auto;
 }
 
-#home .tabsDialog .tabs .tabPane .form .formItem .formInput {
+#home .tabsDialog .tabs .tabPane .loginModel1 .form .formItem .formInput {
   width: 100%;
 }
 
-#home .tabsDialog .tabs .tabPane .control {
-  text-align: right;
-}
-
-#home .tabsDialog .tabs .tabPane .form .formItem .verifyCodeInput {
+#home .tabsDialog .tabs .tabPane .loginModel1 .form .formItem .verifyCodeInput {
   width: 70%;
 }
 
-#home .tabsDialog .tabs .tabPane .form .formItem .verifyCodeButton {
+#home .tabsDialog .tabs .tabPane .loginModel1 .form .formItem .verifyCodeButton {
   margin: 0 0 0 10px;
+}
+
+#home .tabsDialog .tabs .tabPane .loginModel1 .control {
+  text-align: right;
+}
+
+#home .tabsDialog .tabs .tabPane .divider {
+  margin: 8px 0 8px 0;
+}
+
+#home .tabsDialog .tabs .tabPane .switchLoginMethodButton {
+  width: 100%;
+  height: 40px;
+
+  font-size: 18px;
+
+  line-height: 40px;
+
+  color: #1BD66A;
+}
+
+#home .tabsDialog .tabs .tabPane .switchLoginMethodButton .wechatIcon {
+  margin: 0 5px 0 0;
+
+  width: 30px;
+  height: 30px;
 }
 
 #home .personalInformationDialog .control {

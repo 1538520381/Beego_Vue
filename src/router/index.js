@@ -12,6 +12,8 @@ const routes = [{
     path: '/learningCornerChat', name: 'LearningCornerChat', component: () => import('@/views/learningCornerChat')
 }, {
     path: '/personalCenter', name: 'PersonalCenter', component: () => import('@/views/personalCenter')
+}, {
+    path: '/test', name: 'Test', component: () => import('@/views/test')
 }]
 
 const router = createRouter({

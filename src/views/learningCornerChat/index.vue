@@ -1,40 +1,40 @@
 <template>
   <div id="learningCornerChat">
     <el-menu
-      class="bookMenu"
-      :default-active="String(bookActive)"
-      v-if="bookMenuShow"
-      @select="selectBookMenu"
+        class="bookMenu"
+        :default-active="String(bookActive)"
+        v-if="bookMenuShow"
+        @select="selectBookMenu"
     >
       <div class="returnButton" @click="toLearningCornerBook">返回</div>
       <div class="bookMenuTitle">课程</div>
       <el-scrollbar class="bookMenuScrollbar">
         <el-menu-item
-          class="bookMenuItem"
-          v-for="(item, index) in bookMenuItems"
-          :index="String(index)"
-          :disabled="answeringFlag"
+            class="bookMenuItem"
+            v-for="(item, index) in bookMenuItems"
+            :index="String(index)"
+            :disabled="answeringFlag"
         >
           <div class="bookMenuItemName">{{ item.bookName }}</div>
           <svg-icon
-            class="collectionIcon"
-            icon-class="collection"
-            v-if="collectionBookIdList.indexOf(item.id) !== -1"
-            @click="uncollection(item.id)"
+              class="collectionIcon"
+              icon-class="collection"
+              v-if="collectionBookIdList.indexOf(item.id) !== -1"
+              @click="uncollection(item.id)"
           ></svg-icon>
           <svg-icon
-            class="collectionIcon"
-            icon-class="uncollection"
-            v-else
-            @click="collection(item.id)"
+              class="collectionIcon"
+              icon-class="uncollection"
+              v-else
+              @click="collection(item.id)"
           ></svg-icon>
         </el-menu-item>
       </el-scrollbar>
       <div class="user" @click="toPersonalCenter">
         <el-image
-          class="userAvatar"
-          round
-          :src="
+            class="userAvatar"
+            round
+            :src="
             isEmpty(user.avatarUrl)
               ? user.gender === 0 || isEmpty(user.gender)
                 ? BoyAvatar
@@ -50,46 +50,46 @@
     </el-menu>
 
     <el-button
-      class="bookMenuControllerButton bookMenuControllerButtonOpen"
-      v-if="bookMenuShow"
-      @click="closeBookMenu"
-      :icon="ArrowLeftBold"
-      circle
+        class="bookMenuControllerButton bookMenuControllerButtonOpen"
+        v-if="bookMenuShow"
+        @click="closeBookMenu"
+        :icon="ArrowLeftBold"
+        circle
     />
     <el-button
-      class="bookMenuControllerButton bookMenuControllerButtonClose"
-      v-else
-      @click="openBookMenu"
-      :icon="ArrowRightBold"
-      circle
+        class="bookMenuControllerButton bookMenuControllerButtonClose"
+        v-else
+        @click="openBookMenu"
+        :icon="ArrowRightBold"
+        circle
     />
 
     <div
-      class="mainContainer"
-      :class="{
+        class="mainContainer"
+        :class="{
         mainContainerShort: bookMenuShow,
         mainContainerLong: !bookMenuShow,
       }"
     >
       <div class="patterns">
         <el-image
-          class="patternLeftRectangle patternRectangleActive"
-          :src="F2F2F2_Square"
+            class="patternLeftRectangle patternRectangleActive"
+            :src="F2F2F2_Square"
         ></el-image>
         <el-image
-          class="patternAngledTriangle patternBottomLeftAngledTriangleActive"
-          :src="F2F2F2_BottomLeftAngledTriangle"
+            class="patternAngledTriangle patternBottomLeftAngledTriangleActive"
+            :src="F2F2F2_BottomLeftAngledTriangle"
         ></el-image>
         <div class="leftTitleActive">学习角</div>
         <el-image
-          class="patternRightRectangle patternRectangleUnactive"
-          :src="C9C9C9_Square"
-          @click="toWorkbench"
+            class="patternRightRectangle patternRectangleUnactive"
+            :src="C9C9C9_Square"
+            @click="toWorkbench"
         ></el-image>
         <el-image
-          class="patternAngledTriangle patternTopRightAngledTriangleUnactive"
-          :src="C9C9C9_TopRightAngledTriangle"
-          @click="toWorkbench"
+            class="patternAngledTriangle patternTopRightAngledTriangleUnactive"
+            :src="C9C9C9_TopRightAngledTriangle"
+            @click="toWorkbench"
         ></el-image>
         <div class="rightTitleUnactive" @click="toWorkbench">工作台</div>
         <!--        <div class="pattern2 pattern2unactive" @click="toWorkbench">-->
@@ -99,9 +99,9 @@
         <!--          学习角-->
         <!--        </div>-->
         <svg-icon
-          class="shareIcon"
-          icon-class="share"
-          @click="share"
+            class="shareIcon"
+            icon-class="share"
+            @click="share"
         ></svg-icon>
       </div>
       <div class="studyContainer">
@@ -109,467 +109,896 @@
           <div class="bookTitle">{{ bookMenuItems[bookActive].bookName }}</div>
           <el-scrollbar class="catalogueScrollbar">
             <el-tree
-              class="catalogue"
-              :data="catalogue"
-              :props="{
+                class="catalogue"
+                :data="catalogue"
+                :props="{
                 label: 'outline',
                 children: 'outline_child_list',
               }"
             >
               <template v-slot="{ node }">
                 <v-md-preview
-                  class="markdown"
-                  :text="node.data.outline.outline_content"
+                    class="markdown"
+                    :text="node.data.outline.outline_content"
                 ></v-md-preview>
               </template>
             </el-tree>
           </el-scrollbar>
         </div>
-        <div class="resize"></div>
-        <div class="chatContainer">
-          <el-scrollbar
+        <div>
+          <!--          <div class="resize"></div>-->
+          <!--          <div class="chatContainer">-->
+          <!--            <el-scrollbar-->
+          <!--                class="chatArea"-->
+          <!--                ref="chatArea"-->
+          <!--                label="chatArea"-->
+          <!--                id="chatArea"-->
+          <!--            >-->
+          <!--              <div class="chatAreaInner" ref="chatAreaInner">-->
+          <!--                <div class="chatRow" v-for="(item, index) in messages">-->
+          <!--                  <div class="chatRobot" v-if="item.role === 'assistant'">-->
+          <!--                    <el-image-->
+          <!--                        class="chatRobotAvatar"-->
+          <!--                        :src="-->
+          <!--                      robotIdToRobot[-->
+          <!--                        categoryIdToRobotId[-->
+          <!--                          bookMenuItems[bookActive].categoryId-->
+          <!--                        ]-->
+          <!--                      ].avatar-->
+          <!--                    "-->
+          <!--                    ></el-image>-->
+          <!--                    &lt;!&ndash;              <div class="chatRobotMessage" v-html="markdownToHtml(item.content)"></div>&ndash;&gt;-->
+          <!--                    <div class="chatRobotMessage">-->
+          <!--                      <v-md-preview-->
+          <!--                          class="chatRobotMessageText chatMessageText"-->
+          <!--                          :text="item.content"-->
+          <!--                      ></v-md-preview>-->
+          <!--                    </div>-->
+          <!--                  </div>-->
+
+          <!--                  <div class="chatUser" v-if="item.role === 'user'">-->
+          <!--                    <div class="chatUserMessage">-->
+          <!--                      <el-tooltip-->
+          <!--                          :content="item.fileName + '.' + item.fileType"-->
+          <!--                          placement="top"-->
+          <!--                          effect="light"-->
+          <!--                          v-if="!isEmpty(item.fileType)"-->
+          <!--                      >-->
+          <!--                        <el-image-->
+          <!--                            class="chatUserFilePicture"-->
+          <!--                            :src="item.fileUrl"-->
+          <!--                            fit="fill"-->
+          <!--                            v-if="['jpg', 'png'].indexOf(item.fileType) !== -1"-->
+          <!--                            @click="-->
+          <!--                          downloadFile(-->
+          <!--                            item.fileUrl,-->
+          <!--                            item.fileName + '.' + item.fileType-->
+          <!--                          )-->
+          <!--                        "-->
+          <!--                        ></el-image>-->
+          <!--                        <svg-icon-->
+          <!--                            class="chatUserFileSvg"-->
+          <!--                            icon-class="csv"-->
+          <!--                            v-else-if="['csv'].indexOf(item.fileType) !== -1"-->
+          <!--                            @click="-->
+          <!--                          downloadFile(-->
+          <!--                            item.fileUrl,-->
+          <!--                            item.fileName + '.' + item.fileType-->
+          <!--                          )-->
+          <!--                        "-->
+          <!--                        ></svg-icon>-->
+          <!--                        <svg-icon-->
+          <!--                            class="chatUserFileSvg"-->
+          <!--                            icon-class="excel"-->
+          <!--                            v-else-if="-->
+          <!--                          ['xlsx', 'xls'].indexOf(item.fileType) !== -1-->
+          <!--                        "-->
+          <!--                            @click="-->
+          <!--                          downloadFile(-->
+          <!--                            item.fileUrl,-->
+          <!--                            item.fileName + '.' + item.fileType-->
+          <!--                          )-->
+          <!--                        "-->
+          <!--                        ></svg-icon>-->
+          <!--                        <svg-icon-->
+          <!--                            class="chatUserFileSvg"-->
+          <!--                            icon-class="mp4"-->
+          <!--                            v-else-if="['mp4'].indexOf(item.fileType) !== -1"-->
+          <!--                            @click="-->
+          <!--                          downloadFile(-->
+          <!--                            item.fileUrl,-->
+          <!--                            item.fileName + '.' + item.fileType-->
+          <!--                          )-->
+          <!--                        "-->
+          <!--                        ></svg-icon>-->
+          <!--                        <svg-icon-->
+          <!--                            class="chatUserFileSvg"-->
+          <!--                            icon-class="pdf"-->
+          <!--                            v-else-if="['pdf'].indexOf(item.fileType) !== -1"-->
+          <!--                            @click="-->
+          <!--                          downloadFile(-->
+          <!--                            item.fileUrl,-->
+          <!--                            item.fileName + '.' + item.fileType-->
+          <!--                          )-->
+          <!--                        "-->
+          <!--                        ></svg-icon>-->
+          <!--                        <svg-icon-->
+          <!--                            class="chatUserFileSvg"-->
+          <!--                            icon-class="ppt"-->
+          <!--                            v-else-if="['ppt'].indexOf(item.fileType) !== -1"-->
+          <!--                            @click="-->
+          <!--                          downloadFile(-->
+          <!--                            item.fileUrl,-->
+          <!--                            item.fileName + '.' + item.fileType-->
+          <!--                          )-->
+          <!--                        "-->
+          <!--                        ></svg-icon>-->
+          <!--                        <svg-icon-->
+          <!--                            class="chatUserFileSvg"-->
+          <!--                            icon-class="rar"-->
+          <!--                            v-else-if="['rar'].indexOf(item.fileType) !== -1"-->
+          <!--                            @click="-->
+          <!--                          downloadFile(-->
+          <!--                            item.fileUrl,-->
+          <!--                            item.fileName + '.' + item.fileType-->
+          <!--                          )-->
+          <!--                        "-->
+          <!--                        ></svg-icon>-->
+          <!--                        <svg-icon-->
+          <!--                            class="chatUserFileSvg"-->
+          <!--                            icon-class="txt"-->
+          <!--                            v-else-if="['txt'].indexOf(item.fileType) !== -1"-->
+          <!--                            @click="-->
+          <!--                          downloadFile(-->
+          <!--                            item.fileUrl,-->
+          <!--                            item.fileName + '.' + item.fileType-->
+          <!--                          )-->
+          <!--                        "-->
+          <!--                        ></svg-icon>-->
+          <!--                        <svg-icon-->
+          <!--                            class="chatUserFileSvg"-->
+          <!--                            icon-class="word"-->
+          <!--                            v-else-if="-->
+          <!--                          ['docx', 'doc'].indexOf(item.fileType) !== -1-->
+          <!--                        "-->
+          <!--                            @click="-->
+          <!--                          downloadFile(-->
+          <!--                            item.fileUrl,-->
+          <!--                            item.fileName + '.' + item.fileType-->
+          <!--                          )-->
+          <!--                        "-->
+          <!--                        ></svg-icon>-->
+          <!--                        <svg-icon-->
+          <!--                            class="chatUserFileSvg"-->
+          <!--                            icon-class="zip"-->
+          <!--                            v-else-if="['zip'].indexOf(item.fileType) !== -1"-->
+          <!--                            @click="-->
+          <!--                          downloadFile(-->
+          <!--                            item.fileUrl,-->
+          <!--                            item.fileName + '.' + item.fileType-->
+          <!--                          )-->
+          <!--                        "-->
+          <!--                        ></svg-icon>-->
+          <!--                        <svg-icon-->
+          <!--                            class="chatUserFileSvg"-->
+          <!--                            icon-class="unknownFile"-->
+          <!--                            v-else-->
+          <!--                            @click="-->
+          <!--                          downloadFile(-->
+          <!--                            item.fileUrl,-->
+          <!--                            item.fileName + '.' + item.fileType-->
+          <!--                          )-->
+          <!--                        "-->
+          <!--                        ></svg-icon>-->
+          <!--                      </el-tooltip>-->
+          <!--                      &lt;!&ndash;              <div class="chatUserMessage" v-html="markdownToHtml(item.content)"></div>&ndash;&gt;-->
+          <!--                      <v-md-preview-->
+          <!--                          class="chatUserMessageText chatMessageText"-->
+          <!--                          :text="item.content"-->
+          <!--                          v-if="!isEmpty(item.content)"-->
+          <!--                      ></v-md-preview>-->
+          <!--                    </div>-->
+          <!--                    <el-image-->
+          <!--                        class="chatUserAvatar"-->
+          <!--                        :src="-->
+          <!--                      isEmpty(user.avatarUrl)-->
+          <!--                        ? user.gender === 0 || isEmpty(user.gender)-->
+          <!--                          ? BoyAvatar-->
+          <!--                          : GirlAvatar-->
+          <!--                        : user.avatarUrl-->
+          <!--                    "-->
+          <!--                    ></el-image>-->
+          <!--                  </div>-->
+          <!--                </div>-->
+          <!--                <div class="chatRowLoading">-->
+          <!--                  <div-->
+          <!--                      class="chatRobot"-->
+          <!--                      v-if="answeringFlag && loadingTime !== 0"-->
+          <!--                  >-->
+          <!--                    <el-image-->
+          <!--                        class="chatRobotAvatar"-->
+          <!--                        :src="-->
+          <!--                      robotIdToRobot[-->
+          <!--                        categoryIdToRobotId[-->
+          <!--                          bookMenuItems[bookActive].categoryId-->
+          <!--                        ]-->
+          <!--                      ].avatar-->
+          <!--                    "-->
+          <!--                    ></el-image>-->
+          <!--                    <div class="chatRobotMessage">-->
+          <!--                      <v-md-preview-->
+          <!--                          class="chatRobotMessageText chatMessageText"-->
+          <!--                          :text="-->
+          <!--                        answeringIndex === 0-->
+          <!--                          ? loadingTime % 3 === 0-->
+          <!--                            ? '正在分析中.'-->
+          <!--                            : loadingTime % 3 === 1-->
+          <!--                            ? '正在分析中. .'-->
+          <!--                            : '正在分析中. . .'-->
+          <!--                          : answeringMessage.substring(0, answeringIndex)-->
+          <!--                      "-->
+          <!--                      >-->
+          <!--                      </v-md-preview>-->
+          <!--                    </div>-->
+          <!--                  </div>-->
+          <!--                </div>-->
+          <!--                <div class="chatRowLoading">-->
+          <!--                  <div class="chatRobot" v-if="answeringFlag && loadingFlag">-->
+          <!--                    <el-image-->
+          <!--                        class="chatRobotAvatar"-->
+          <!--                        :src="-->
+          <!--                      robotIdToRobot[-->
+          <!--                        categoryIdToRobotId[-->
+          <!--                          bookMenuItems[bookActive].categoryId-->
+          <!--                        ]-->
+          <!--                      ].avatar-->
+          <!--                    "-->
+          <!--                    ></el-image>-->
+          <!--                    <div class="chatRobotMessage">-->
+          <!--                      <v-md-preview-->
+          <!--                          class="chatRobotMessageText chatMessageText"-->
+          <!--                          text="快要生成出来了，请耐心等待"-->
+          <!--                      ></v-md-preview>-->
+          <!--                    </div>-->
+          <!--                  </div>-->
+          <!--                </div>-->
+          <!--              </div>-->
+          <!--              <el-button-->
+          <!--                  class="scrollToBottomButton"-->
+          <!--                  :icon="ArrowDownBold"-->
+          <!--                  circle-->
+          <!--                  @click="scrollToBottom"-->
+          <!--              ></el-button>-->
+          <!--            </el-scrollbar>-->
+
+          <!--            <div class="inputArea">-->
+          <!--              <el-button-->
+          <!--                  class="clearSessionButton"-->
+          <!--                  :icon="DeleteFilled"-->
+          <!--                  circle-->
+          <!--                  @click="refreshSession"-->
+          <!--              ></el-button>-->
+          <!--              <el-upload-->
+          <!--                  class="upload-demo"-->
+          <!--                  action="/api/file/uploadPicture?bucketType=1"-->
+          <!--                  :show-file-list="false"-->
+          <!--                  :on-remove="removeFile"-->
+          <!--                  :on-success="fileUpload"-->
+          <!--              >-->
+          <!--                <el-button-->
+          <!--                    class="fileUploadButton"-->
+          <!--                    :icon="Folder"-->
+          <!--                    circle-->
+          <!--                ></el-button>-->
+          <!--              </el-upload>-->
+          <!--              <div class="input">-->
+          <!--                <el-tooltip-->
+          <!--                    :content="file.fileName + '.' + file.fileType"-->
+          <!--                    placement="top"-->
+          <!--                    effect="light"-->
+          <!--                    v-if="!isEmpty(file)"-->
+          <!--                >-->
+          <!--                  <div class="file">-->
+          <!--                    <el-image-->
+          <!--                        class="picture"-->
+          <!--                        :src="file.fileUrl"-->
+          <!--                        fit="fill"-->
+          <!--                        v-if="['jpg', 'png'].indexOf(file.fileType) !== -1"-->
+          <!--                        @click="-->
+          <!--                      downloadFile(-->
+          <!--                        file.fileUrl,-->
+          <!--                        file.fileName + '.' + file.fileType-->
+          <!--                      )-->
+          <!--                    "-->
+          <!--                    ></el-image>-->
+          <!--                    <svg-icon-->
+          <!--                        class="fileSvg"-->
+          <!--                        icon-class="csv"-->
+          <!--                        v-else-if="['csv'].indexOf(file.fileType) !== -1"-->
+          <!--                        @click="-->
+          <!--                      downloadFile(-->
+          <!--                        file.fileUrl,-->
+          <!--                        file.fileName + '.' + file.fileType-->
+          <!--                      )-->
+          <!--                    "-->
+          <!--                    ></svg-icon>-->
+          <!--                    <svg-icon-->
+          <!--                        class="fileSvg"-->
+          <!--                        icon-class="excel"-->
+          <!--                        v-else-if="['xlsx', 'xls'].indexOf(file.fileType) !== -1"-->
+          <!--                        @click="-->
+          <!--                      downloadFile(-->
+          <!--                        file.fileUrl,-->
+          <!--                        file.fileName + '.' + file.fileType-->
+          <!--                      )-->
+          <!--                    "-->
+          <!--                    ></svg-icon>-->
+          <!--                    <svg-icon-->
+          <!--                        class="fileSvg"-->
+          <!--                        icon-class="mp4"-->
+          <!--                        v-else-if="['mp4'].indexOf(file.fileType) !== -1"-->
+          <!--                        @click="-->
+          <!--                      downloadFile(-->
+          <!--                        file.fileUrl,-->
+          <!--                        file.fileName + '.' + file.fileType-->
+          <!--                      )-->
+          <!--                    "-->
+          <!--                    ></svg-icon>-->
+          <!--                    <svg-icon-->
+          <!--                        class="fileSvg"-->
+          <!--                        icon-class="pdf"-->
+          <!--                        v-else-if="['pdf'].indexOf(file.fileType) !== -1"-->
+          <!--                        @click="-->
+          <!--                      downloadFile(-->
+          <!--                        file.fileUrl,-->
+          <!--                        file.fileName + '.' + file.fileType-->
+          <!--                      )-->
+          <!--                    "-->
+          <!--                    ></svg-icon>-->
+          <!--                    <svg-icon-->
+          <!--                        class="fileSvg"-->
+          <!--                        icon-class="ppt"-->
+          <!--                        v-else-if="['ppt'].indexOf(file.fileType) !== -1"-->
+          <!--                        @click="-->
+          <!--                      downloadFile(-->
+          <!--                        file.fileUrl,-->
+          <!--                        file.fileName + '.' + file.fileType-->
+          <!--                      )-->
+          <!--                    "-->
+          <!--                    ></svg-icon>-->
+          <!--                    <svg-icon-->
+          <!--                        class="fileSvg"-->
+          <!--                        icon-class="rar"-->
+          <!--                        v-else-if="['rar'].indexOf(file.fileType) !== -1"-->
+          <!--                        @click="-->
+          <!--                      downloadFile(-->
+          <!--                        file.fileUrl,-->
+          <!--                        file.fileName + '.' + file.fileType-->
+          <!--                      )-->
+          <!--                    "-->
+          <!--                    ></svg-icon>-->
+          <!--                    <svg-icon-->
+          <!--                        class="fileSvg"-->
+          <!--                        icon-class="txt"-->
+          <!--                        v-else-if="['txt'].indexOf(file.fileType) !== -1"-->
+          <!--                        @click="-->
+          <!--                      downloadFile(-->
+          <!--                        file.fileUrl,-->
+          <!--                        file.fileName + '.' + file.fileType-->
+          <!--                      )-->
+          <!--                    "-->
+          <!--                    ></svg-icon>-->
+          <!--                    <svg-icon-->
+          <!--                        class="fileSvg"-->
+          <!--                        icon-class="word"-->
+          <!--                        v-else-if="['docx', 'doc'].indexOf(file.fileType) !== -1"-->
+          <!--                        @click="-->
+          <!--                      downloadFile(-->
+          <!--                        file.fileUrl,-->
+          <!--                        file.fileName + '.' + file.fileType-->
+          <!--                      )-->
+          <!--                    "-->
+          <!--                    ></svg-icon>-->
+          <!--                    <svg-icon-->
+          <!--                        class="fileSvg"-->
+          <!--                        icon-class="zip"-->
+          <!--                        v-else-if="['zip'].indexOf(file.fileType) !== -1"-->
+          <!--                        @click="-->
+          <!--                      downloadFile(-->
+          <!--                        file.fileUrl,-->
+          <!--                        file.fileName + '.' + file.fileType-->
+          <!--                      )-->
+          <!--                    "-->
+          <!--                    ></svg-icon>-->
+          <!--                    <svg-icon-->
+          <!--                        class="fileSvg"-->
+          <!--                        icon-class="unknownFile"-->
+          <!--                        v-else-->
+          <!--                        @click="-->
+          <!--                      downloadFile(-->
+          <!--                        file.fileUrl,-->
+          <!--                        file.fileName + '.' + file.fileType-->
+          <!--                      )-->
+          <!--                    "-->
+          <!--                    ></svg-icon>-->
+          <!--                    <svg-icon-->
+          <!--                        class="deleteFile"-->
+          <!--                        icon-class="fork"-->
+          <!--                        @click="removeFile"-->
+          <!--                    ></svg-icon>-->
+          <!--                  </div>-->
+          <!--                </el-tooltip>-->
+          <!--                <el-input-->
+          <!--                    class="chatInput"-->
+          <!--                    v-model="chatInput"-->
+          <!--                    :rows="2"-->
+          <!--                    :autosize="{ minRows: 2, maxRows: 8 }"-->
+          <!--                    type="textarea"-->
+          <!--                    resize="none"-->
+          <!--                    placeholder="开始你的提问吧"-->
+          <!--                />-->
+          <!--              </div>-->
+          <!--              <el-button class="sendButton" @click="chat">-->
+          <!--                <svg-icon class="sendButtonIcon" icon-class="send"></svg-icon>-->
+          <!--              </el-button>-->
+          <!--            </div>-->
+          <!--          </div>-->
+        </div>
+      </div>
+    </div>
+
+    <div class="robotContainer" :class="robotContainerFlag ? 'openRobotContainer' : 'closeRobotContainer'">
+      <svg-icon class="robotIcon" icon-class="robot" v-if="!robotContainerFlag && !robotContainerLoadingFlag"
+                @click="openRobotContainer"></svg-icon>
+      <div class="chatContainer" v-if="robotContainerFlag">
+        <div class="header">
+          <svg-icon class="closeIcon" icon-class="fork" @click="closeRobotContainer"></svg-icon>
+        </div>
+
+        <el-scrollbar
             class="chatArea"
             ref="chatArea"
             label="chatArea"
             id="chatArea"
-          >
-            <div class="chatAreaInner" ref="chatAreaInner">
-              <div class="chatRow" v-for="(item, index) in messages">
-                <div class="chatRobot" v-if="item.role === 'assistant'">
-                  <el-image
+        >
+          <div class="chatAreaInner" ref="chatAreaInner">
+            <div class="chatRow" v-for="(item, index) in messages">
+              <div class="chatRobot" v-if="item.role === 'assistant'">
+                <el-image
                     class="chatRobotAvatar"
                     :src="
-                      robotIdToRobot[
-                        categoryIdToRobotId[
-                          bookMenuItems[bookActive].categoryId
-                        ]
-                      ].avatar
-                    "
-                  ></el-image>
-                  <!--              <div class="chatRobotMessage" v-html="markdownToHtml(item.content)"></div>-->
-                  <div class="chatRobotMessage">
-                    <v-md-preview
+                            robotIdToRobot[
+                              categoryIdToRobotId[
+                                bookMenuItems[bookActive].categoryId
+                              ]
+                            ].avatar
+                          "
+                ></el-image>
+                <!--              <div class="chatRobotMessage" v-html="markdownToHtml(item.content)"></div>-->
+                <div class="chatRobotMessage">
+                  <v-md-preview
                       class="chatRobotMessageText chatMessageText"
                       :text="item.content"
-                    ></v-md-preview>
-                  </div>
+                  ></v-md-preview>
                 </div>
+              </div>
 
-                <div class="chatUser" v-if="item.role === 'user'">
-                  <div class="chatUserMessage">
-                    <el-tooltip
+              <div class="chatUser" v-if="item.role === 'user'">
+                <div class="chatUserMessage">
+                  <el-tooltip
                       :content="item.fileName + '.' + item.fileType"
                       placement="top"
                       effect="light"
                       v-if="!isEmpty(item.fileType)"
-                    >
-                      <el-image
+                  >
+                    <el-image
                         class="chatUserFilePicture"
                         :src="item.fileUrl"
                         fit="fill"
                         v-if="['jpg', 'png'].indexOf(item.fileType) !== -1"
                         @click="
-                          downloadFile(
-                            item.fileUrl,
-                            item.fileName + '.' + item.fileType
-                          )
-                        "
-                      ></el-image>
-                      <svg-icon
+                                downloadFile(
+                                  item.fileUrl,
+                                  item.fileName + '.' + item.fileType
+                                )
+                              "
+                    ></el-image>
+                    <svg-icon
                         class="chatUserFileSvg"
                         icon-class="csv"
                         v-else-if="['csv'].indexOf(item.fileType) !== -1"
                         @click="
-                          downloadFile(
-                            item.fileUrl,
-                            item.fileName + '.' + item.fileType
-                          )
-                        "
-                      ></svg-icon>
-                      <svg-icon
+                                downloadFile(
+                                  item.fileUrl,
+                                  item.fileName + '.' + item.fileType
+                                )
+                              "
+                    ></svg-icon>
+                    <svg-icon
                         class="chatUserFileSvg"
                         icon-class="excel"
                         v-else-if="
-                          ['xlsx', 'xls'].indexOf(item.fileType) !== -1
-                        "
+                                ['xlsx', 'xls'].indexOf(item.fileType) !== -1
+                              "
                         @click="
-                          downloadFile(
-                            item.fileUrl,
-                            item.fileName + '.' + item.fileType
-                          )
-                        "
-                      ></svg-icon>
-                      <svg-icon
+                                downloadFile(
+                                  item.fileUrl,
+                                  item.fileName + '.' + item.fileType
+                                )
+                              "
+                    ></svg-icon>
+                    <svg-icon
                         class="chatUserFileSvg"
                         icon-class="mp4"
                         v-else-if="['mp4'].indexOf(item.fileType) !== -1"
                         @click="
-                          downloadFile(
-                            item.fileUrl,
-                            item.fileName + '.' + item.fileType
-                          )
-                        "
-                      ></svg-icon>
-                      <svg-icon
+                                downloadFile(
+                                  item.fileUrl,
+                                  item.fileName + '.' + item.fileType
+                                )
+                              "
+                    ></svg-icon>
+                    <svg-icon
                         class="chatUserFileSvg"
                         icon-class="pdf"
                         v-else-if="['pdf'].indexOf(item.fileType) !== -1"
                         @click="
-                          downloadFile(
-                            item.fileUrl,
-                            item.fileName + '.' + item.fileType
-                          )
-                        "
-                      ></svg-icon>
-                      <svg-icon
+                                downloadFile(
+                                  item.fileUrl,
+                                  item.fileName + '.' + item.fileType
+                                )
+                              "
+                    ></svg-icon>
+                    <svg-icon
                         class="chatUserFileSvg"
                         icon-class="ppt"
                         v-else-if="['ppt'].indexOf(item.fileType) !== -1"
                         @click="
-                          downloadFile(
-                            item.fileUrl,
-                            item.fileName + '.' + item.fileType
-                          )
-                        "
-                      ></svg-icon>
-                      <svg-icon
+                                downloadFile(
+                                  item.fileUrl,
+                                  item.fileName + '.' + item.fileType
+                                )
+                              "
+                    ></svg-icon>
+                    <svg-icon
                         class="chatUserFileSvg"
                         icon-class="rar"
                         v-else-if="['rar'].indexOf(item.fileType) !== -1"
                         @click="
-                          downloadFile(
-                            item.fileUrl,
-                            item.fileName + '.' + item.fileType
-                          )
-                        "
-                      ></svg-icon>
-                      <svg-icon
+                                downloadFile(
+                                  item.fileUrl,
+                                  item.fileName + '.' + item.fileType
+                                )
+                              "
+                    ></svg-icon>
+                    <svg-icon
                         class="chatUserFileSvg"
                         icon-class="txt"
                         v-else-if="['txt'].indexOf(item.fileType) !== -1"
                         @click="
-                          downloadFile(
-                            item.fileUrl,
-                            item.fileName + '.' + item.fileType
-                          )
-                        "
-                      ></svg-icon>
-                      <svg-icon
+                                downloadFile(
+                                  item.fileUrl,
+                                  item.fileName + '.' + item.fileType
+                                )
+                              "
+                    ></svg-icon>
+                    <svg-icon
                         class="chatUserFileSvg"
                         icon-class="word"
                         v-else-if="
-                          ['docx', 'doc'].indexOf(item.fileType) !== -1
-                        "
+                                ['docx', 'doc'].indexOf(item.fileType) !== -1
+                              "
                         @click="
-                          downloadFile(
-                            item.fileUrl,
-                            item.fileName + '.' + item.fileType
-                          )
-                        "
-                      ></svg-icon>
-                      <svg-icon
+                                downloadFile(
+                                  item.fileUrl,
+                                  item.fileName + '.' + item.fileType
+                                )
+                              "
+                    ></svg-icon>
+                    <svg-icon
                         class="chatUserFileSvg"
                         icon-class="zip"
                         v-else-if="['zip'].indexOf(item.fileType) !== -1"
                         @click="
-                          downloadFile(
-                            item.fileUrl,
-                            item.fileName + '.' + item.fileType
-                          )
-                        "
-                      ></svg-icon>
-                      <svg-icon
+                                downloadFile(
+                                  item.fileUrl,
+                                  item.fileName + '.' + item.fileType
+                                )
+                              "
+                    ></svg-icon>
+                    <svg-icon
                         class="chatUserFileSvg"
                         icon-class="unknownFile"
                         v-else
                         @click="
-                          downloadFile(
-                            item.fileUrl,
-                            item.fileName + '.' + item.fileType
-                          )
-                        "
-                      ></svg-icon>
-                    </el-tooltip>
-                    <!--              <div class="chatUserMessage" v-html="markdownToHtml(item.content)"></div>-->
-                    <v-md-preview
+                                downloadFile(
+                                  item.fileUrl,
+                                  item.fileName + '.' + item.fileType
+                                )
+                              "
+                    ></svg-icon>
+                  </el-tooltip>
+                  <!--              <div class="chatUserMessage" v-html="markdownToHtml(item.content)"></div>-->
+                  <v-md-preview
                       class="chatUserMessageText chatMessageText"
                       :text="item.content"
                       v-if="!isEmpty(item.content)"
-                    ></v-md-preview>
-                  </div>
-                  <el-image
+                  ></v-md-preview>
+                </div>
+                <el-image
                     class="chatUserAvatar"
                     :src="
-                      isEmpty(user.avatarUrl)
-                        ? user.gender === 0 || isEmpty(user.gender)
-                          ? BoyAvatar
-                          : GirlAvatar
-                        : user.avatarUrl
-                    "
-                  ></el-image>
-                </div>
+                            isEmpty(user.avatarUrl)
+                              ? user.gender === 0 || isEmpty(user.gender)
+                                ? BoyAvatar
+                                : GirlAvatar
+                              : user.avatarUrl
+                          "
+                ></el-image>
               </div>
-              <div class="chatRowLoading">
-                <div
+            </div>
+            <div class="chatRowLoading">
+              <div
                   class="chatRobot"
                   v-if="answeringFlag && loadingTime !== 0"
-                >
-                  <el-image
+              >
+                <el-image
                     class="chatRobotAvatar"
                     :src="
-                      robotIdToRobot[
-                        categoryIdToRobotId[
-                          bookMenuItems[bookActive].categoryId
-                        ]
-                      ].avatar
-                    "
-                  ></el-image>
-                  <div class="chatRobotMessage">
-                    <v-md-preview
+                            robotIdToRobot[
+                              categoryIdToRobotId[
+                                bookMenuItems[bookActive].categoryId
+                              ]
+                            ].avatar
+                          "
+                ></el-image>
+                <div class="chatRobotMessage">
+                  <v-md-preview
                       class="chatRobotMessageText chatMessageText"
                       :text="
-                        answeringIndex === 0
-                          ? loadingTime % 3 === 0
-                            ? '正在分析中.'
-                            : loadingTime % 3 === 1
-                            ? '正在分析中. .'
-                            : '正在分析中. . .'
-                          : answeringMessage.substring(0, answeringIndex)
-                      "
-                    >
-                    </v-md-preview>
-                  </div>
-                </div>
-              </div>
-              <div class="chatRowLoading">
-                <div class="chatRobot" v-if="answeringFlag && loadingFlag">
-                  <el-image
-                    class="chatRobotAvatar"
-                    :src="
-                      robotIdToRobot[
-                        categoryIdToRobotId[
-                          bookMenuItems[bookActive].categoryId
-                        ]
-                      ].avatar
-                    "
-                  ></el-image>
-                  <div class="chatRobotMessage">
-                    <v-md-preview
-                      class="chatRobotMessageText chatMessageText"
-                      text="快要生成出来了，请耐心等待"
-                    ></v-md-preview>
-                  </div>
+                              answeringIndex === 0
+                                ? loadingTime % 3 === 0
+                                  ? '正在分析中.'
+                                  : loadingTime % 3 === 1
+                                  ? '正在分析中. .'
+                                  : '正在分析中. . .'
+                                : answeringMessage.substring(0, answeringIndex)
+                            "
+                  >
+                  </v-md-preview>
                 </div>
               </div>
             </div>
-            <el-button
+            <div class="chatRowLoading">
+              <div class="chatRobot" v-if="answeringFlag && loadingFlag">
+                <el-image
+                    class="chatRobotAvatar"
+                    :src="
+                            robotIdToRobot[
+                              categoryIdToRobotId[
+                                bookMenuItems[bookActive].categoryId
+                              ]
+                            ].avatar
+                          "
+                ></el-image>
+                <div class="chatRobotMessage">
+                  <v-md-preview
+                      class="chatRobotMessageText chatMessageText"
+                      text="快要生成出来了，请耐心等待"
+                  ></v-md-preview>
+                </div>
+              </div>
+            </div>
+          </div>
+          <el-button
               class="scrollToBottomButton"
               :icon="ArrowDownBold"
               circle
               @click="scrollToBottom"
-            ></el-button>
-          </el-scrollbar>
+          ></el-button>
+        </el-scrollbar>
 
-          <div class="inputArea">
-            <el-button
+        <div class="inputArea">
+          <el-button
               class="clearSessionButton"
               :icon="DeleteFilled"
               circle
               @click="refreshSession"
-            ></el-button>
-            <el-upload
+          ></el-button>
+          <el-upload
               class="upload-demo"
               action="/api/file/uploadPicture?bucketType=1"
               :show-file-list="false"
               :on-remove="removeFile"
               :on-success="fileUpload"
-            >
-              <el-button
+          >
+            <el-button
                 class="fileUploadButton"
                 :icon="Folder"
                 circle
-              ></el-button>
-            </el-upload>
-            <div class="input">
-              <el-tooltip
+            ></el-button>
+          </el-upload>
+          <div class="input">
+            <el-tooltip
                 :content="file.fileName + '.' + file.fileType"
                 placement="top"
                 effect="light"
                 v-if="!isEmpty(file)"
-              >
-                <div class="file">
-                  <el-image
+            >
+              <div class="file">
+                <el-image
                     class="picture"
                     :src="file.fileUrl"
                     fit="fill"
                     v-if="['jpg', 'png'].indexOf(file.fileType) !== -1"
                     @click="
-                      downloadFile(
-                        file.fileUrl,
-                        file.fileName + '.' + file.fileType
-                      )
-                    "
-                  ></el-image>
-                  <svg-icon
+                            downloadFile(
+                              file.fileUrl,
+                              file.fileName + '.' + file.fileType
+                            )
+                          "
+                ></el-image>
+                <svg-icon
                     class="fileSvg"
                     icon-class="csv"
                     v-else-if="['csv'].indexOf(file.fileType) !== -1"
                     @click="
-                      downloadFile(
-                        file.fileUrl,
-                        file.fileName + '.' + file.fileType
-                      )
-                    "
-                  ></svg-icon>
-                  <svg-icon
+                            downloadFile(
+                              file.fileUrl,
+                              file.fileName + '.' + file.fileType
+                            )
+                          "
+                ></svg-icon>
+                <svg-icon
                     class="fileSvg"
                     icon-class="excel"
                     v-else-if="['xlsx', 'xls'].indexOf(file.fileType) !== -1"
                     @click="
-                      downloadFile(
-                        file.fileUrl,
-                        file.fileName + '.' + file.fileType
-                      )
-                    "
-                  ></svg-icon>
-                  <svg-icon
+                            downloadFile(
+                              file.fileUrl,
+                              file.fileName + '.' + file.fileType
+                            )
+                          "
+                ></svg-icon>
+                <svg-icon
                     class="fileSvg"
                     icon-class="mp4"
                     v-else-if="['mp4'].indexOf(file.fileType) !== -1"
                     @click="
-                      downloadFile(
-                        file.fileUrl,
-                        file.fileName + '.' + file.fileType
-                      )
-                    "
-                  ></svg-icon>
-                  <svg-icon
+                            downloadFile(
+                              file.fileUrl,
+                              file.fileName + '.' + file.fileType
+                            )
+                          "
+                ></svg-icon>
+                <svg-icon
                     class="fileSvg"
                     icon-class="pdf"
                     v-else-if="['pdf'].indexOf(file.fileType) !== -1"
                     @click="
-                      downloadFile(
-                        file.fileUrl,
-                        file.fileName + '.' + file.fileType
-                      )
-                    "
-                  ></svg-icon>
-                  <svg-icon
+                            downloadFile(
+                              file.fileUrl,
+                              file.fileName + '.' + file.fileType
+                            )
+                          "
+                ></svg-icon>
+                <svg-icon
                     class="fileSvg"
                     icon-class="ppt"
                     v-else-if="['ppt'].indexOf(file.fileType) !== -1"
                     @click="
-                      downloadFile(
-                        file.fileUrl,
-                        file.fileName + '.' + file.fileType
-                      )
-                    "
-                  ></svg-icon>
-                  <svg-icon
+                            downloadFile(
+                              file.fileUrl,
+                              file.fileName + '.' + file.fileType
+                            )
+                          "
+                ></svg-icon>
+                <svg-icon
                     class="fileSvg"
                     icon-class="rar"
                     v-else-if="['rar'].indexOf(file.fileType) !== -1"
                     @click="
-                      downloadFile(
-                        file.fileUrl,
-                        file.fileName + '.' + file.fileType
-                      )
-                    "
-                  ></svg-icon>
-                  <svg-icon
+                            downloadFile(
+                              file.fileUrl,
+                              file.fileName + '.' + file.fileType
+                            )
+                          "
+                ></svg-icon>
+                <svg-icon
                     class="fileSvg"
                     icon-class="txt"
                     v-else-if="['txt'].indexOf(file.fileType) !== -1"
                     @click="
-                      downloadFile(
-                        file.fileUrl,
-                        file.fileName + '.' + file.fileType
-                      )
-                    "
-                  ></svg-icon>
-                  <svg-icon
+                            downloadFile(
+                              file.fileUrl,
+                              file.fileName + '.' + file.fileType
+                            )
+                          "
+                ></svg-icon>
+                <svg-icon
                     class="fileSvg"
                     icon-class="word"
                     v-else-if="['docx', 'doc'].indexOf(file.fileType) !== -1"
                     @click="
-                      downloadFile(
-                        file.fileUrl,
-                        file.fileName + '.' + file.fileType
-                      )
-                    "
-                  ></svg-icon>
-                  <svg-icon
+                            downloadFile(
+                              file.fileUrl,
+                              file.fileName + '.' + file.fileType
+                            )
+                          "
+                ></svg-icon>
+                <svg-icon
                     class="fileSvg"
                     icon-class="zip"
                     v-else-if="['zip'].indexOf(file.fileType) !== -1"
                     @click="
-                      downloadFile(
-                        file.fileUrl,
-                        file.fileName + '.' + file.fileType
-                      )
-                    "
-                  ></svg-icon>
-                  <svg-icon
+                            downloadFile(
+                              file.fileUrl,
+                              file.fileName + '.' + file.fileType
+                            )
+                          "
+                ></svg-icon>
+                <svg-icon
                     class="fileSvg"
                     icon-class="unknownFile"
                     v-else
                     @click="
-                      downloadFile(
-                        file.fileUrl,
-                        file.fileName + '.' + file.fileType
-                      )
-                    "
-                  ></svg-icon>
-                  <svg-icon
+                            downloadFile(
+                              file.fileUrl,
+                              file.fileName + '.' + file.fileType
+                            )
+                          "
+                ></svg-icon>
+                <svg-icon
                     class="deleteFile"
                     icon-class="fork"
                     @click="removeFile"
-                  ></svg-icon>
-                </div>
-              </el-tooltip>
-              <el-input
+                ></svg-icon>
+              </div>
+            </el-tooltip>
+            <el-input
                 class="chatInput"
+                ref="chatInput"
                 v-model="chatInput"
                 :rows="2"
                 :autosize="{ minRows: 2, maxRows: 8 }"
                 type="textarea"
                 resize="none"
                 placeholder="开始你的提问吧"
-              />
-            </div>
-            <el-button class="sendButton" @click="chat">
-              <svg-icon class="sendButtonIcon" icon-class="send"></svg-icon>
-            </el-button>
+            />
           </div>
+          <el-button class="sendButton" @click="chat">
+            <svg-icon class="sendButtonIcon" icon-class="send"></svg-icon>
+          </el-button>
         </div>
       </div>
     </div>
 
     <el-dialog
-      v-model="contactUsDialogVis"
-      title="意见反馈"
-      width="350"
-      :close-on-click-modal="false"
-      :show-close="false"
+        v-model="contactUsDialogVis"
+        title="意见反馈"
+        width="350"
+        :close-on-click-modal="false"
+        :show-close="false"
     >
       <el-input
-        v-model="contactUsForm.content"
-        type="textarea"
-        placeholder="请描述您需要的问题"
+          v-model="contactUsForm.content"
+          type="textarea"
+          placeholder="请描述您需要的问题"
       ></el-input>
       <el-upload
-        ref="contactUsUpload"
-        action="/api/file/uploadPicture?bucketType=3"
-        :on-success="contactUsFileUpload"
-        :limit="1"
-        style="margin: 3px 0 0 0"
+          ref="contactUsUpload"
+          action="/api/file/uploadPicture?bucketType=3"
+          :on-success="contactUsFileUpload"
+          :limit="1"
+          style="margin: 3px 0 0 0"
       >
         <el-button type="primary">上传附件</el-button>
       </el-upload>
       <template #footer>
         <div class="dialog-footer">
           <el-button type="danger" @click="closeContactUsDialog"
-            >取消</el-button
+          >取消
+          </el-button
           >
           <el-button type="primary" @click="contactUs">确定</el-button>
         </div>
@@ -577,15 +1006,15 @@
     </el-dialog>
 
     <input
-      type="text"
-      id="copyVal"
-      value="http://54.222.173.61:81/home"
-      style="opacity: 0; position: absolute; top: 0; left: 0"
+        type="text"
+        id="copyVal"
+        value="http://54.222.173.61:81/home"
+        style="opacity: 0; position: absolute; top: 0; left: 0"
     />
 
     <SuspendedBall
-      @handlepaly="openContactUsDialog"
-      style="cursor: pointer"
+        @handlepaly="openContactUsDialog"
+        style="cursor: pointer"
     ></SuspendedBall>
   </div>
 </template>
@@ -606,8 +1035,8 @@ import {
   Folder,
 } from "@element-plus/icons-vue";
 
-import { ref } from "vue";
-import { fetchEventSource } from "@microsoft/fetch-event-source";
+import {ref} from "vue";
+import {fetchEventSource} from "@microsoft/fetch-event-source";
 
 import {
   collection,
@@ -616,7 +1045,7 @@ import {
   getCollectionBookList,
   uncollection,
 } from "@/apis/book";
-import { contactUs, getUserByToken } from "@/apis/user";
+import {contactUs, getUserByToken} from "@/apis/user";
 import {
   addSession,
   deleteSession,
@@ -626,14 +1055,14 @@ import {
   longTextDialogueQuery,
 } from "@/apis/chat";
 
-import { isEmpty } from "@/utils/common";
+import {isEmpty, sleep} from "@/utils/common";
 
 import SvgIcon from "@/components/svgIcon/index.vue";
 import SuspendedBall from "@/components/suspendedBall/index.vue";
 
 export default {
   name: "LearningCornerChat",
-  components: { SuspendedBall, SvgIcon },
+  components: {SuspendedBall, SvgIcon},
   data() {
     return {
       BoyAvatar: BoyAvatar,
@@ -668,6 +1097,9 @@ export default {
       file: null,
 
       contactUsDialogVis: false,
+
+      robotContainerFlag: false,
+      robotContainerLoadingFlag: false,
 
       answeringFlag: false,
       answeringMessage: "",
@@ -739,7 +1171,7 @@ export default {
     this.initFlag = true;
   },
   mounted() {
-    this.dragControllerDiv();
+    // this.dragControllerDiv();
   },
   methods: {
     initContactUsForm() {
@@ -754,260 +1186,260 @@ export default {
 
     addSession() {
       addSession(
-        this.categoryIdToRobotId[this.bookMenuItems[this.bookActive].categoryId]
+          this.categoryIdToRobotId[this.bookMenuItems[this.bookActive].categoryId]
       )
-        .then((res) => {
-          if (res.data.code === 200) {
-            this.getSessionList();
-          } else {
-            this.$message.error(res.data.message);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          this.$message.error("系统异常，请联系管理员");
-        });
+          .then((res) => {
+            if (res.data.code === 200) {
+              this.getSessionList();
+            } else {
+              this.$message.error(res.data.message);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            this.$message.error("系统异常，请联系管理员");
+          });
     },
     refreshSession() {
       deleteSession(this.session.id)
-        .then((res) => {
-          if (res.data.code === 200) {
-            this.addSession();
-            this.$message.success("对话清除成功");
-          } else {
-            this.$message.error(res.data.message);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          this.$message.error("系统异常，请联系管理员");
-        });
+          .then((res) => {
+            if (res.data.code === 200) {
+              this.addSession();
+              this.$message.success("对话清除成功");
+            } else {
+              this.$message.error(res.data.message);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            this.$message.error("系统异常，请联系管理员");
+          });
     },
     getUserByToken() {
       return getUserByToken()
-        .then((res) => {
-          if (res.data.code === 200) {
-            this.user = {
-              id: res.data.data["user_id"],
-              email: res.data.data["email"],
-              gender: res.data.data["gender"],
-              userName: res.data.data["user_name"],
-              avatarUrl: res.data.data["avatar_url"],
-            };
-          } else {
-            this.$router.push("/home");
-            this.$message.error(res.data.message);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          this.$message.error("系统异常，请联系管理员");
-        });
+          .then((res) => {
+            if (res.data.code === 200) {
+              this.user = {
+                id: res.data.data["user_id"],
+                email: res.data.data["email"],
+                gender: res.data.data["gender"],
+                userName: res.data.data["user_name"],
+                avatarUrl: res.data.data["avatar_url"],
+              };
+            } else {
+              this.$router.push("/home");
+              this.$message.error(res.data.message);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            this.$message.error("系统异常，请联系管理员");
+          });
     },
     getBookCategoryList() {
       return getBookCategoryList()
-        .then((res) => {
-          if (res.data.code === 200) {
-            if (!isEmpty(res.data.data)) {
-              this.categoryIdToRobotId = {};
-              for (let i = 0; i < res.data.data.length; i++) {
-                this.categoryIdToRobotId[res.data.data[i]["lib_id"]] =
-                  res.data.data[i]["bot_id"];
+          .then((res) => {
+            if (res.data.code === 200) {
+              if (!isEmpty(res.data.data)) {
+                this.categoryIdToRobotId = {};
+                for (let i = 0; i < res.data.data.length; i++) {
+                  this.categoryIdToRobotId[res.data.data[i]["lib_id"]] =
+                      res.data.data[i]["bot_id"];
+                }
               }
+            } else {
+              this.$message.error(res.data.message);
             }
-          } else {
-            this.$message.error(res.data.message);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          this.$message.error("系统异常，请联系管理员");
-        });
+          })
+          .catch((err) => {
+            console.log(err);
+            this.$message.error("系统异常，请联系管理员");
+          });
     },
     getRobotList() {
       this.answeringFlag = true;
       return getLearningCornerRobotList()
-        .then((res) => {
-          if (res.data.code === 200) {
-            this.robotIdToRobot = {};
-            for (let i = 0; i < res.data.data.length; i++) {
-              this.robotIdToRobot[res.data.data[i]["bot_id"]] = {
-                id: res.data.data[i]["bot_id"],
-                name: res.data.data[i]["bot_name"],
-                avatar: res.data.data[i]["bot_avatar"],
-                type: res.data.data[i]["bot_type"],
-                description: res.data.data[i]["description"],
-              };
+          .then((res) => {
+            if (res.data.code === 200) {
+              this.robotIdToRobot = {};
+              for (let i = 0; i < res.data.data.length; i++) {
+                this.robotIdToRobot[res.data.data[i]["bot_id"]] = {
+                  id: res.data.data[i]["bot_id"],
+                  name: res.data.data[i]["bot_name"],
+                  avatar: res.data.data[i]["bot_avatar"],
+                  type: res.data.data[i]["bot_type"],
+                  description: res.data.data[i]["description"],
+                };
+              }
+              this.answeringFlag = false;
+            } else {
+              this.answeringFlag = false;
+              this.$message.error(res.data.message);
             }
+          })
+          .catch((err) => {
             this.answeringFlag = false;
-          } else {
-            this.answeringFlag = false;
-            this.$message.error(res.data.message);
-          }
-        })
-        .catch((err) => {
-          this.answeringFlag = false;
-          console.log(err);
-          this.$message.error("系统异常，请联系管理员");
-        });
+            console.log(err);
+            this.$message.error("系统异常，请联系管理员");
+          });
     },
     getCatalogueByBookId() {
       return getCatalogueByBookId(this.bookMenuItems[this.bookActive].id)
-        .then((res) => {
-          if (res.data.code === 200) {
-            this.catalogue = res.data.data["outline_child_list"];
-          } else {
-            this.catalogue = [];
-            this.$message.error(res.data.message);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          this.$message.error("系统异常，请联系管理员");
-        });
+          .then((res) => {
+            if (res.data.code === 200) {
+              this.catalogue = res.data.data["outline_child_list"];
+            } else {
+              this.catalogue = [];
+              this.$message.error(res.data.message);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            this.$message.error("系统异常，请联系管理员");
+          });
     },
     getSessionList() {
       this.answeringFlag = true;
       return getSessionList(
-        this.categoryIdToRobotId[this.bookMenuItems[this.bookActive].categoryId]
+          this.categoryIdToRobotId[this.bookMenuItems[this.bookActive].categoryId]
       )
-        .then((res) => {
-          if (res.data.code === 200) {
-            if (isEmpty(res.data.data)) {
-              this.answeringFlag = false;
-              this.addSession();
+          .then((res) => {
+            if (res.data.code === 200) {
+              if (isEmpty(res.data.data)) {
+                this.answeringFlag = false;
+                this.addSession();
+              } else {
+                this.session = {
+                  id: res.data.data[0]["session_id"],
+                  botId: res.data.data[0]["bot_id"],
+                  userId: res.data.data[0]["user_id"],
+                  createTime: res.data.data[0]["created_time"],
+                  updateTime: res.data.data[0]["updated_time"],
+                  message: isEmpty(res.data.data[0]["message"])
+                      ? null
+                      : {
+                        id: res.data.data[0]["message"]["message_id"],
+                        sessionId: res.data.data[0]["message"]["session_id"],
+                        role: res.data.data[0]["message"]["role"],
+                        content: res.data.data[0]["message"]["content"],
+                        fileType: res.data.data[0]["message"]["file_type"],
+                        fileName: res.data.data[0]["message"]["file_name"],
+                        fileUrl: res.data.data[0]["message"]["file_url"],
+                        createTime: res.data.data[0]["message"]["created_time"],
+                      },
+                };
+                this.answeringFlag = false;
+                this.getMessageList();
+              }
             } else {
-              this.session = {
-                id: res.data.data[0]["session_id"],
-                botId: res.data.data[0]["bot_id"],
-                userId: res.data.data[0]["user_id"],
-                createTime: res.data.data[0]["created_time"],
-                updateTime: res.data.data[0]["updated_time"],
-                message: isEmpty(res.data.data[0]["message"])
-                  ? null
-                  : {
-                      id: res.data.data[0]["message"]["message_id"],
-                      sessionId: res.data.data[0]["message"]["session_id"],
-                      role: res.data.data[0]["message"]["role"],
-                      content: res.data.data[0]["message"]["content"],
-                      fileType: res.data.data[0]["message"]["file_type"],
-                      fileName: res.data.data[0]["message"]["file_name"],
-                      fileUrl: res.data.data[0]["message"]["file_url"],
-                      createTime: res.data.data[0]["message"]["created_time"],
-                    },
-              };
               this.answeringFlag = false;
-              this.getMessageList();
+              this.$message.error(res.data.message);
             }
-          } else {
+          })
+          .catch((err) => {
             this.answeringFlag = false;
-            this.$message.error(res.data.message);
-          }
-        })
-        .catch((err) => {
-          this.answeringFlag = false;
-          console.log(err);
-          this.$message.error("系统异常，请联系管理员");
-        });
+            console.log(err);
+            this.$message.error("系统异常，请联系管理员");
+          });
     },
     getMessageList() {
       this.answeringFlag = true;
       return getMessageList(this.session.id)
-        .then((res) => {
-          if (res.data.code === 200) {
-            this.messages = [
-              {
-                role: "assistant",
-                contentType: "text",
-                content:
+          .then((res) => {
+            if (res.data.code === 200) {
+              this.messages = [
+                {
+                  role: "assistant",
+                  contentType: "text",
+                  content:
                   this.robotIdToRobot[
-                    this.categoryIdToRobotId[
-                      this.bookMenuItems[this.bookActive].categoryId
-                    ]
-                  ].description,
-              },
-            ];
-            for (let i in res.data.data) {
-              this.messages.push({
-                id: res.data.data[i]["message_id"],
-                sessionId: res.data.data[i]["session_id"],
-                role: res.data.data[i]["role"],
-                content: res.data.data[i]["content"],
-                fileType: res.data.data[i]["file_type"],
-                fileName: res.data.data[i]["file_name"],
-                fileUrl: res.data.data[i]["file_url"],
-                createTime: res.data.data[i]["created_time"],
+                      this.categoryIdToRobotId[
+                          this.bookMenuItems[this.bookActive].categoryId
+                          ]
+                      ].description,
+                },
+              ];
+              for (let i in res.data.data) {
+                this.messages.push({
+                  id: res.data.data[i]["message_id"],
+                  sessionId: res.data.data[i]["session_id"],
+                  role: res.data.data[i]["role"],
+                  content: res.data.data[i]["content"],
+                  fileType: res.data.data[i]["file_type"],
+                  fileName: res.data.data[i]["file_name"],
+                  fileUrl: res.data.data[i]["file_url"],
+                  createTime: res.data.data[i]["created_time"],
+                });
+              }
+              this.answeringFlag = false;
+              this.$nextTick(() => {
+                this.scrollToBottom();
               });
+            } else {
+              this.answeringFlag = false;
+              this.$message.error(res.data.message);
             }
+          })
+          .catch((err) => {
             this.answeringFlag = false;
-            this.$nextTick(() => {
-              this.scrollToBottom();
-            });
-          } else {
-            this.answeringFlag = false;
-            this.$message.error(res.data.message);
-          }
-        })
-        .catch((err) => {
-          this.answeringFlag = false;
-          console.log(err);
-          this.$message.error("系统异常，请联系管理员");
-        });
+            console.log(err);
+            this.$message.error("系统异常，请联系管理员");
+          });
     },
     getCollectionBookList() {
       return getCollectionBookList()
-        .then((res) => {
-          if (res.data.code === 200) {
-            this.collectionBookIdList = [];
-            if (!isEmpty(res.data.data)) {
-              for (let i = 0; i < res.data.data.length; i++) {
-                if (!this.initFlag) {
-                  this.bookMenuItems.push({
-                    id: res.data.data[i]["book_id"],
-                    bookName: res.data.data[i]["book_name"],
-                    categoryId: res.data.data[i]["lib_id"],
-                  });
+          .then((res) => {
+            if (res.data.code === 200) {
+              this.collectionBookIdList = [];
+              if (!isEmpty(res.data.data)) {
+                for (let i = 0; i < res.data.data.length; i++) {
+                  if (!this.initFlag) {
+                    this.bookMenuItems.push({
+                      id: res.data.data[i]["book_id"],
+                      bookName: res.data.data[i]["book_name"],
+                      categoryId: res.data.data[i]["lib_id"],
+                    });
+                  }
+                  this.collectionBookIdList.push(res.data.data[i]["book_id"]);
                 }
-                this.collectionBookIdList.push(res.data.data[i]["book_id"]);
               }
+            } else {
+              this.$message.error(res.data.message);
             }
-          } else {
-            this.$message.error(res.data.message);
-          }
-        })
-        .catch((err) => {
-          this.$message.error("系统异常，请联系管理员");
-        });
+          })
+          .catch((err) => {
+            this.$message.error("系统异常，请联系管理员");
+          });
     },
     collection(id) {
       collection(id)
-        .then((res) => {
-          if (res.data.code === 200) {
-            this.getCollectionBookList();
-            this.$message.success(res.data.message);
-          } else {
-            this.$message.error(res.data.message);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          this.$message.error("系统异常，请联系管理员");
-        });
+          .then((res) => {
+            if (res.data.code === 200) {
+              this.getCollectionBookList();
+              this.$message.success(res.data.message);
+            } else {
+              this.$message.error(res.data.message);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            this.$message.error("系统异常，请联系管理员");
+          });
     },
     uncollection(id) {
       uncollection(id)
-        .then((res) => {
-          if (res.data.code === 200) {
-            this.getCollectionBookList();
-            this.$message.success(res.data.message);
-          } else {
-            this.$message.error(res.data.message);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          this.$message.error("系统异常，请联系管理员");
-        });
+          .then((res) => {
+            if (res.data.code === 200) {
+              this.getCollectionBookList();
+              this.$message.success(res.data.message);
+            } else {
+              this.$message.error(res.data.message);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            this.$message.error("系统异常，请联系管理员");
+          });
     },
     chat() {
       if (this.answeringFlag) {
@@ -1019,8 +1451,8 @@ export default {
       this.answeringIndex = 0;
       this.answeringClock = setInterval(() => {
         this.answeringIndex = Math.min(
-          this.answeringIndex + 1,
-          this.answeringMessage.length
+            this.answeringIndex + 1,
+            this.answeringMessage.length
         );
       }, 20);
 
@@ -1054,9 +1486,9 @@ export default {
         },
         body: JSON.stringify({
           bot_id:
-            this.categoryIdToRobotId[
-              this.bookMenuItems[this.bookActive].categoryId
-            ],
+              this.categoryIdToRobotId[
+                  this.bookMenuItems[this.bookActive].categoryId
+                  ],
           session_id: this.session.id,
           bot_handle: 0,
           content: this.chatInput,
@@ -1112,54 +1544,54 @@ export default {
     longTextDialogueQuery() {
       for (let i = 0; i < this.longTextDialogueExecuteEntitys.length; i++) {
         longTextDialogueQuery(
-          this.longTextDialogueExecuteEntitys[i].robotId,
-          this.longTextDialogueExecuteEntitys[i].sessionId,
-          this.longTextDialogueExecuteEntitys[i].executeId
+            this.longTextDialogueExecuteEntitys[i].robotId,
+            this.longTextDialogueExecuteEntitys[i].sessionId,
+            this.longTextDialogueExecuteEntitys[i].executeId
         )
-          .then((res) => {
-            if (res.data.code === 200) {
-              this.$message.success("长文本生成完成");
-              this.longTextDialogueExecuteEntitys.splice(i, 1);
-              i--;
-            } else if (this.longTextDialogueExecuteEntitys[i].count >= 7) {
-              // this.longTextDialogueExecuteEntitys.splice(i, 1);
-              // i--;
-            } else {
-              this.longTextDialogueExecuteEntitys[i].count += 1;
-            }
-            this.$store.commit(
-              "setLongTextDialogueExecuteEntitys",
-              this.longTextDialogueExecuteEntitys
-            );
-          })
-          .catch((err) => {
-            console.log(err);
-            this.$message.error("系统异常，请联系管理员");
-          });
+            .then((res) => {
+              if (res.data.code === 200) {
+                this.$message.success("长文本生成完成");
+                this.longTextDialogueExecuteEntitys.splice(i, 1);
+                i--;
+              } else if (this.longTextDialogueExecuteEntitys[i].count >= 7) {
+                // this.longTextDialogueExecuteEntitys.splice(i, 1);
+                // i--;
+              } else {
+                this.longTextDialogueExecuteEntitys[i].count += 1;
+              }
+              this.$store.commit(
+                  "setLongTextDialogueExecuteEntitys",
+                  this.longTextDialogueExecuteEntitys
+              );
+            })
+            .catch((err) => {
+              console.log(err);
+              this.$message.error("系统异常，请联系管理员");
+            });
       }
     },
     contactUs() {
       contactUs(
-        this.contactUsForm.content,
-        this.contactUsForm.fileId,
-        this.contactUsForm.fileName,
-        this.contactUsForm.fileUrl,
-        this.contactUsForm.fileType
+          this.contactUsForm.content,
+          this.contactUsForm.fileId,
+          this.contactUsForm.fileName,
+          this.contactUsForm.fileUrl,
+          this.contactUsForm.fileType
       )
-        .then((res) => {
-          if (res.data.code === 200) {
-            this.contactUsDialogVis = false;
-            this.$message.success("反馈成功");
-          } else {
+          .then((res) => {
+            if (res.data.code === 200) {
+              this.contactUsDialogVis = false;
+              this.$message.success("反馈成功");
+            } else {
+              this.answeringFlag = false;
+              this.$message.error(res.data.message);
+            }
+          })
+          .catch((err) => {
             this.answeringFlag = false;
-            this.$message.error(res.data.message);
-          }
-        })
-        .catch((err) => {
-          this.answeringFlag = false;
-          console.log(err);
-          this.$message.error("系统异常，请联系管理员");
-        });
+            console.log(err);
+            this.$message.error("系统异常，请联系管理员");
+          });
     },
 
     removeFile(file, fileList) {
@@ -1200,6 +1632,23 @@ export default {
       this.$nextTick(() => {
         this.$refs.contactUsUpload.clearFiles();
       });
+    },
+
+    openRobotContainer() {
+      if (!this.robotContainerFlag) {
+        this.robotContainerFlag = true
+        this.chatInput = " "
+        sleep(600).then(() => {
+          this.chatInput = ""
+        })
+      }
+    },
+    closeRobotContainer() {
+      this.robotContainerFlag = false
+      this.robotContainerLoadingFlag= true
+      sleep(600).then(() => {
+        this.robotContainerLoadingFlag = false
+      })
     },
 
     share() {
@@ -1371,10 +1820,10 @@ export default {
 }
 
 #learningCornerChat
-  .bookMenu
-  .bookMenuScrollbar
-  .bookMenuItem
-  .bookMenuItemName {
+.bookMenu
+.bookMenuScrollbar
+.bookMenuItem
+.bookMenuItemName {
   width: calc(100% - 30px);
   height: 40px;
 
@@ -1537,16 +1986,16 @@ export default {
 }
 
 #learningCornerChat
-  .mainContainer
-  .patterns
-  .patternBottomLeftAngledTriangleActive {
+.mainContainer
+.patterns
+.patternBottomLeftAngledTriangleActive {
   left: calc(75% - 60px / 2);
 }
 
 #learningCornerChat
-  .mainContainer
-  .patterns
-  .patternTopRightAngledTriangleUnactive {
+.mainContainer
+.patterns
+.patternTopRightAngledTriangleUnactive {
   right: calc(25% - 60px / 2);
 
   cursor: pointer;
@@ -1694,17 +2143,17 @@ export default {
 #learningCornerChat .mainContainer .studyContainer .catalogueContainer {
   display: inline-block;
 
-  width: calc(50% - 6px);
+  width: 100%;
   height: 100%;
 
   border-right: 1px solid #f2f2f2;
 }
 
 #learningCornerChat
-  .mainContainer
-  .studyContainer
-  .catalogueContainer
-  .bookTitle {
+.mainContainer
+.studyContainer
+.catalogueContainer
+.bookTitle {
   margin: 20px 0 0 0;
 
   width: 100%;
@@ -1716,20 +2165,20 @@ export default {
 }
 
 #learningCornerChat
-  .mainContainer
-  .studyContainer
-  .catalogueContainer
-  .catalogueScrollbar {
+.mainContainer
+.studyContainer
+.catalogueContainer
+.catalogueScrollbar {
   width: 100%;
   height: calc(100% - 50px - 20px);
 }
 
 #learningCornerChat
-  .mainContainer
-  .studyContainer
-  .catalogueContainer
-  .catalogueScrollbar
-  .catalogue {
+.mainContainer
+.studyContainer
+.catalogueContainer
+.catalogueScrollbar
+.catalogue {
   margin: 0 auto 0 auto;
 
   width: 90%;
@@ -1739,34 +2188,34 @@ export default {
 }
 
 #learningCornerChat
-  .mainContainer
-  .studyContainer
-  .catalogueContainer
-  .catalogueScrollbar
-  /deep/
-  .el-tree-node {
+.mainContainer
+.studyContainer
+.catalogueContainer
+.catalogueScrollbar
+/deep/
+.el-tree-node {
   white-space: normal;
 }
 
 #learningCornerChat
-  .mainContainer
-  .studyContainer
-  .catalogueContainer
-  .catalogueScrollbar
-  /deep/
-  .el-tree-node.is-expanded
-  > .el-tree-node__children {
+.mainContainer
+.studyContainer
+.catalogueContainer
+.catalogueScrollbar
+/deep/
+.el-tree-node.is-expanded
+> .el-tree-node__children {
   display: inline;
 }
 
 #learningCornerChat
-  .mainContainer
-  .studyContainer
-  .catalogueContainer
-  .catalogueScrollbar
-  .catalogue
-  /deep/
-  .el-tree-node__content {
+.mainContainer
+.studyContainer
+.catalogueContainer
+.catalogueScrollbar
+.catalogue
+/deep/
+.el-tree-node__content {
   padding: 10px 0 10px 0;
 
   height: 100%;
@@ -1802,7 +2251,7 @@ export default {
   color: #444444;
 }
 
-#learningCornerChat .mainContainer .studyContainer .chatContainer {
+#learningCornerChat .robotContainer .chatContainer {
   display: inline-flex;
 
   flex-flow: column;
@@ -1814,60 +2263,61 @@ export default {
 
   vertical-align: top;
 
-  width: calc(50% - 6px);
+  width: 100%;
   height: 100%;
 
   border-left: 1px solid #f2f2f2;
 }
 
-#learningCornerChat .mainContainer .studyContainer .chatContainer .chatArea {
+#learningCornerChat .robotContainer .chatContainer .header {
+  text-align: right;
+}
+
+#learningCornerChat .robotContainer .chatContainer .header .closeIcon {
+  margin: 10px 10px 0 0;
+
+  width: 20px;
+  height: 20px;
+
+  cursor: pointer;
+}
+
+#learningCornerChat .robotContainer .chatContainer .chatArea {
   flex: 1;
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .chatArea
-  .scrollToBottomButton {
+#learningCornerChat .robotContainer .chatContainer
+.chatArea
+.scrollToBottomButton {
   position: absolute;
 
   bottom: 0;
   left: 50%;
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .chatArea
-  .chatAreaInner
-  .chatRow {
+#learningCornerChat .robotContainer .chatContainer
+.chatArea
+.chatAreaInner
+.chatRow {
   padding: 15px 20px 15px 20px;
 
   width: calc(100% - 20px * 2);
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .chatArea
-  .chatAreaInner
-  .chatRow
-  .chatRobot {
+#learningCornerChat .robotContainer .chatContainer
+.chatArea
+.chatAreaInner
+.chatRow
+.chatRobot {
   text-align: left;
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .chatArea
-  .chatAreaInner
-  .chatRow
-  .chatRobot
-  .chatRobotAvatar {
+#learningCornerChat .robotContainer .chatContainer
+.chatArea
+.chatAreaInner
+.chatRow
+.chatRobot
+.chatRobotAvatar {
   display: inline-block;
 
   vertical-align: top;
@@ -1878,15 +2328,12 @@ export default {
   border-radius: 50%;
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .chatArea
-  .chatAreaInner
-  .chatRow
-  .chatRobot
-  .chatRobotMessage {
+#learningCornerChat .robotContainer .chatContainer
+.chatArea
+.chatAreaInner
+.chatRow
+.chatRobot
+.chatRobotMessage {
   display: inline-block;
 
   vertical-align: top;
@@ -1900,38 +2347,29 @@ export default {
   background: #f2f2f2;
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .chatArea
-  .chatAreaInner
-  .chatRow
-  .chatRobot
-  .chatRobotMessage
-  .chatRobotMessageText {
+#learningCornerChat .robotContainer .chatContainer
+.chatArea
+.chatAreaInner
+.chatRow
+.chatRobot
+.chatRobotMessage
+.chatRobotMessageText {
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .chatArea
-  .chatAreaInner
-  .chatRow
-  .chatUser {
+#learningCornerChat .robotContainer .chatContainer
+.chatArea
+.chatAreaInner
+.chatRow
+.chatUser {
   text-align: right;
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .chatArea
-  .chatAreaInner
-  .chatRow
-  .chatUser
-  .chatUserMessage {
+#learningCornerChat .robotContainer .chatContainer
+.chatArea
+.chatAreaInner
+.chatRow
+.chatUser
+.chatUserMessage {
   display: inline-block;
 
   vertical-align: top;
@@ -1947,16 +2385,13 @@ export default {
   background: #f2f2f2;
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .chatArea
-  .chatAreaInner
-  .chatRow
-  .chatUser
-  .chatUserMessage
-  .chatUserFilePicture {
+#learningCornerChat .robotContainer .chatContainer
+.chatArea
+.chatAreaInner
+.chatRow
+.chatUser
+.chatUserMessage
+.chatUserFilePicture {
   margin: 10px 10px 10px 10px;
 
   width: 50px;
@@ -1966,16 +2401,13 @@ export default {
   cursor: pointer;
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .chatArea
-  .chatAreaInner
-  .chatRow
-  .chatUser
-  .chatUserMessage
-  .chatUserFileSvg {
+#learningCornerChat .robotContainer .chatContainer
+.chatArea
+.chatAreaInner
+.chatRow
+.chatUser
+.chatUserMessage
+.chatUserFileSvg {
   margin: 10px 10px 10px 10px;
 
   width: 50px;
@@ -1987,27 +2419,21 @@ export default {
   cursor: pointer;
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .chatArea
-  .chatAreaInner
-  .chatRow
-  .chatUser
-  .chatUserMessage
-  .chatUserMessageText {
+#learningCornerChat .robotContainer .chatContainer
+.chatArea
+.chatAreaInner
+.chatRow
+.chatUser
+.chatUserMessage
+.chatUserMessageText {
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .chatArea
-  .chatAreaInner
-  .chatRow
-  .chatUser
-  .chatUserAvatar {
+#learningCornerChat .robotContainer .chatContainer
+.chatArea
+.chatAreaInner
+.chatRow
+.chatUser
+.chatUserAvatar {
   display: inline-block;
 
   vertical-align: top;
@@ -2018,38 +2444,29 @@ export default {
   border-radius: 50%;
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .chatArea
-  .chatAreaInner
-  .chatRowLoading {
+#learningCornerChat .robotContainer .chatContainer
+.chatArea
+.chatAreaInner
+.chatRowLoading {
   padding: 15px 20px 15px 20px;
 
   width: calc(100% - 20px * 2);
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .chatArea
-  .chatAreaInner
-  .chatRowLoading
-  .chatRobot {
+#learningCornerChat .robotContainer .chatContainer
+.chatArea
+.chatAreaInner
+.chatRowLoading
+.chatRobot {
   text-align: left;
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .chatArea
-  .chatAreaInner
-  .chatRowLoading
-  .chatRobot
-  .chatRobotAvatar {
+#learningCornerChat .robotContainer .chatContainer
+.chatArea
+.chatAreaInner
+.chatRowLoading
+.chatRobot
+.chatRobotAvatar {
   display: inline-block;
 
   vertical-align: top;
@@ -2060,15 +2477,12 @@ export default {
   border-radius: 50%;
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .chatArea
-  .chatAreaInner
-  .chatRowLoading
-  .chatRobot
-  .chatRobotMessage {
+#learningCornerChat .robotContainer .chatContainer
+.chatArea
+.chatAreaInner
+.chatRowLoading
+.chatRobot
+.chatRobotMessage {
   display: inline-block;
 
   vertical-align: top;
@@ -2095,7 +2509,7 @@ export default {
   font-family: "Source Han Serif" !important;
 }
 
-#learningCornerChat .mainContainer .studyContainer .chatContainer .inputArea {
+#learningCornerChat .robotContainer .chatContainer .inputArea {
   position: relative;
 
   padding: 10px 0 10px 0;
@@ -2104,26 +2518,20 @@ export default {
   height: auto;
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .inputArea
-  .upload-demo {
+#learningCornerChat .robotContainer .chatContainer
+.inputArea
+.upload-demo {
   position: absolute;
 
   left: 0;
   bottom: 0;
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .inputArea
-  .upload-demo
-  /deep/
-  .el-upload-list {
+#learningCornerChat .robotContainer .chatContainer
+.inputArea
+.upload-demo
+/deep/
+.el-upload-list {
   position: absolute;
 
   bottom: 70px;
@@ -2132,12 +2540,9 @@ export default {
   width: 90px;
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .inputArea
-  .clearSessionButton {
+#learningCornerChat .robotContainer .chatContainer
+.inputArea
+.clearSessionButton {
   position: absolute;
 
   bottom: 20px;
@@ -2147,12 +2552,9 @@ export default {
   height: 40px;
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .inputArea
-  .fileUploadButton {
+#learningCornerChat .robotContainer .chatContainer
+.inputArea
+.fileUploadButton {
   position: absolute;
 
   bottom: 20px;
@@ -2162,51 +2564,39 @@ export default {
   height: 40px;
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .inputArea
-  .input {
+#learningCornerChat .robotContainer .chatContainer
+.inputArea
+.input {
   margin: 0 0 0 110px;
 
   width: calc(100% - 110px - 120px);
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .inputArea
-  .input
-  .file {
+#learningCornerChat .robotContainer .chatContainer
+.inputArea
+.input
+.file {
   display: inline-block;
 
   position: relative;
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .inputArea
-  .input
-  .file
-  .picture {
+#learningCornerChat .robotContainer .chatContainer
+.inputArea
+.input
+.file
+.picture {
   max-width: 100px;
   max-height: 100px;
 
   cursor: pointer;
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .inputArea
-  .input
-  .file
-  .fileSvg {
+#learningCornerChat .robotContainer .chatContainer
+.inputArea
+.input
+.file
+.fileSvg {
   width: 50px;
 
   height: 50px;
@@ -2216,14 +2606,11 @@ export default {
   cursor: pointer;
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .inputArea
-  .input
-  .file
-  .deleteFile {
+#learningCornerChat .robotContainer .chatContainer
+.inputArea
+.input
+.file
+.deleteFile {
   position: absolute;
 
   top: -6px;
@@ -2239,24 +2626,18 @@ export default {
   cursor: pointer;
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .inputArea
-  .input
-  .chatInput {
+#learningCornerChat .robotContainer .chatContainer
+.inputArea
+.input
+.chatInput {
   width: 100%;
 
   font-size: 16px;
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .inputArea
-  .sendButton {
+#learningCornerChat .robotContainer .chatContainer
+.inputArea
+.sendButton {
   position: absolute;
 
   right: 40px;
@@ -2270,15 +2651,48 @@ export default {
   text-align: center;
 }
 
-#learningCornerChat
-  .mainContainer
-  .studyContainer
-  .chatContainer
-  .inputArea
-  .sendButton
-  .sendButtonIcon {
+#learningCornerChat .robotContainer .chatContainer
+.inputArea
+.sendButton
+.sendButtonIcon {
   width: 24px;
   height: 24px;
+}
+
+#learningCornerChat .robotContainer {
+  position: absolute;
+
+  right: 30px;
+  bottom: 30px;
+
+  transition: all 0.6s;
+
+  z-index: 2;
+
+  background: white;
+}
+
+#learningCornerChat .closeRobotContainer {
+  width: 60px;
+  height: 60px;
+
+  border-radius: 0;
+
+  cursor: pointer;
+}
+
+#learningCornerChat .openRobotContainer {
+  width: 800px;
+  height: calc(100% - 30px * 2);
+
+  border-radius: 30px;
+
+  box-shadow: 0 0 5px 1px #999
+}
+
+#learningCornerChat .robotContainer .robotIcon {
+  width: 100%;
+  height: 100%;
 }
 
 #learningCornerChat /deep/ .markdown .github-markdown-body {

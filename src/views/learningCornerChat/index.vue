@@ -548,8 +548,15 @@
     </div>
 
     <div class="robotContainer" :class="robotContainerFlag ? 'openRobotContainer' : 'closeRobotContainer'">
-      <svg-icon class="robotIcon" icon-class="robot" v-if="!robotContainerFlag && !robotContainerLoadingFlag"
-                @click="openRobotContainer"></svg-icon>
+      <el-tooltip
+          content="AI助手"
+          placement="top-start"
+          effect="light"
+          v-if="!robotContainerFlag && !robotContainerLoadingFlag"
+      >
+        <svg-icon class="robotIcon" icon-class="robot"
+                  @click="openRobotContainer"></svg-icon>
+      </el-tooltip>
       <div class="chatContainer" v-if="robotContainerFlag">
         <div class="header">
           <svg-icon class="closeIcon" icon-class="fork" @click="closeRobotContainer"></svg-icon>
@@ -790,21 +797,33 @@
               </div>
             </div>
           </div>
-          <el-button
-              class="scrollToBottomButton"
-              :icon="ArrowDownBold"
-              circle
-              @click="scrollToBottom"
-          ></el-button>
+          <el-tooltip
+              content="回到底部"
+              placement="top-start"
+              effect="light"
+          >
+            <el-button
+                class="scrollToBottomButton"
+                :icon="ArrowDownBold"
+                circle
+                @click="scrollToBottom"
+            ></el-button>
+          </el-tooltip>
         </el-scrollbar>
 
         <div class="inputArea">
-          <el-button
-              class="clearSessionButton"
-              :icon="DeleteFilled"
-              circle
-              @click="refreshSession"
-          ></el-button>
+          <el-tooltip
+              content="清空会话"
+              placement="top-start"
+              effect="light"
+          >
+            <el-button
+                class="clearSessionButton"
+                :icon="DeleteFilled"
+                circle
+                @click="refreshSession"
+            ></el-button>
+          </el-tooltip>
           <el-upload
               class="upload-demo"
               action="/api/file/uploadPicture?bucketType=1"
@@ -812,11 +831,17 @@
               :on-remove="removeFile"
               :on-success="fileUpload"
           >
-            <el-button
-                class="fileUploadButton"
-                :icon="Folder"
-                circle
-            ></el-button>
+            <el-tooltip
+                content="上传附件"
+                placement="top-start"
+                effect="light"
+            >
+              <el-button
+                  class="fileUploadButton"
+                  :icon="Folder"
+                  circle
+              ></el-button>
+            </el-tooltip>
           </el-upload>
           <div class="input">
             <el-tooltip
@@ -966,9 +991,15 @@
                 placeholder="开始你的提问吧"
             />
           </div>
-          <el-button class="sendButton" @click="chat">
-            <svg-icon class="sendButtonIcon" icon-class="send"></svg-icon>
-          </el-button>
+          <el-tooltip
+              content="发送"
+              placement="top-start"
+              effect="light"
+          >
+            <el-button class="sendButton" @click="chat">
+              <svg-icon class="sendButtonIcon" icon-class="send"></svg-icon>
+            </el-button>
+          </el-tooltip>
         </div>
       </div>
     </div>
@@ -1645,7 +1676,7 @@ export default {
     },
     closeRobotContainer() {
       this.robotContainerFlag = false
-      this.robotContainerLoadingFlag= true
+      this.robotContainerLoadingFlag = true
       sleep(600).then(() => {
         this.robotContainerLoadingFlag = false
       })

@@ -51,11 +51,17 @@
                   : item.message.content
             }}
           </div>
-          <svg-icon
-              class="sessionMenuDeleteIcon"
-              icon-class="delete"
-              @click="deleteSession(value)"
-          ></svg-icon>
+          <el-tooltip
+              content="删除会话"
+              placement="right"
+              effect="light"
+          >
+            <svg-icon
+                class="sessionMenuDeleteIcon"
+                icon-class="delete"
+                @click="deleteSession(value)"
+            ></svg-icon>
+          </el-tooltip>
         </el-menu-item>
       </el-scrollbar>
       <div class="user" @click="toPersonalCenter">
@@ -358,12 +364,18 @@
             </div>
           </div>
         </div>
-        <el-button
-            class="scrollToBottomButton"
-            :icon="ArrowDownBold"
-            circle
-            @click="scrollToBottom"
-        ></el-button>
+        <el-tooltip
+            content="回到底部"
+            placement="top-start"
+            effect="light"
+        >
+          <el-button
+              class="scrollToBottomButton"
+              :icon="ArrowDownBold"
+              circle
+              @click="scrollToBottom"
+          ></el-button>
+        </el-tooltip>
       </el-scrollbar>
 
       <div
@@ -377,7 +389,13 @@
             :on-remove="removeFile"
             :on-success="fileUpload"
         >
-          <el-button class="fileUploadButton" :icon="Folder" circle></el-button>
+          <el-tooltip
+              content="上传附件"
+              placement="top-start"
+              effect="light"
+          >
+            <el-button class="fileUploadButton" :icon="Folder" circle></el-button>
+          </el-tooltip>
         </el-upload>
         <div class="input">
           <!--          <el-button v-for="robots[robotsActive].p></el-button>-->
@@ -536,9 +554,15 @@
               placeholder="开始你的提问吧"
           />
         </div>
-        <el-button class="sendButton" @click="chat">
-          <svg-icon class="sendButtonIcon" icon-class="send"></svg-icon>
-        </el-button>
+        <el-tooltip
+            content="发送"
+            placement="top-start"
+            effect="light"
+        >
+          <el-button class="sendButton" @click="chat">
+            <svg-icon class="sendButtonIcon" icon-class="send"></svg-icon>
+          </el-button>
+        </el-tooltip>
       </div>
 
       <div
@@ -833,12 +857,18 @@
             </div>
           </div>
         </div>
-        <el-button
-            class="scrollToBottomButton"
-            :icon="ArrowDownBold"
-            circle
-            @click="scrollToBottom"
-        ></el-button>
+        <el-tooltip
+            content="回到底部"
+            placement="top-start"
+            effect="light"
+        >
+          <el-button
+              class="scrollToBottomButton"
+              :icon="ArrowDownBold"
+              circle
+              @click="scrollToBottom"
+          ></el-button>
+        </el-tooltip>
       </el-scrollbar>
 
       <div
@@ -852,7 +882,13 @@
             :on-remove="removeFile"
             :on-success="fileUpload"
         >
-          <el-button class="fileUploadButton" :icon="Folder" circle></el-button>
+          <el-tooltip
+              content="上传附件"
+              placement="top-start"
+              effect="light"
+          >
+            <el-button class="fileUploadButton" :icon="Folder" circle></el-button>
+          </el-tooltip>
         </el-upload>
         <div class="input">
           <!--          <el-button v-for="robots[robotsActive].p></el-button>-->
@@ -1012,7 +1048,13 @@
           />
         </div>
         <el-button class="sendButton" @click="longTextDialogueSubmit">
-          <svg-icon class="sendButtonIcon" icon-class="send"></svg-icon>
+          <el-tooltip
+              content="发送"
+              placement="top-start"
+              effect="light"
+          >
+            <svg-icon class="sendButtonIcon" icon-class="send"></svg-icon>
+          </el-tooltip>
         </el-button>
       </div>
     </div>

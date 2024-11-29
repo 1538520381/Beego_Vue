@@ -552,6 +552,7 @@
               type="textarea"
               resize="none"
               placeholder="开始你的提问吧"
+              @keydown="chat"
           />
         </div>
         <el-tooltip
@@ -607,6 +608,7 @@
               resize="none"
               @input="renderLatex($refs.latexContainer, imageQuestiuonText)"
               v-loading="imageAnalyzeFlag"
+              @keydown="sendQuestion"
           />
           <el-button class="sendQuestion" type="primary" @click="sendQuestion"
           >发送题目
@@ -1045,6 +1047,7 @@
               type="textarea"
               resize="none"
               placeholder="开始你的提问吧"
+              @keydown="longTextDialogueSubmit"
           />
         </div>
         <el-button class="sendButton" @click="longTextDialogueSubmit">
@@ -1461,8 +1464,20 @@ export default {
             this.$message.error("系统异常，请联系管理员");
           });
     },
-    chat() {
+    chat(e) {
+      if (isEmpty(e.keyCode) || (!e.shiftKey && e.keyCode === 13)) {
+        e.cancelBubble = true;
+        e.stopPropagation();
+        e.preventDefault();
+      } else {
+        return;
+      }
+
       if (this.answeringFlag) {
+        return;
+      }
+
+      if (isEmpty(this.file) && isEmpty(this.chatInput)) {
         return;
       }
 
@@ -1674,7 +1689,15 @@ export default {
         },
       });
     },
-    sendQuestion() {
+    sendQuestion(e) {
+      if (isEmpty(e.keyCode) || (!e.shiftKey && e.keyCode === 13)) {
+        e.cancelBubble = true;
+        e.stopPropagation();
+        e.preventDefault();
+      } else {
+        return;
+      }
+
       if (
           this.answeringFlag ||
           this.sendQuestionFlag ||
@@ -1683,8 +1706,9 @@ export default {
         return;
       }
 
-      if (isEmpty(this.imageQuestiuonText)) {
+      if (isEmpty(this.imageQuestiuonText) || this.imageQuestiuonText === '\n') {
         this.$message.success("题目不能为空");
+        this.imageQuestiuonText = ""
         return;
       }
 
@@ -1750,8 +1774,20 @@ export default {
         },
       });
     },
-    longTextDialogueSubmit() {
+    longTextDialogueSubmit(e) {
       if (!this.isGenerating()) {
+        if (isEmpty(e.keyCode) || (!e.shiftKey && e.keyCode === 13)) {
+          e.cancelBubble = true;
+          e.stopPropagation();
+          e.preventDefault();
+        } else {
+          return;
+        }
+
+        if (isEmpty(this.file) && isEmpty(this.chatInput)) {
+          return;
+        }
+
         this.messages.push({
           role: "user",
           content: this.chatInput,
@@ -1789,6 +1825,7 @@ export default {
               this.$message.error("系统异常，请联系管理员");
             });
         this.chatInput = ""
+        this.scrollToBottom()
       }
     },
     longTextDialogueQuery() {
@@ -2795,58 +2832,3 @@ export default {
   opacity: 1;
 }
 </style>
-
-<!--<template>-->
-<!--  <div id="app">-->
-<!--    <h1>实时 LaTeX 渲染示例</h1>-->
-<!--    <input v-model="latexInput" placeholder="输入 LaTeX 公式"/>-->
-<!--    <button @click="renderLatex">渲染</button>-->
-<!--    <div ref="latexContainer"></div>-->
-<!--  </div>-->
-<!--</template>-->
-
-<!--<script>-->
-<!--export default {-->
-<!--  name: 'App',-->
-<!--  data() {-->
-<!--    return {-->
-<!--      latexInput: '', // 用于绑定输入框的内容-->
-<!--    };-->
-<!--  },-->
-<!--  mounted() {-->
-<!--    this.loadLatexJS().then(() => {-->
-<!--      this.renderLatex(); // 初始渲染-->
-<!--    });-->
-<!--  },-->
-<!--  methods: {-->
-<!--    loadLatexJS() {-->
-<!--      return new Promise((resolve) => {-->
-<!--        const script = document.createElement('script');-->
-<!--        script.src = './latex.js/dist/latex.js'; // 引用本地的 latex.js-->
-<!--        script.onload = resolve;-->
-<!--        document.head.appendChild(script);-->
-<!--      });-->
-<!--    },-->
-<!--    renderLatex() {-->
-<!--      // 清空之前的内容-->
-<!--      this.$refs.latexContainer.innerHTML = '';-->
-<!--      const text = "To solve the integral \\(\\int \\frac{1}{x^2} \\sin \\frac{1}{x} \\, dx\\), we can use the substitution method. Let's set \\( u = \\frac{1}{x} \\). Then, we need to find \\( du \\) in terms of \\( dx \\).\n\nDifferentiating \\( u \\) with respect to \\( x \\), we get:\n\\[ du = -\\frac{1}{x^2} \\, dx \\]\nThis implies:\n\\[ \\frac{1}{x^2} \\, dx = -du \\]\n\nNow, substitute \\( u \\) and \\( \\frac{1}{x^2} \\, dx \\) into the original integral:\n\\[ \\int \\frac{1}{x^2} \\sin \\frac{1}{x} \\, dx = \\int -\\sin u \\, du \\]\n\nThe integral of \\(-\\sin u\\) is:\n\\[ \\int -\\sin u \\, du = \\cos u + C \\]\n\nSince \\( u = \\frac{1}{x} \\), we substitute back to get the final answer in terms of \\( x \\):\n\\[ \\cos \\frac{1}{x} + C \\]\n\nTherefore, the solution to the integral is:\n\\[ \\boxed{\\cos \\frac{1}{x} + C} \\]"-->
-<!--      // const text = this.latexInput-->
-<!--      console.log(text)-->
-<!--      console.log(this.latexInput)-->
-<!--      const generator = new latexjs.HtmlGenerator({hyphenate: false});-->
-<!--      const document = latexjs.parse(text, {generator});-->
-<!--      this.$refs.latexContainer.appendChild(generator.domFragment());-->
-<!--    },-->
-<!--  },-->
-<!--};-->
-<!--</script>-->
-
-<!--<style>-->
-<!--/* 其他样式 */-->
-<!--input {-->
-<!--  width: 100%;-->
-<!--  margin-bottom: 10px;-->
-<!--  padding: 8px;-->
-<!--}-->
-<!--</style>-->

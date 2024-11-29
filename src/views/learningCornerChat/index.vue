@@ -989,6 +989,7 @@
                 type="textarea"
                 resize="none"
                 placeholder="开始你的提问吧"
+                @keydown="chat"
             />
           </div>
           <el-tooltip
@@ -1472,7 +1473,19 @@ export default {
             this.$message.error("系统异常，请联系管理员");
           });
     },
-    chat() {
+    chat(e) {
+      if (isEmpty(e.keyCode) || (!e.shiftKey && e.keyCode === 13)) {
+        e.cancelBubble = true;
+        e.stopPropagation();
+        e.preventDefault();
+      } else {
+        return;
+      }
+
+      if (isEmpty(this.file) && isEmpty(this.chatInput)) {
+        return;
+      }
+
       if (this.answeringFlag) {
         return;
       }
@@ -1572,35 +1585,6 @@ export default {
       this.chatInput = "";
       this.removeFile();
     },
-    longTextDialogueQuery() {
-      for (let i = 0; i < this.longTextDialogueExecuteEntitys.length; i++) {
-        longTextDialogueQuery(
-            this.longTextDialogueExecuteEntitys[i].robotId,
-            this.longTextDialogueExecuteEntitys[i].sessionId,
-            this.longTextDialogueExecuteEntitys[i].executeId
-        )
-            .then((res) => {
-              if (res.data.code === 200) {
-                this.$message.success("长文本生成完成");
-                this.longTextDialogueExecuteEntitys.splice(i, 1);
-                i--;
-              } else if (this.longTextDialogueExecuteEntitys[i].count >= 7) {
-                // this.longTextDialogueExecuteEntitys.splice(i, 1);
-                // i--;
-              } else {
-                this.longTextDialogueExecuteEntitys[i].count += 1;
-              }
-              this.$store.commit(
-                  "setLongTextDialogueExecuteEntitys",
-                  this.longTextDialogueExecuteEntitys
-              );
-            })
-            .catch((err) => {
-              console.log(err);
-              this.$message.error("系统异常，请联系管理员");
-            });
-      }
-    },
     contactUs() {
       contactUs(
           this.contactUsForm.content,
@@ -1669,6 +1653,7 @@ export default {
       if (!this.robotContainerFlag) {
         this.robotContainerFlag = true
         this.chatInput = " "
+        this.scrollToBottom()
         sleep(600).then(() => {
           this.chatInput = ""
         })

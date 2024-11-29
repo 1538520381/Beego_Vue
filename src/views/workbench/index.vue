@@ -88,7 +88,7 @@
     />
     <el-button
         class="sessionMenuControllerButton sessionMenuControllerButtonClose"
-        v-else-if="!isEmpty(robots) && robots[robotActive].handle"
+        v-else-if="!isEmpty(robots) && robots[robotActive].handle !== 1"
         @click="openSessionMenu"
         :icon="ArrowRightBold"
         circle

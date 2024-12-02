@@ -571,16 +571,22 @@
           v-else-if="!isEmpty(robots) && robots[robotActive].handle === 1"
       >
         <div class="leftContainer">
-          <el-upload
-              class="dragUpload"
-              drag
-              action="/api/file/uploadPicture?bucketType=1"
-              :show-file-list="false"
-              :on-success="fileUpload"
-          >
-            <i class="el-icon-upload"></i>
-            <div class="el-upload__text">拖拽上传或<em>点击上传</em></div>
-          </el-upload>
+          <div class="uploadFileContainer">
+            <el-upload
+                class="dragUpload"
+                drag
+                action="/api/file/uploadPicture?bucketType=1"
+                :show-file-list="false"
+                :on-success="fileUpload"
+            >
+              <i class="el-icon-upload"></i>
+              <div class="el-upload__text">拖拽上传或<em>点击上传</em></div>
+            </el-upload>
+            <div class="pasteUpload" tabindex="-1" v-on:paste="handlePaste">
+              <span>Ctrl+V粘贴至此</span>
+            </div>
+          </div>
+
           <el-image
               class="image"
               :src="file.fileUrl"
@@ -1136,6 +1142,7 @@ import {
   getSessionList,
   longTextDialogueSubmit,
   longTextDialogueQuery,
+  uploadFile
 } from "@/apis/chat";
 import {contactUs, getUserByToken} from "@/apis/user";
 
@@ -1143,6 +1150,7 @@ import {isEmpty} from "@/utils/common";
 
 import SvgIcon from "@/components/svgIcon/index.vue";
 import SuspendedBall from "@/components/suspendedBall";
+import axios from "axios";
 
 export default {
   name: "Workbench",
@@ -1987,7 +1995,6 @@ export default {
         const generator = new HtmlGenerator({hyphenate: false});
         const document = parse(content, {generator});
         html.appendChild(generator.domFragment());
-        console.log(1);
       } catch (e) {
         console.log(e);
       }
@@ -2007,6 +2014,34 @@ export default {
 
     isEmpty(field) {
       return isEmpty(field);
+    },
+
+    handlePaste(event) {
+      const items = (event.clipboardData || window.clipboardData).items;
+      let file = null;
+
+      if (!items || items.length === 0) {
+        this.$message.error("当前浏览器不支持");
+        return;
+      }
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf("image") !== -1) {
+          file = items[i].getAsFile();
+          break;
+        }
+      }
+      if (!file) {
+        this.$message.error("粘贴内容非图片");
+        return;
+      }
+      const formData = new FormData();
+      formData.append("file", file);
+      axios.post('/api/file/uploadPicture?bucketType=1', formData).then((res) => {
+        this.fileUpload(res.data, null, null)
+      }).catch((err) => {
+        console.log(err);
+        this.$message.error("系统异常，请联系管理员");
+      })
     },
   },
 };
@@ -2705,13 +2740,52 @@ export default {
   height: 100%;
 }
 
-#workbench .mainContainer .mathematicalModel .leftContainer .dragUpload {
-  position: relative;
-
+#workbench .mainContainer .mathematicalModel .leftContainer .uploadFileContainer {
   margin: 10px auto 0 auto;
 
   width: 80%;
 }
+
+#workbench .mainContainer .mathematicalModel .leftContainer .uploadFileContainer .dragUpload {
+  display: inline-block;
+  position: relative;
+
+  width: 60%;
+  height: 100px;
+}
+
+#workbench .mainContainer .mathematicalModel .leftContainer .uploadFileContainer .pasteUpload {
+  display: inline-block;
+  position: relative;
+
+  vertical-align: top;
+
+  width: calc(40% - 2px);
+  height: 100px;
+
+  border: 1px dashed #DCDFE6;
+  border-radius: 6px;
+
+  font-size: 14px;
+
+  color: #606266;
+
+  line-height: 100px;
+
+  text-align: center;
+
+  cursor: pointer;
+}
+
+#workbench .mainContainer .mathematicalModel .leftContainer .uploadFileContainer .pasteUpload:hover {
+  border-color: #409EFF;
+}
+
+
+#workbench .mainContainer .mathematicalModel .leftContainer .uploadFileContainer .pasteUpload:focus {
+  border-color: #409EFF;
+}
+
 
 #workbench .mainContainer .mathematicalModel .leftContainer .image {
   display: block;

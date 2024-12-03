@@ -565,6 +565,8 @@
           </el-button>
         </el-tooltip>
       </div>
+      <div v-if="!isEmpty(robots) && robots[robotActive].handle === 0"
+           style="width: 100%;height: 20px;"></div>
 
       <div
           class="mathematicalModel"
@@ -1066,6 +1068,8 @@
           </el-tooltip>
         </el-button>
       </div>
+      <div v-if="!isEmpty(robots) && robots[robotActive].handle === 2"
+           style="width: 100%;height: 20px;"></div>
     </div>
 
     <el-dialog

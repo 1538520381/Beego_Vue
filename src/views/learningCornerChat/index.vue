@@ -64,6 +64,24 @@
         circle
     />
 
+    <el-menu
+        class="resourceMenu"
+        :default-active="String(resourceActive)"
+        @select="selectResourceMenu"
+    >
+      <div class="resourceMenuTitle">资源</div>
+      <el-scrollbar class="resourceMenuScrollbar">
+        <el-menu-item
+            class="resourceMenuItem"
+            v-for="(item, index) in resourceMenuItems"
+            :index="String(index)"
+            :disabled="answeringFlag"
+        >
+          <div class="resourceMenuItemName">{{ item.name }}</div>
+        </el-menu-item>
+      </el-scrollbar>
+    </el-menu>
+
     <div
         class="mainContainer"
         :class="{
@@ -106,24 +124,25 @@
       </div>
       <div class="studyContainer">
         <div class="catalogueContainer" v-if="initFlag">
-          <div class="bookTitle">{{ bookMenuItems[bookActive].bookName }}</div>
-          <el-scrollbar class="catalogueScrollbar">
-            <el-tree
-                class="catalogue"
-                :data="catalogue"
-                :props="{
-                label: 'outline',
-                children: 'outline_child_list',
-              }"
-            >
-              <template v-slot="{ node }">
-                <v-md-preview
-                    class="markdown"
-                    :text="node.data.outline.outline_content"
-                ></v-md-preview>
-              </template>
-            </el-tree>
-          </el-scrollbar>
+          <PdfReader ref="pdfReader" :user="user"></PdfReader>
+          <!--          <div class="bookTitle">{{ bookMenuItems[bookActive].bookName }}</div>-->
+          <!--          <el-scrollbar class="catalogueScrollbar">-->
+          <!--            <el-tree-->
+          <!--                class="catalogue"-->
+          <!--                :data="catalogue"-->
+          <!--                :props="{-->
+          <!--                label: 'outline',-->
+          <!--                children: 'outline_child_list',-->
+          <!--              }"-->
+          <!--            >-->
+          <!--              <template v-slot="{ node }">-->
+          <!--                <v-md-preview-->
+          <!--                    class="markdown"-->
+          <!--                    :text="node.data.outline.outline_content"-->
+          <!--                ></v-md-preview>-->
+          <!--              </template>-->
+          <!--            </el-tree>-->
+          <!--          </el-scrollbar>-->
         </div>
         <div>
           <!--          <div class="resize"></div>-->
@@ -1074,7 +1093,7 @@ import {
   collection,
   getBookCategoryList,
   getCatalogueByBookId,
-  getCollectionBookList,
+  getCollectionBookList, getFileByResourceId, getResourceByBookId,
   uncollection,
 } from "@/apis/book";
 import {contactUs, getUserByToken} from "@/apis/user";
@@ -1084,17 +1103,16 @@ import {
   getLearningCornerRobotList,
   getMessageList,
   getSessionList,
-  longTextDialogueQuery,
 } from "@/apis/chat";
 
 import {isEmpty, sleep} from "@/utils/common";
 
-import SvgIcon from "@/components/svgIcon/index.vue";
-import SuspendedBall from "@/components/suspendedBall/index.vue";
+import SuspendedBall from "@/components/suspendedBall";
+import PdfReader from '@/components/pdfReader'
 
 export default {
   name: "LearningCornerChat",
-  components: {SuspendedBall, SvgIcon},
+  components: {SuspendedBall, PdfReader},
   data() {
     return {
       BoyAvatar: BoyAvatar,
@@ -1121,6 +1139,8 @@ export default {
       collectionBookIdList: [],
       bookMenuItems: [],
       book: {},
+      resourceMenuItems: [],
+      fileUrl: null,
       catalogue: [],
       session: null,
       messages: [],
@@ -1143,6 +1163,7 @@ export default {
       loadingFlag: false,
 
       bookActive: 0,
+      resourceActive: 0,
 
       bookMenuShow: true,
 
@@ -1154,6 +1175,7 @@ export default {
   setup() {
     const chatArea = ref(null);
     const chatAreaInner = ref(null);
+    const pdfReader = ref(null)
 
     const scrollToBottom = () => {
       try {
@@ -1167,6 +1189,7 @@ export default {
     return {
       chatAreaInner,
       chatArea,
+      pdfReader,
       scrollToBottom,
     };
   },
@@ -1195,6 +1218,7 @@ export default {
       this.bookActive = this.bookMenuItems.length - 1;
     }
 
+    await this.getResourceByBookId()
     await this.getBookCategoryList();
     await this.getRobotList();
     await this.getCatalogueByBookId();
@@ -1283,6 +1307,47 @@ export default {
               this.$message.error(res.data.message);
             }
           })
+          .catch((err) => {
+            console.log(err);
+            this.$message.error("系统异常，请联系管理员");
+          });
+    },
+    getResourceByBookId() {
+      getResourceByBookId(this.bookMenuItems[this.bookActive].id).then((res) => {
+        if (res.data.code === 200) {
+          if (!isEmpty(res.data.data)) {
+            this.resourceMenuItems = []
+            for (let i = 0; i < res.data.data.length; i++) {
+              this.resourceMenuItems.push({
+                id: res.data.data[i]["resource_id"],
+                bookId: res.data.data[i]["book_id"],
+                fileId: res.data.data[i]["file_id"],
+                name: res.data.data[i]["resource_name"]
+              })
+              this.resourceActive = 0
+              this.getFileByResourceId()
+            }
+          }
+        } else {
+          this.$message.error(res.data.message);
+        }
+      })
+          .catch((err) => {
+            console.log(err);
+            this.$message.error("系统异常，请联系管理员");
+          });
+    },
+    getFileByResourceId() {
+      getFileByResourceId(this.resourceMenuItems[this.resourceActive].fileId).then(async (res) =>  {
+        if (res.data.code === 200) {
+          while (isEmpty(this.pdfReader)){
+            await sleep(10)
+          }
+          this.pdfReader.loadPdf(res.data.data)
+        } else {
+          this.$message.error(res.data.message);
+        }
+      })
           .catch((err) => {
             console.log(err);
             this.$message.error("系统异常，请联系管理员");
@@ -1677,8 +1742,14 @@ export default {
     selectBookMenu(index) {
       this.bookActive = parseInt(index);
       this.$store.commit("setBook", this.bookMenuItems[this.bookActive]);
-      this.getCatalogueByBookId();
+      // this.getCatalogueByBookId();
+      this.getResourceByBookId()
       this.getSessionList();
+    },
+    selectResourceMenu(index) {
+      this.resourceActive = parseInt(index)
+      this.getFileByResourceId()
+
     },
 
     downloadFile(url, name) {
@@ -1785,7 +1856,7 @@ export default {
 
   border: 0;
 
-  background: #e6e6e6;
+  background: #CBCBCB;
 }
 
 #learningCornerChat .bookMenu .returnButton {
@@ -1794,10 +1865,10 @@ export default {
   width: calc(100% - 10px * 2 - 4px * 2);
   height: 40px;
 
-  border: 4px solid #cbcbcb;
+  border: 4px solid #E6E6E6;
   border-radius: 10px;
 
-  background: #cbcbcb;
+  background: #E6E6E6;
 
   text-align: center;
 
@@ -1817,7 +1888,7 @@ export default {
   border: 4px dotted #000000;
   border-radius: 10px;
 
-  background: #cbcbcb;
+  background: #E6E6E6;
 
   text-align: center;
 
@@ -1850,7 +1921,7 @@ export default {
 
   line-height: 40px;
 
-  background: #cbcbcb;
+  background: #E6E6E6;
 
   font-size: 16px;
 }
@@ -1940,6 +2011,82 @@ export default {
   left: calc(220px - 40px / 2);
 }
 
+#learningCornerChat .resourceMenu {
+  display: inline-block;
+
+  vertical-align: top;
+
+  width: 180px;
+  height: 100%;
+
+  border: 0;
+
+  background: #E6E6E6;
+}
+
+#learningCornerChat .resourceMenu .resourceMenuTitle {
+  margin: 10px 10px 0 10px;
+
+  width: calc(100% - 10px * 2 - 4px * 2);
+  height: 40px;
+
+  border: 4px dotted #000000;
+  border-radius: 10px;
+
+  background: #E6E6E6;
+
+  text-align: center;
+
+  font-size: 20px;
+
+  line-height: 40px;
+}
+
+#learningCornerChat .resourceMenu .resourceMenuScrollbar {
+  width: 100%;
+  height: calc(100% - 10px - 40px);
+}
+
+#learningCornerChat .resourceMenu .resourceMenuScrollbar .resourceMenuItem {
+  padding: 0 10px 0 10px;
+}
+
+#learningCornerChat
+.resourceMenu
+.resourceMenuScrollbar
+.resourceMenuItem
+.resourceMenuItemName {
+  padding: 0 5px 0 5px;
+
+  width: calc(100% - 5px * 2);
+  height: 40px;
+
+  border: none;
+  border-radius: 10px;
+
+  text-align: center;
+
+  line-height: 40px;
+
+  background: #CBCBCB;
+
+  font-size: 16px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+#learningCornerChat .resourceMenu .resourceMenuScrollbar .resourceMenuItem .collectionIcon {
+  margin: 0 3px 0 3px;
+
+  width: 24px;
+  height: 24px;
+}
+
+
 #learningCornerChat .mainContainer {
   display: inline-flex;
   flex-flow: column;
@@ -1952,11 +2099,11 @@ export default {
 }
 
 #learningCornerChat .mainContainerShort {
-  width: calc(100% - 220px);
+  width: calc(100% - 220px - 180px);
 }
 
 #learningCornerChat .mainContainerLong {
-  width: calc(100%);
+  width: calc(100% - 180px);
 }
 
 #learningCornerChat .mainContainer .patterns {

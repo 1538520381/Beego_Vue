@@ -12,7 +12,6 @@
         </el-tree>
       </div>
     </div>
-    <!-- pdf渲染 -->
     <div class="PDF-content pdf-container" ref="pdfContainer">
     </div>
   </div>

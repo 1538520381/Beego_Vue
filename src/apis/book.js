@@ -43,3 +43,19 @@ export function getCatalogueByBookId(bookId) {
         }
     })
 }
+
+export function getResourceByBookId(bookId) {
+    return request({
+        url: '/book/getResource', method: 'post', data: {
+            book_id: bookId
+        }
+    })
+}
+
+export function getFileByResourceId(resourceId) {
+    return request({
+        url: '/file/getFile', method: 'post', data: {
+            file_id: resourceId
+        }
+    })
+}

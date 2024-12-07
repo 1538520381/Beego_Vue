@@ -155,7 +155,7 @@
           ref="chatArea"
           label="chatArea"
           id="chatArea"
-          v-if="!isEmpty(robots) && robots[robotActive].handle === 0"
+          v-if="!isEmpty(robots) && (robots[robotActive].handle === 0 || robots[robotActive].handle === 2)"
       >
         <div class="chatAreaInner" ref="chatAreaInner">
           <div class="chatRow" v-for="(item, index) in messages">
@@ -380,7 +380,7 @@
 
       <div
           class="inputArea"
-          v-if="!isEmpty(robots) && robots[robotActive].handle === 0"
+          v-if="!isEmpty(robots) && (robots[robotActive].handle === 0 || robots[robotActive].handle === 2)"
       >
         <el-upload
             class="upload-demo"
@@ -565,7 +565,7 @@
           </el-button>
         </el-tooltip>
       </div>
-      <div v-if="!isEmpty(robots) && robots[robotActive].handle === 0"
+      <div v-if="!isEmpty(robots) && (robots[robotActive].handle === 0 || robots[robotActive].handle === 2)"
            style="width: 100%;height: 20px;"></div>
 
       <div
@@ -651,14 +651,14 @@
               <v-md-preview
                   class="chatRobotMessageText chatMessageText"
                   :text="
-                  sendQuestionIndex === 0
-                    ? loadingTime % 3 === 0
-                      ? '正在分析中.'
-                      : loadingTime % 3 === 1
-                      ? '正在分析中. .'
-                      : '正在分析中. . .'
-                    : sendQuestionMessage.substring(0, sendQuestionIndex)
-                "
+                        sendQuestionIndex === 0
+                          ? loadingTime % 3 === 0
+                            ? '正在分析中.'
+                            : loadingTime % 3 === 1
+                            ? '正在分析中. .'
+                            : '正在分析中. . .'
+                          : sendQuestionMessage.substring(0, sendQuestionIndex)
+                      "
                   v-if="sendQuestionFlag"
               >
               </v-md-preview>
@@ -677,7 +677,7 @@
           ref="chatArea"
           label="chatArea"
           id="chatArea"
-          v-if="!isEmpty(robots) && robots[robotActive].handle === 2"
+          v-if="!isEmpty(robots) && robots[robotActive].handle === 3"
       >
         <div class="chatAreaInner" ref="chatAreaInner">
           <div class="chatRow" v-for="(item, index) in messages">
@@ -709,121 +709,121 @@
                       fit="fill"
                       v-if="['jpg', 'png'].indexOf(item.fileType) !== -1"
                       @click="
-                      downloadFile(
-                        item.fileUrl,
-                        item.fileName + '.' + item.fileType
-                      )
-                    "
+                            downloadFile(
+                              item.fileUrl,
+                              item.fileName + '.' + item.fileType
+                            )
+                          "
                   ></el-image>
                   <svg-icon
                       class="chatUserFileSvg"
                       icon-class="csv"
                       v-else-if="['csv'].indexOf(item.fileType) !== -1"
                       @click="
-                      downloadFile(
-                        item.fileUrl,
-                        item.fileName + '.' + item.fileType
-                      )
-                    "
+                            downloadFile(
+                              item.fileUrl,
+                              item.fileName + '.' + item.fileType
+                            )
+                          "
                   ></svg-icon>
                   <svg-icon
                       class="chatUserFileSvg"
                       icon-class="excel"
                       v-else-if="['xlsx', 'xls'].indexOf(item.fileType) !== -1"
                       @click="
-                      downloadFile(
-                        item.fileUrl,
-                        item.fileName + '.' + item.fileType
-                      )
-                    "
+                            downloadFile(
+                              item.fileUrl,
+                              item.fileName + '.' + item.fileType
+                            )
+                          "
                   ></svg-icon>
                   <svg-icon
                       class="chatUserFileSvg"
                       icon-class="mp4"
                       v-else-if="['mp4'].indexOf(item.fileType) !== -1"
                       @click="
-                      downloadFile(
-                        item.fileUrl,
-                        item.fileName + '.' + item.fileType
-                      )
-                    "
+                            downloadFile(
+                              item.fileUrl,
+                              item.fileName + '.' + item.fileType
+                            )
+                          "
                   ></svg-icon>
                   <svg-icon
                       class="chatUserFileSvg"
                       icon-class="pdf"
                       v-else-if="['pdf'].indexOf(item.fileType) !== -1"
                       @click="
-                      downloadFile(
-                        item.fileUrl,
-                        item.fileName + '.' + item.fileType
-                      )
-                    "
+                            downloadFile(
+                              item.fileUrl,
+                              item.fileName + '.' + item.fileType
+                            )
+                          "
                   ></svg-icon>
                   <svg-icon
                       class="chatUserFileSvg"
                       icon-class="ppt"
                       v-else-if="['ppt'].indexOf(item.fileType) !== -1"
                       @click="
-                      downloadFile(
-                        item.fileUrl,
-                        item.fileName + '.' + item.fileType
-                      )
-                    "
+                            downloadFile(
+                              item.fileUrl,
+                              item.fileName + '.' + item.fileType
+                            )
+                          "
                   ></svg-icon>
                   <svg-icon
                       class="chatUserFileSvg"
                       icon-class="rar"
                       v-else-if="['rar'].indexOf(item.fileType) !== -1"
                       @click="
-                      downloadFile(
-                        item.fileUrl,
-                        item.fileName + '.' + item.fileType
-                      )
-                    "
+                            downloadFile(
+                              item.fileUrl,
+                              item.fileName + '.' + item.fileType
+                            )
+                          "
                   ></svg-icon>
                   <svg-icon
                       class="chatUserFileSvg"
                       icon-class="txt"
                       v-else-if="['txt'].indexOf(item.fileType) !== -1"
                       @click="
-                      downloadFile(
-                        item.fileUrl,
-                        item.fileName + '.' + item.fileType
-                      )
-                    "
+                            downloadFile(
+                              item.fileUrl,
+                              item.fileName + '.' + item.fileType
+                            )
+                          "
                   ></svg-icon>
                   <svg-icon
                       class="chatUserFileSvg"
                       icon-class="word"
                       v-else-if="['docx', 'doc'].indexOf(item.fileType) !== -1"
                       @click="
-                      downloadFile(
-                        item.fileUrl,
-                        item.fileName + '.' + item.fileType
-                      )
-                    "
+                            downloadFile(
+                              item.fileUrl,
+                              item.fileName + '.' + item.fileType
+                            )
+                          "
                   ></svg-icon>
                   <svg-icon
                       class="chatUserFileSvg"
                       icon-class="zip"
                       v-else-if="['zip'].indexOf(item.fileType) !== -1"
                       @click="
-                      downloadFile(
-                        item.fileUrl,
-                        item.fileName + '.' + item.fileType
-                      )
-                    "
+                            downloadFile(
+                              item.fileUrl,
+                              item.fileName + '.' + item.fileType
+                            )
+                          "
                   ></svg-icon>
                   <svg-icon
                       class="chatUserFileSvg"
                       icon-class="unknownFile"
                       v-else
                       @click="
-                      downloadFile(
-                        item.fileUrl,
-                        item.fileName + '.' + item.fileType
-                      )
-                    "
+                            downloadFile(
+                              item.fileUrl,
+                              item.fileName + '.' + item.fileType
+                            )
+                          "
                   ></svg-icon>
                 </el-tooltip>
                 <!--              <div class="chatUserMessage" v-html="markdownToHtml(item.content)"></div>-->
@@ -836,12 +836,12 @@
               <el-image
                   class="chatUserAvatar"
                   :src="
-                  isEmpty(user.avatarUrl)
-                    ? user.gender === 0 || isEmpty(user.gender)
-                      ? BoyAvatar
-                      : GirlAvatar
-                    : user.avatarUrl
-                "
+                        isEmpty(user.avatarUrl)
+                          ? user.gender === 0 || isEmpty(user.gender)
+                            ? BoyAvatar
+                            : GirlAvatar
+                          : user.avatarUrl
+                      "
               ></el-image>
             </div>
           </div>
@@ -855,12 +855,12 @@
                 <v-md-preview
                     class="chatRobotMessageText chatMessageText"
                     :text="
-                    loadingTime % 3 === 0
-                      ? '正在分析中.'
-                      : loadingTime % 3 === 1
-                      ? '正在分析中. .'
-                      : '正在分析中. . .'
-                  "
+                          loadingTime % 3 === 0
+                            ? '正在分析中.'
+                            : loadingTime % 3 === 1
+                            ? '正在分析中. .'
+                            : '正在分析中. . .'
+                        "
                 >
                 </v-md-preview>
               </div>
@@ -883,7 +883,7 @@
 
       <div
           class="inputArea"
-          v-if="!isEmpty(robots) && robots[robotActive].handle === 2"
+          v-if="!isEmpty(robots) && robots[robotActive].handle === 3"
       >
         <el-upload
             class="upload-demo"
@@ -924,121 +924,121 @@
                   fit="contain"
                   v-if="['jpg', 'png'].indexOf(file.fileType) !== -1"
                   @click="
-                  downloadFile(
-                    file.fileUrl,
-                    file.fileName + '.' + file.fileType
-                  )
-                "
+                        downloadFile(
+                          file.fileUrl,
+                          file.fileName + '.' + file.fileType
+                        )
+                      "
               ></el-image>
               <svg-icon
                   class="fileSvg"
                   icon-class="csv"
                   v-else-if="['csv'].indexOf(file.fileType) !== -1"
                   @click="
-                  downloadFile(
-                    file.fileUrl,
-                    file.fileName + '.' + file.fileType
-                  )
-                "
+                        downloadFile(
+                          file.fileUrl,
+                          file.fileName + '.' + file.fileType
+                        )
+                      "
               ></svg-icon>
               <svg-icon
                   class="fileSvg"
                   icon-class="excel"
                   v-else-if="['xlsx', 'xls'].indexOf(file.fileType) !== -1"
                   @click="
-                  downloadFile(
-                    file.fileUrl,
-                    file.fileName + '.' + file.fileType
-                  )
-                "
+                        downloadFile(
+                          file.fileUrl,
+                          file.fileName + '.' + file.fileType
+                        )
+                      "
               ></svg-icon>
               <svg-icon
                   class="fileSvg"
                   icon-class="mp4"
                   v-else-if="['mp4'].indexOf(file.fileType) !== -1"
                   @click="
-                  downloadFile(
-                    file.fileUrl,
-                    file.fileName + '.' + file.fileType
-                  )
-                "
+                        downloadFile(
+                          file.fileUrl,
+                          file.fileName + '.' + file.fileType
+                        )
+                      "
               ></svg-icon>
               <svg-icon
                   class="fileSvg"
                   icon-class="pdf"
                   v-else-if="['pdf'].indexOf(file.fileType) !== -1"
                   @click="
-                  downloadFile(
-                    file.fileUrl,
-                    file.fileName + '.' + file.fileType
-                  )
-                "
+                        downloadFile(
+                          file.fileUrl,
+                          file.fileName + '.' + file.fileType
+                        )
+                      "
               ></svg-icon>
               <svg-icon
                   class="fileSvg"
                   icon-class="ppt"
                   v-else-if="['ppt'].indexOf(file.fileType) !== -1"
                   @click="
-                  downloadFile(
-                    file.fileUrl,
-                    file.fileName + '.' + file.fileType
-                  )
-                "
+                        downloadFile(
+                          file.fileUrl,
+                          file.fileName + '.' + file.fileType
+                        )
+                      "
               ></svg-icon>
               <svg-icon
                   class="fileSvg"
                   icon-class="rar"
                   v-else-if="['rar'].indexOf(file.fileType) !== -1"
                   @click="
-                  downloadFile(
-                    file.fileUrl,
-                    file.fileName + '.' + file.fileType
-                  )
-                "
+                        downloadFile(
+                          file.fileUrl,
+                          file.fileName + '.' + file.fileType
+                        )
+                      "
               ></svg-icon>
               <svg-icon
                   class="fileSvg"
                   icon-class="txt"
                   v-else-if="['txt'].indexOf(file.fileType) !== -1"
                   @click="
-                  downloadFile(
-                    file.fileUrl,
-                    file.fileName + '.' + file.fileType
-                  )
-                "
+                        downloadFile(
+                          file.fileUrl,
+                          file.fileName + '.' + file.fileType
+                        )
+                      "
               ></svg-icon>
               <svg-icon
                   class="fileSvg"
                   icon-class="word"
                   v-else-if="['docx', 'doc'].indexOf(file.fileType) !== -1"
                   @click="
-                  downloadFile(
-                    file.fileUrl,
-                    file.fileName + '.' + file.fileType
-                  )
-                "
+                        downloadFile(
+                          file.fileUrl,
+                          file.fileName + '.' + file.fileType
+                        )
+                      "
               ></svg-icon>
               <svg-icon
                   class="fileSvg"
                   icon-class="zip"
                   v-else-if="['zip'].indexOf(file.fileType) !== -1"
                   @click="
-                  downloadFile(
-                    file.fileUrl,
-                    file.fileName + '.' + file.fileType
-                  )
-                "
+                        downloadFile(
+                          file.fileUrl,
+                          file.fileName + '.' + file.fileType
+                        )
+                      "
               ></svg-icon>
               <svg-icon
                   class="fileSvg"
                   icon-class="unknownFile"
                   v-else
                   @click="
-                  downloadFile(
-                    file.fileUrl,
-                    file.fileName + '.' + file.fileType
-                  )
-                "
+                        downloadFile(
+                          file.fileUrl,
+                          file.fileName + '.' + file.fileType
+                        )
+                      "
               ></svg-icon>
               <svg-icon
                   class="deleteFile"
@@ -1068,7 +1068,7 @@
           </el-tooltip>
         </el-button>
       </div>
-      <div v-if="!isEmpty(robots) && robots[robotActive].handle === 2"
+      <div v-if="!isEmpty(robots) && robots[robotActive].handle === 3"
            style="width: 100%;height: 20px;"></div>
     </div>
 
@@ -1331,6 +1331,7 @@ export default {
     },
     getRobotList() {
       this.answeringFlag = true;
+      console.log(1)
       return getWorkbenchRobotList()
           .then((res) => {
             if (res.data.code === 200) {
@@ -1364,6 +1365,7 @@ export default {
     },
     getSessionList() {
       this.answeringFlag = true;
+      console.log(2)
       return getSessionList(this.robots[this.robotActive].id)
           .then((res) => {
             if (res.data.code === 200) {
@@ -1416,6 +1418,7 @@ export default {
     },
     getMessageList() {
       this.answeringFlag = true;
+      console.log(3)
       return getMessageList(this.sessions[this.sessionActive].id)
           .then((res) => {
             if (res.data.code === 200) {
@@ -1439,6 +1442,7 @@ export default {
                 });
               }
               this.answeringFlag = false;
+              console.log(10)
               this.$nextTick(() => {
                 this.scrollToBottom();
               });
@@ -1494,6 +1498,7 @@ export default {
       }
 
       this.answeringFlag = true;
+      console.log(4)
       this.answeringMessage = "";
       this.answeringIndex = 0;
       this.answeringClock = setInterval(() => {

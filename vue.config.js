@@ -13,7 +13,7 @@ module.exports = defineConfig({
             '/api': {
                 target: 'http://54.222.173.61:8081', changeOrigin: true, pathRewrite: {'^/api': ''}
             }
-        }
+        }, compress: false
     }, transpileDependencies: true, lintOnSave: false, chainWebpack: config => {
         config.module
             .rule('svg')

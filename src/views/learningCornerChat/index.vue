@@ -795,26 +795,26 @@
                 </div>
               </div>
             </div>
-            <div class="chatRowLoading">
-              <div class="chatRobot" v-if="answeringFlag && loadingFlag">
-                <el-image
-                    class="chatRobotAvatar"
-                    :src="
-                            robotIdToRobot[
-                              categoryIdToRobotId[
-                                bookMenuItems[bookActive].categoryId
-                              ]
-                            ].avatar
-                          "
-                ></el-image>
-                <div class="chatRobotMessage">
-                  <v-md-preview
-                      class="chatRobotMessageText chatMessageText"
-                      text="快要生成出来了，请耐心等待"
-                  ></v-md-preview>
-                </div>
-              </div>
-            </div>
+<!--            <div class="chatRowLoading">-->
+<!--              <div class="chatRobot" v-if="answeringFlag && loadingFlag">-->
+<!--                <el-image-->
+<!--                    class="chatRobotAvatar"-->
+<!--                    :src="-->
+<!--                            robotIdToRobot[-->
+<!--                              categoryIdToRobotId[-->
+<!--                                bookMenuItems[bookActive].categoryId-->
+<!--                              ]-->
+<!--                            ].avatar-->
+<!--                          "-->
+<!--                ></el-image>-->
+<!--                <div class="chatRobotMessage">-->
+<!--                  <v-md-preview-->
+<!--                      class="chatRobotMessageText chatMessageText"-->
+<!--                      text="快要生成出来了，请耐心等待"-->
+<!--                  ></v-md-preview>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
           </div>
           <el-tooltip
               content="回到底部"

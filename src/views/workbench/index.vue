@@ -1331,7 +1331,6 @@ export default {
     },
     getRobotList() {
       this.answeringFlag = true;
-      console.log(1)
       return getWorkbenchRobotList()
           .then((res) => {
             if (res.data.code === 200) {
@@ -2456,6 +2455,8 @@ export default {
   display: inline-block;
 
   vertical-align: top;
+
+  font-family: "Segoe UI Symbol";
 
   margin: 0 0 0 10px;
 

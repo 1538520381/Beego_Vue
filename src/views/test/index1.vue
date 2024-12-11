@@ -66,9 +66,7 @@ export default {
 
       // 获取pdf的也页数
       this.numPages = pdf1.numPages;
-      console.log(1)
       this.renderAllPages();
-      console.log(2)
       this.renderOutline(pdf1);
     },
     //渲染整个pdf

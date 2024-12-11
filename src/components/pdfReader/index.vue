@@ -37,13 +37,9 @@ export default {
   },
   methods: {
     async loadPdf(url) {
-      if(!isEmpty(this.documentFragment)){
-        console.log(1)
-        this.$refs.pdfContainer.removeChild(this.documentFragment)
-        console.log(2)
-      }
-
-      if(isEmpty(url)){
+      this.removePdf()
+      url = 'http://54.222.173.61:9000/userchat/20241207_1733579341_500.pdf'
+      if (isEmpty(url)) {
         return
       }
 
@@ -69,7 +65,7 @@ export default {
         collectionButton.onclick = function () {
           console.log(i)
         }
-        container.appendChild(collectionButton)
+        // container.appendChild(collectionButton)
 
         let canvas = document.createElement("canvas");
         pdf.getPage(i).then((page) => {
@@ -93,7 +89,7 @@ export default {
             ctx.textAlign = "left";
             ctx.textBaseline = "middle";
 
-            let text = this.user.id + " " + this.user.userName
+            let text = 'Beego' + ' ' + this.user.id
             for (let i = 1; i <= 6; i++) {
               ctx.fillText(text, -canvas.width / 6 * 3, canvas.height / 6 * i);
               ctx.fillText(text, -canvas.width / 6, canvas.height / 6 * i);
@@ -113,6 +109,12 @@ export default {
       const pageElement = document.getElementById(`page${pageIndex}`);
       if (pageElement) {
         pageElement.scrollIntoView({behavior: "smooth"});
+      }
+    },
+    removePdf() {
+      let pdfContainer = this.$refs.pdfContainer;
+      for (let i = 0; i < pdfContainer.childNodes.length;) {
+        pdfContainer.removeChild(pdfContainer.childNodes[0])
       }
     },
   }
@@ -146,6 +148,8 @@ export default {
 }
 
 #pdfReader .catalogueContainer .catalogue {
+  height: 50%;
+
   font-size: 18px;
 
   line-height: 40px;

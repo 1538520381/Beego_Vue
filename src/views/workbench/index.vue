@@ -1441,8 +1441,8 @@ export default {
                   createTime: res.data.data[i]["created_time"],
                 });
               }
+              console.log(this.messages[this.messages.length - 1].content)
               this.answeringFlag = false;
-              console.log(10)
               this.$nextTick(() => {
                 this.scrollToBottom();
               });
@@ -1498,7 +1498,6 @@ export default {
       }
 
       this.answeringFlag = true;
-      console.log(4)
       this.answeringMessage = "";
       this.answeringIndex = 0;
       this.answeringClock = setInterval(() => {
@@ -1540,7 +1539,7 @@ export default {
         openWhenHidden: true,
         onmessage: (message) => {
           if (message.event === "conversation") {
-            this.answeringMessage += isEmpty(message.data) ? "" : message.data;
+            this.answeringMessage += message.data;
           } else if (message.event === "done") {
           } else if (message.event === "all") {
             this.answeringFlag = false;
@@ -1548,7 +1547,12 @@ export default {
             this.messages.push({
               role: "assistant",
               contentType: "text",
-              content: message.data.replaceAll("\\n", "\n"),
+              content: message.data.replaceAll("\\n", "\n")
+                  .replaceAll("\\\\", "\\")
+                  .replaceAll('\\"', '\"')
+                  .replaceAll("#", "\\#").replace(/\\u([0-9A-Fa-f]{4})/g, function (match, group) {
+                    return String.fromCharCode(parseInt(group, 16));
+                  })
             });
           }
         },

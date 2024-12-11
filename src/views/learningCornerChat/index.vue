@@ -795,26 +795,26 @@
                 </div>
               </div>
             </div>
-<!--            <div class="chatRowLoading">-->
-<!--              <div class="chatRobot" v-if="answeringFlag && loadingFlag">-->
-<!--                <el-image-->
-<!--                    class="chatRobotAvatar"-->
-<!--                    :src="-->
-<!--                            robotIdToRobot[-->
-<!--                              categoryIdToRobotId[-->
-<!--                                bookMenuItems[bookActive].categoryId-->
-<!--                              ]-->
-<!--                            ].avatar-->
-<!--                          "-->
-<!--                ></el-image>-->
-<!--                <div class="chatRobotMessage">-->
-<!--                  <v-md-preview-->
-<!--                      class="chatRobotMessageText chatMessageText"-->
-<!--                      text="快要生成出来了，请耐心等待"-->
-<!--                  ></v-md-preview>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </div>-->
+            <!--            <div class="chatRowLoading">-->
+            <!--              <div class="chatRobot" v-if="answeringFlag && loadingFlag">-->
+            <!--                <el-image-->
+            <!--                    class="chatRobotAvatar"-->
+            <!--                    :src="-->
+            <!--                            robotIdToRobot[-->
+            <!--                              categoryIdToRobotId[-->
+            <!--                                bookMenuItems[bookActive].categoryId-->
+            <!--                              ]-->
+            <!--                            ].avatar-->
+            <!--                          "-->
+            <!--                ></el-image>-->
+            <!--                <div class="chatRobotMessage">-->
+            <!--                  <v-md-preview-->
+            <!--                      class="chatRobotMessageText chatMessageText"-->
+            <!--                      text="快要生成出来了，请耐心等待"-->
+            <!--                  ></v-md-preview>-->
+            <!--                </div>-->
+            <!--              </div>-->
+            <!--            </div>-->
           </div>
           <el-tooltip
               content="回到底部"
@@ -1315,8 +1315,8 @@ export default {
     getResourceByBookId() {
       getResourceByBookId(this.bookMenuItems[this.bookActive].id).then((res) => {
         if (res.data.code === 200) {
+          this.resourceMenuItems = []
           if (!isEmpty(res.data.data)) {
-            this.resourceMenuItems = []
             for (let i = 0; i < res.data.data.length; i++) {
               this.resourceMenuItems.push({
                 id: res.data.data[i]["resource_id"],
@@ -1324,10 +1324,10 @@ export default {
                 fileId: res.data.data[i]["file_id"],
                 name: res.data.data[i]["resource_name"]
               })
-              this.resourceActive = 0
-              this.getFileByResourceId()
             }
           }
+          this.resourceActive = 0
+          this.getFileByResourceId()
         } else {
           this.$message.error(res.data.message);
         }
@@ -1337,12 +1337,16 @@ export default {
             this.$message.error("系统异常，请联系管理员");
           });
     },
-    getFileByResourceId() {
-      getFileByResourceId(this.resourceMenuItems[this.resourceActive].fileId).then(async (res) =>  {
+    async getFileByResourceId() {
+      while (this.pdfReader === null || this.pdfReader === undefined) {
+        await sleep(10)
+      }
+      if (isEmpty(this.resourceMenuItems)) {
+        this.pdfReader.removePdf()
+        return
+      }
+      getFileByResourceId(this.resourceMenuItems[this.resourceActive].fileId).then((res) => {
         if (res.data.code === 200) {
-          while (isEmpty(this.pdfReader)){
-            await sleep(10)
-          }
           this.pdfReader.loadPdf(res.data.data)
         } else {
           this.$message.error(res.data.message);

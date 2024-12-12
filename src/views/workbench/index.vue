@@ -662,11 +662,12 @@
                   v-if="sendQuestionFlag"
               >
               </v-md-preview>
-              <div
+              <v-md-preview
                   class="chatRobotMessageText chatMessageText latexMessageText"
                   ref="chatRobotMessageText"
                   v-else
-              ></div>
+                  :text="sendQuestionMessage"
+              ></v-md-preview>
             </div>
           </div>
         </el-scrollbar>
@@ -1731,7 +1732,7 @@ export default {
         this.imageQuestiuonText = ""
         return;
       }
-
+      let sendQuestionMessageTemp = ""
       this.sendQuestionFlag = true;
       this.sendQuestionMessage = "";
       this.sendQuestionIndex = 0;
@@ -1759,24 +1760,25 @@ export default {
         openWhenHidden: true,
         onmessage: (message) => {
           if (message.event === "conversation") {
-            this.sendQuestionMessage += isEmpty(message.data)
+            sendQuestionMessageTemp += isEmpty(message.data)
                 ? ""
                 : message.data;
+            this.sendQuestionMessage = this.latexToMarkdown1(sendQuestionMessageTemp)
           } else if (message.event === "done") {
           } else if (message.event === "all") {
             this.sendQuestionFlag = false;
             clearInterval(this.sendQuestionClock);
-            this.sendQuestionMessage = message.data
+            sendQuestionMessageTemp = message.data.substring(1,message.data.length - 1)
                 .replaceAll("\\n", "\n")
                 .replaceAll("\\\\", "\\")
                 .replaceAll("#", "\\#");
-            console.log(this.sendQuestionMessage);
-            this.$nextTick().then(() => {
-              this.renderLatex(
-                  this.$refs.chatRobotMessageText,
-                  this.sendQuestionMessage
-              );
-            });
+            this.sendQuestionMessage = this.latexToMarkdown(sendQuestionMessageTemp)
+            // this.$nextTick().then(() => {
+            //   this.renderLatex(
+            //       this.$refs.chatRobotMessageText,
+            //       this.sendQuestionMessage
+            //   );
+            // });
           }
         },
         onclose: () => {
@@ -1793,6 +1795,112 @@ export default {
           throw err;
         },
       });
+    },
+    latexToMarkdown1(text) {
+      console.log(text)
+      // 匹配行内公式 \( ... \)
+      const inlineLatex = /\\\((.*?)\\\)/gs;
+      // 匹配块级公式 \[ ... \]
+      const blockLatex = /\\\[(.*?)\\\]/gs;
+      // 替换行内公式为 Markdown 格式
+      text = text.replace(inlineLatex, (match, p1) => `$${p1}$`);
+      console.log(text)
+      // 替换块级公式为 Markdown 格式
+      text = text.replace(blockLatex, (match, p1) => `\n$$\n${p1}\n$$\n`);
+      console.log(text)
+
+      // 替换 LaTeX 中的特殊符号，去掉多余的转义符
+      text = text.replace(/\\,/g, '');  // 删除 LaTeX 的空格符号
+      text = text.replace(/\\/g, '');   // 移除反斜杠
+
+      // 替换常见数学函数符号，确保其符合 LaTeX 格式
+      const commonSymbols = {
+        'sin': '\\sin ',
+        'cos': '\\cos ',
+        'tan': '\\tan ',
+        'log': '\\log ',
+        'ln': '\\ln ',
+        'exp': '\\exp ',
+        'sqrt': '\\sqrt ',
+        'frac': '\\frac ',
+        'sum': '\\sum ',
+        'prod': '\\prod ',
+        'int': '\\int ',
+        'cdot': '\\cdot ',
+        'quad': '\\quad ',
+        "left": '',
+        "right": '',
+        "approx": '\\approx ',
+        "to": '\\to ',
+        "boxed": '\\boxed ',
+        "limlimits": '\\lim\\limits'
+      };
+      for (const [key, value] of Object.entries(commonSymbols)) {
+        const regex = new RegExp(`${key}`, 'g');
+        text = text.replace(regex, value);
+      }
+      text = text.replace(/(\$\$?)([^$]+?)\1/g, (match, delimiter, content) => {
+        // 如果是单个 $ 包裹的内容，进行 trim()
+        if (delimiter === "$$") {
+          return delimiter + content + delimiter; // 不做修改，保留 $$ 包裹
+        } else {
+          return delimiter + content.trim() + delimiter; // 对 $ 包裹的内容进行 trim()
+        }
+      });
+      return text;
+    },
+    latexToMarkdown(text) {
+      console.log(text)
+      // 匹配行内公式 \( ... \)
+      const inlineLatex = /\\\((.*?)\\\)/gs;
+      // 匹配块级公式 \[ ... \]
+      const blockLatex = /\\\[(.*?)\\\]/gs;
+      // 替换行内公式为 Markdown 格式
+      text = text.replace(inlineLatex, (match, p1) => `$${p1}$`);
+      console.log(text)
+      // 替换块级公式为 Markdown 格式
+      text = text.replace(blockLatex, (match, p1) => `$$${p1}$$`);
+      console.log(text)
+
+      // 替换 LaTeX 中的特殊符号，去掉多余的转义符
+      text = text.replace(/\\,/g, '');  // 删除 LaTeX 的空格符号
+      text = text.replace(/\\/g, '');   // 移除反斜杠
+
+      // 替换常见数学函数符号，确保其符合 LaTeX 格式
+      const commonSymbols = {
+        'sin': '\\sin',
+        'cos': '\\cos',
+        'tan': '\\tan',
+        'log': '\\log',
+        'ln': '\\ln',
+        'exp': '\\exp',
+        'sqrt': '\\sqrt',
+        'frac': '\\frac',
+        'sum': '\\sum',
+        'prod': '\\prod',
+        'int': '\\int',
+        'cdot': '\\cdot',
+        'quad': '\\quad',
+        "left": '',
+        "right": '',
+        "approx": '\\approx',
+        "to": '\\to',
+        "boxed": '\\boxed',
+        "limlimits": '\\lim\\limits'
+      };
+      for (const [key, value] of Object.entries(commonSymbols)) {
+        const regex = new RegExp(`${key}`, 'g');
+        text = text.replace(regex, value);
+      }
+      text = text.replace(/(\$\$?)([^$]+?)\1/g, (match, delimiter, content) => {
+        // 如果是单个 $ 包裹的内容，进行 trim()
+        if (delimiter === "$$") {
+          return delimiter + content + delimiter; // 不做修改，保留 $$ 包裹
+        } else {
+          return delimiter + content.trim() + delimiter; // 对 $ 包裹的内容进行 trim()
+        }
+      });
+      return text;
     },
     longTextDialogueSubmit(e) {
       if (!this.isGenerating()) {
@@ -2455,8 +2563,6 @@ export default {
   display: inline-block;
 
   vertical-align: top;
-
-  font-family: "Segoe UI Symbol";
 
   margin: 0 0 0 10px;
 

@@ -476,12 +476,12 @@ export default {
     login() {
       if (isEmpty(this.loginForm.email)) {
         this.$message.error("请输入邮箱")
-      } else if (!isEmail(this.loginForm.email)) {
+      } else if (!isEmail(this.loginForm.email.trim())) {
         this.$message.error('请输入合法的邮箱地址')
       } else if (isEmpty(this.loginForm.password)) {
         this.$message.error('请输入密码')
       } else {
-        login(this.loginForm).then((res) => {
+        login(this.loginForm.email.trim(), this.loginForm.password).then((res) => {
           if (res.data.code === 200) {
             this.$message.success(res.data.message)
             this.token = res.data.data.token

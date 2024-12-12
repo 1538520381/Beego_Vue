@@ -1,9 +1,9 @@
 import request from '@/utils/request'
 
-export function login(loginForm) {
+export function login(email, password) {
     return request({
         url: '/user/login', method: 'post', data: {
-            phoneOrEmail: loginForm.email, password: loginForm.password,
+            phoneOrEmail: email, password: password,
         }
     })
 }

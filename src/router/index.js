@@ -18,6 +18,8 @@ const routes = [{
     path: '/test2', name: 'Test2', component: () => import('@/views/test/index2.vue')
 }, {
     path: '/workbenchTest', name: 'workbenchTest', component: () => import("@/views/workbench/workbench.vue")
+}, {
+    path: '/homeTest', name: 'homeTest', component: () => import("@/views/home/home.vue")
 }]
 
 const router = createRouter({

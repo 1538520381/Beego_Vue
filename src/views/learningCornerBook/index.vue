@@ -96,7 +96,7 @@
           class="patternAngledTriangle patternBottomLeftAngledTriangleActive"
           :src="F2F2F2_BottomLeftAngledTriangle"
         ></el-image>
-        <div class="leftTitleActive">学习角</div>
+        <div class="leftTitleActive">期末必过角</div>
         <el-image
           class="patternRightRectangle patternRectangleUnactive"
           :src="C9C9C9_Square"
@@ -112,7 +112,7 @@
         <!--          工作台-->
         <!--        </div>-->
         <!--        <div class="pattern1 pattern1active">-->
-        <!--          学习角-->
+        <!--          期末必过角-->
         <!--        </div>-->
         <svg-icon
           class="shareIcon"

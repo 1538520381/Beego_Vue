@@ -126,7 +126,7 @@
             @click="toLearningCornerBook"
         ></el-image>
         <div class="leftTitleUnactive" @click="toLearningCornerBook">
-          学习角
+          期末必过角
         </div>
         <el-image
             class="patternRightRectangle patternRectangleActive"
@@ -138,7 +138,7 @@
         ></el-image>
         <div class="rightTitleActive">工作台</div>
         <!--        <div class="pattern1 pattern1unactive" @click="toLearningCornerBook">-->
-        <!--          学习角-->
+        <!--          期末必过角-->
         <!--        </div>-->
         <!--        <div class="pattern2 pattern2active">-->
         <!--          工作台-->

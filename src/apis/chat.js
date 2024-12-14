@@ -65,3 +65,11 @@ export function longTextDialogueQuery(robotId, sessionId, executeId) {
         }
     })
 }
+
+export function getRobotInformationById(robotId) {
+    return request({
+        url: '/bot/getById', method: 'post', data: {
+            bot_id: robotId
+        }
+    })
+}

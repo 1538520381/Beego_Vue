@@ -1067,404 +1067,404 @@
         </el-scrollbar>
       </div>
 
-<!--      <el-scrollbar-->
-<!--          class="chatArea"-->
-<!--          ref="chatArea"-->
-<!--          label="chatArea"-->
-<!--          id="chatArea"-->
-<!--          v-if="!isEmpty(robots) && robots[robotActive].frontFlag === 3"-->
-<!--      >-->
-<!--        <div class="chatAreaInner" ref="chatAreaInner">-->
-<!--          <div class="chatRow" v-for="(item, index) in messages">-->
-<!--            <div class="chatRobot" v-if="item.role === 'assistant'">-->
-<!--              <el-image-->
-<!--                  class="chatRobotAvatar"-->
-<!--                  :src="robots[robotActive].avatar"-->
-<!--              ></el-image>-->
-<!--              &lt;!&ndash;              <div class="chatRobotMessage" v-html="markdownToHtml(item.content)"></div>&ndash;&gt;-->
-<!--              <div class="chatRobotMessage">-->
-<!--                <v-md-preview-->
-<!--                    class="chatRobotMessageText chatMessageText"-->
-<!--                    :text="item.content"-->
-<!--                ></v-md-preview>-->
-<!--              </div>-->
-<!--            </div>-->
+      <!--      <el-scrollbar-->
+      <!--          class="chatArea"-->
+      <!--          ref="chatArea"-->
+      <!--          label="chatArea"-->
+      <!--          id="chatArea"-->
+      <!--          v-if="!isEmpty(robots) && robots[robotActive].frontFlag === 3"-->
+      <!--      >-->
+      <!--        <div class="chatAreaInner" ref="chatAreaInner">-->
+      <!--          <div class="chatRow" v-for="(item, index) in messages">-->
+      <!--            <div class="chatRobot" v-if="item.role === 'assistant'">-->
+      <!--              <el-image-->
+      <!--                  class="chatRobotAvatar"-->
+      <!--                  :src="robots[robotActive].avatar"-->
+      <!--              ></el-image>-->
+      <!--              &lt;!&ndash;              <div class="chatRobotMessage" v-html="markdownToHtml(item.content)"></div>&ndash;&gt;-->
+      <!--              <div class="chatRobotMessage">-->
+      <!--                <v-md-preview-->
+      <!--                    class="chatRobotMessageText chatMessageText"-->
+      <!--                    :text="item.content"-->
+      <!--                ></v-md-preview>-->
+      <!--              </div>-->
+      <!--            </div>-->
 
-<!--            <div class="chatUser" v-if="item.role === 'user'">-->
-<!--              <div class="chatUserMessage">-->
-<!--                <el-tooltip-->
-<!--                    :content="item.fileName + '.' + item.fileType"-->
-<!--                    placement="top"-->
-<!--                    effect="light"-->
-<!--                    v-if="!isEmpty(item.fileType)"-->
-<!--                >-->
-<!--                  <el-image-->
-<!--                      class="chatUserFilePicture"-->
-<!--                      :src="item.fileUrl"-->
-<!--                      fit="fill"-->
-<!--                      v-if="['jpg', 'png'].indexOf(item.fileType) !== -1"-->
-<!--                      @click="-->
-<!--                            downloadFile(-->
-<!--                              item.fileUrl,-->
-<!--                              item.fileName + '.' + item.fileType-->
-<!--                            )-->
-<!--                          "-->
-<!--                  ></el-image>-->
-<!--                  <svg-icon-->
-<!--                      class="chatUserFileSvg"-->
-<!--                      icon-class="csv"-->
-<!--                      v-else-if="['csv'].indexOf(item.fileType) !== -1"-->
-<!--                      @click="-->
-<!--                            downloadFile(-->
-<!--                              item.fileUrl,-->
-<!--                              item.fileName + '.' + item.fileType-->
-<!--                            )-->
-<!--                          "-->
-<!--                  ></svg-icon>-->
-<!--                  <svg-icon-->
-<!--                      class="chatUserFileSvg"-->
-<!--                      icon-class="excel"-->
-<!--                      v-else-if="['xlsx', 'xls'].indexOf(item.fileType) !== -1"-->
-<!--                      @click="-->
-<!--                            downloadFile(-->
-<!--                              item.fileUrl,-->
-<!--                              item.fileName + '.' + item.fileType-->
-<!--                            )-->
-<!--                          "-->
-<!--                  ></svg-icon>-->
-<!--                  <svg-icon-->
-<!--                      class="chatUserFileSvg"-->
-<!--                      icon-class="mp4"-->
-<!--                      v-else-if="['mp4'].indexOf(item.fileType) !== -1"-->
-<!--                      @click="-->
-<!--                            downloadFile(-->
-<!--                              item.fileUrl,-->
-<!--                              item.fileName + '.' + item.fileType-->
-<!--                            )-->
-<!--                          "-->
-<!--                  ></svg-icon>-->
-<!--                  <svg-icon-->
-<!--                      class="chatUserFileSvg"-->
-<!--                      icon-class="pdf"-->
-<!--                      v-else-if="['pdf'].indexOf(item.fileType) !== -1"-->
-<!--                      @click="-->
-<!--                            downloadFile(-->
-<!--                              item.fileUrl,-->
-<!--                              item.fileName + '.' + item.fileType-->
-<!--                            )-->
-<!--                          "-->
-<!--                  ></svg-icon>-->
-<!--                  <svg-icon-->
-<!--                      class="chatUserFileSvg"-->
-<!--                      icon-class="ppt"-->
-<!--                      v-else-if="['ppt'].indexOf(item.fileType) !== -1"-->
-<!--                      @click="-->
-<!--                            downloadFile(-->
-<!--                              item.fileUrl,-->
-<!--                              item.fileName + '.' + item.fileType-->
-<!--                            )-->
-<!--                          "-->
-<!--                  ></svg-icon>-->
-<!--                  <svg-icon-->
-<!--                      class="chatUserFileSvg"-->
-<!--                      icon-class="rar"-->
-<!--                      v-else-if="['rar'].indexOf(item.fileType) !== -1"-->
-<!--                      @click="-->
-<!--                            downloadFile(-->
-<!--                              item.fileUrl,-->
-<!--                              item.fileName + '.' + item.fileType-->
-<!--                            )-->
-<!--                          "-->
-<!--                  ></svg-icon>-->
-<!--                  <svg-icon-->
-<!--                      class="chatUserFileSvg"-->
-<!--                      icon-class="txt"-->
-<!--                      v-else-if="['txt'].indexOf(item.fileType) !== -1"-->
-<!--                      @click="-->
-<!--                            downloadFile(-->
-<!--                              item.fileUrl,-->
-<!--                              item.fileName + '.' + item.fileType-->
-<!--                            )-->
-<!--                          "-->
-<!--                  ></svg-icon>-->
-<!--                  <svg-icon-->
-<!--                      class="chatUserFileSvg"-->
-<!--                      icon-class="word"-->
-<!--                      v-else-if="['docx', 'doc'].indexOf(item.fileType) !== -1"-->
-<!--                      @click="-->
-<!--                            downloadFile(-->
-<!--                              item.fileUrl,-->
-<!--                              item.fileName + '.' + item.fileType-->
-<!--                            )-->
-<!--                          "-->
-<!--                  ></svg-icon>-->
-<!--                  <svg-icon-->
-<!--                      class="chatUserFileSvg"-->
-<!--                      icon-class="zip"-->
-<!--                      v-else-if="['zip'].indexOf(item.fileType) !== -1"-->
-<!--                      @click="-->
-<!--                            downloadFile(-->
-<!--                              item.fileUrl,-->
-<!--                              item.fileName + '.' + item.fileType-->
-<!--                            )-->
-<!--                          "-->
-<!--                  ></svg-icon>-->
-<!--                  <svg-icon-->
-<!--                      class="chatUserFileSvg"-->
-<!--                      icon-class="unknownFile"-->
-<!--                      v-else-->
-<!--                      @click="-->
-<!--                            downloadFile(-->
-<!--                              item.fileUrl,-->
-<!--                              item.fileName + '.' + item.fileType-->
-<!--                            )-->
-<!--                          "-->
-<!--                  ></svg-icon>-->
-<!--                </el-tooltip>-->
-<!--                &lt;!&ndash;              <div class="chatUserMessage" v-html="markdownToHtml(item.content)"></div>&ndash;&gt;-->
-<!--                <v-md-preview-->
-<!--                    class="chatUserMessageText chatMessageText"-->
-<!--                    :text="item.content"-->
-<!--                    v-if="!isEmpty(item.content)"-->
-<!--                ></v-md-preview>-->
-<!--              </div>-->
-<!--              <el-image-->
-<!--                  class="chatUserAvatar"-->
-<!--                  :src="-->
-<!--                        isEmpty(user.avatarUrl)-->
-<!--                          ? user.gender === 0 || isEmpty(user.gender)-->
-<!--                            ? BoyAvatar-->
-<!--                            : GirlAvatar-->
-<!--                          : user.avatarUrl-->
-<!--                      "-->
-<!--              ></el-image>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--          <div class="chatRowLoading">-->
-<!--            <div class="chatRobot" v-if="isGenerating()">-->
-<!--              <el-image-->
-<!--                  class="chatRobotAvatar"-->
-<!--                  :src="robots[robotActive].avatar"-->
-<!--              ></el-image>-->
-<!--              <div class="chatRobotMessage">-->
-<!--                <v-md-preview-->
-<!--                    class="chatRobotMessageText chatMessageText"-->
-<!--                    :text="-->
-<!--                          loadingTime % 3 === 0-->
-<!--                            ? '正在分析中.'-->
-<!--                            : loadingTime % 3 === 1-->
-<!--                            ? '正在分析中. .'-->
-<!--                            : '正在分析中. . .'-->
-<!--                        "-->
-<!--                >-->
-<!--                </v-md-preview>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--        <el-tooltip-->
-<!--            content="回到底部"-->
-<!--            placement="top-start"-->
-<!--            effect="light"-->
-<!--        >-->
-<!--          <el-button-->
-<!--              class="scrollToBottomButton"-->
-<!--              :icon="ArrowDownBold"-->
-<!--              circle-->
-<!--              @click="scrollToBottom"-->
-<!--          ></el-button>-->
-<!--        </el-tooltip>-->
-<!--      </el-scrollbar>-->
+      <!--            <div class="chatUser" v-if="item.role === 'user'">-->
+      <!--              <div class="chatUserMessage">-->
+      <!--                <el-tooltip-->
+      <!--                    :content="item.fileName + '.' + item.fileType"-->
+      <!--                    placement="top"-->
+      <!--                    effect="light"-->
+      <!--                    v-if="!isEmpty(item.fileType)"-->
+      <!--                >-->
+      <!--                  <el-image-->
+      <!--                      class="chatUserFilePicture"-->
+      <!--                      :src="item.fileUrl"-->
+      <!--                      fit="fill"-->
+      <!--                      v-if="['jpg', 'png'].indexOf(item.fileType) !== -1"-->
+      <!--                      @click="-->
+      <!--                            downloadFile(-->
+      <!--                              item.fileUrl,-->
+      <!--                              item.fileName + '.' + item.fileType-->
+      <!--                            )-->
+      <!--                          "-->
+      <!--                  ></el-image>-->
+      <!--                  <svg-icon-->
+      <!--                      class="chatUserFileSvg"-->
+      <!--                      icon-class="csv"-->
+      <!--                      v-else-if="['csv'].indexOf(item.fileType) !== -1"-->
+      <!--                      @click="-->
+      <!--                            downloadFile(-->
+      <!--                              item.fileUrl,-->
+      <!--                              item.fileName + '.' + item.fileType-->
+      <!--                            )-->
+      <!--                          "-->
+      <!--                  ></svg-icon>-->
+      <!--                  <svg-icon-->
+      <!--                      class="chatUserFileSvg"-->
+      <!--                      icon-class="excel"-->
+      <!--                      v-else-if="['xlsx', 'xls'].indexOf(item.fileType) !== -1"-->
+      <!--                      @click="-->
+      <!--                            downloadFile(-->
+      <!--                              item.fileUrl,-->
+      <!--                              item.fileName + '.' + item.fileType-->
+      <!--                            )-->
+      <!--                          "-->
+      <!--                  ></svg-icon>-->
+      <!--                  <svg-icon-->
+      <!--                      class="chatUserFileSvg"-->
+      <!--                      icon-class="mp4"-->
+      <!--                      v-else-if="['mp4'].indexOf(item.fileType) !== -1"-->
+      <!--                      @click="-->
+      <!--                            downloadFile(-->
+      <!--                              item.fileUrl,-->
+      <!--                              item.fileName + '.' + item.fileType-->
+      <!--                            )-->
+      <!--                          "-->
+      <!--                  ></svg-icon>-->
+      <!--                  <svg-icon-->
+      <!--                      class="chatUserFileSvg"-->
+      <!--                      icon-class="pdf"-->
+      <!--                      v-else-if="['pdf'].indexOf(item.fileType) !== -1"-->
+      <!--                      @click="-->
+      <!--                            downloadFile(-->
+      <!--                              item.fileUrl,-->
+      <!--                              item.fileName + '.' + item.fileType-->
+      <!--                            )-->
+      <!--                          "-->
+      <!--                  ></svg-icon>-->
+      <!--                  <svg-icon-->
+      <!--                      class="chatUserFileSvg"-->
+      <!--                      icon-class="ppt"-->
+      <!--                      v-else-if="['ppt'].indexOf(item.fileType) !== -1"-->
+      <!--                      @click="-->
+      <!--                            downloadFile(-->
+      <!--                              item.fileUrl,-->
+      <!--                              item.fileName + '.' + item.fileType-->
+      <!--                            )-->
+      <!--                          "-->
+      <!--                  ></svg-icon>-->
+      <!--                  <svg-icon-->
+      <!--                      class="chatUserFileSvg"-->
+      <!--                      icon-class="rar"-->
+      <!--                      v-else-if="['rar'].indexOf(item.fileType) !== -1"-->
+      <!--                      @click="-->
+      <!--                            downloadFile(-->
+      <!--                              item.fileUrl,-->
+      <!--                              item.fileName + '.' + item.fileType-->
+      <!--                            )-->
+      <!--                          "-->
+      <!--                  ></svg-icon>-->
+      <!--                  <svg-icon-->
+      <!--                      class="chatUserFileSvg"-->
+      <!--                      icon-class="txt"-->
+      <!--                      v-else-if="['txt'].indexOf(item.fileType) !== -1"-->
+      <!--                      @click="-->
+      <!--                            downloadFile(-->
+      <!--                              item.fileUrl,-->
+      <!--                              item.fileName + '.' + item.fileType-->
+      <!--                            )-->
+      <!--                          "-->
+      <!--                  ></svg-icon>-->
+      <!--                  <svg-icon-->
+      <!--                      class="chatUserFileSvg"-->
+      <!--                      icon-class="word"-->
+      <!--                      v-else-if="['docx', 'doc'].indexOf(item.fileType) !== -1"-->
+      <!--                      @click="-->
+      <!--                            downloadFile(-->
+      <!--                              item.fileUrl,-->
+      <!--                              item.fileName + '.' + item.fileType-->
+      <!--                            )-->
+      <!--                          "-->
+      <!--                  ></svg-icon>-->
+      <!--                  <svg-icon-->
+      <!--                      class="chatUserFileSvg"-->
+      <!--                      icon-class="zip"-->
+      <!--                      v-else-if="['zip'].indexOf(item.fileType) !== -1"-->
+      <!--                      @click="-->
+      <!--                            downloadFile(-->
+      <!--                              item.fileUrl,-->
+      <!--                              item.fileName + '.' + item.fileType-->
+      <!--                            )-->
+      <!--                          "-->
+      <!--                  ></svg-icon>-->
+      <!--                  <svg-icon-->
+      <!--                      class="chatUserFileSvg"-->
+      <!--                      icon-class="unknownFile"-->
+      <!--                      v-else-->
+      <!--                      @click="-->
+      <!--                            downloadFile(-->
+      <!--                              item.fileUrl,-->
+      <!--                              item.fileName + '.' + item.fileType-->
+      <!--                            )-->
+      <!--                          "-->
+      <!--                  ></svg-icon>-->
+      <!--                </el-tooltip>-->
+      <!--                &lt;!&ndash;              <div class="chatUserMessage" v-html="markdownToHtml(item.content)"></div>&ndash;&gt;-->
+      <!--                <v-md-preview-->
+      <!--                    class="chatUserMessageText chatMessageText"-->
+      <!--                    :text="item.content"-->
+      <!--                    v-if="!isEmpty(item.content)"-->
+      <!--                ></v-md-preview>-->
+      <!--              </div>-->
+      <!--              <el-image-->
+      <!--                  class="chatUserAvatar"-->
+      <!--                  :src="-->
+      <!--                        isEmpty(user.avatarUrl)-->
+      <!--                          ? user.gender === 0 || isEmpty(user.gender)-->
+      <!--                            ? BoyAvatar-->
+      <!--                            : GirlAvatar-->
+      <!--                          : user.avatarUrl-->
+      <!--                      "-->
+      <!--              ></el-image>-->
+      <!--            </div>-->
+      <!--          </div>-->
+      <!--          <div class="chatRowLoading">-->
+      <!--            <div class="chatRobot" v-if="isGenerating()">-->
+      <!--              <el-image-->
+      <!--                  class="chatRobotAvatar"-->
+      <!--                  :src="robots[robotActive].avatar"-->
+      <!--              ></el-image>-->
+      <!--              <div class="chatRobotMessage">-->
+      <!--                <v-md-preview-->
+      <!--                    class="chatRobotMessageText chatMessageText"-->
+      <!--                    :text="-->
+      <!--                          loadingTime % 3 === 0-->
+      <!--                            ? '正在分析中.'-->
+      <!--                            : loadingTime % 3 === 1-->
+      <!--                            ? '正在分析中. .'-->
+      <!--                            : '正在分析中. . .'-->
+      <!--                        "-->
+      <!--                >-->
+      <!--                </v-md-preview>-->
+      <!--              </div>-->
+      <!--            </div>-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--        <el-tooltip-->
+      <!--            content="回到底部"-->
+      <!--            placement="top-start"-->
+      <!--            effect="light"-->
+      <!--        >-->
+      <!--          <el-button-->
+      <!--              class="scrollToBottomButton"-->
+      <!--              :icon="ArrowDownBold"-->
+      <!--              circle-->
+      <!--              @click="scrollToBottom"-->
+      <!--          ></el-button>-->
+      <!--        </el-tooltip>-->
+      <!--      </el-scrollbar>-->
 
-<!--      <div-->
-<!--          class="inputArea1"-->
-<!--          v-if="!isEmpty(robots) && robots[robotActive].frontFlag === 3"-->
-<!--      >-->
-<!--        <el-upload-->
-<!--            class="upload-demo"-->
-<!--            action="/api/file/uploadPicture?bucketType=1"-->
-<!--            :show-file-list="false"-->
-<!--            :on-remove="removeFile"-->
-<!--            :on-success="fileUpload"-->
-<!--        >-->
-<!--          <el-tooltip-->
-<!--              content="上传附件"-->
-<!--              placement="top-start"-->
-<!--              effect="light"-->
-<!--          >-->
-<!--            <el-button class="fileUploadButton" :icon="Folder" circle></el-button>-->
-<!--          </el-tooltip>-->
-<!--        </el-upload>-->
-<!--        <div class="input">-->
-<!--          &lt;!&ndash;          <el-button v-for="robots[robotsActive].p></el-button>&ndash;&gt;-->
-<!--          <div class="prompts">-->
-<!--            <el-button-->
-<!--                class="prompt"-->
-<!--                v-for="(item, value) in robots[robotActive].prompts"-->
-<!--                @click="chatPrompts(item)"-->
-<!--            >-->
-<!--              {{ item }}-->
-<!--            </el-button>-->
-<!--          </div>-->
-<!--          <el-tooltip-->
-<!--              :content="file.fileName + '.' + file.fileType"-->
-<!--              placement="top"-->
-<!--              effect="light"-->
-<!--              v-if="!isEmpty(file)"-->
-<!--          >-->
-<!--            <div class="file">-->
-<!--              <el-image-->
-<!--                  class="picture"-->
-<!--                  :src="file.fileUrl"-->
-<!--                  fit="contain"-->
-<!--                  v-if="['jpg', 'png'].indexOf(file.fileType) !== -1"-->
-<!--                  @click="-->
-<!--                        downloadFile(-->
-<!--                          file.fileUrl,-->
-<!--                          file.fileName + '.' + file.fileType-->
-<!--                        )-->
-<!--                      "-->
-<!--              ></el-image>-->
-<!--              <svg-icon-->
-<!--                  class="fileSvg"-->
-<!--                  icon-class="csv"-->
-<!--                  v-else-if="['csv'].indexOf(file.fileType) !== -1"-->
-<!--                  @click="-->
-<!--                        downloadFile(-->
-<!--                          file.fileUrl,-->
-<!--                          file.fileName + '.' + file.fileType-->
-<!--                        )-->
-<!--                      "-->
-<!--              ></svg-icon>-->
-<!--              <svg-icon-->
-<!--                  class="fileSvg"-->
-<!--                  icon-class="excel"-->
-<!--                  v-else-if="['xlsx', 'xls'].indexOf(file.fileType) !== -1"-->
-<!--                  @click="-->
-<!--                        downloadFile(-->
-<!--                          file.fileUrl,-->
-<!--                          file.fileName + '.' + file.fileType-->
-<!--                        )-->
-<!--                      "-->
-<!--              ></svg-icon>-->
-<!--              <svg-icon-->
-<!--                  class="fileSvg"-->
-<!--                  icon-class="mp4"-->
-<!--                  v-else-if="['mp4'].indexOf(file.fileType) !== -1"-->
-<!--                  @click="-->
-<!--                        downloadFile(-->
-<!--                          file.fileUrl,-->
-<!--                          file.fileName + '.' + file.fileType-->
-<!--                        )-->
-<!--                      "-->
-<!--              ></svg-icon>-->
-<!--              <svg-icon-->
-<!--                  class="fileSvg"-->
-<!--                  icon-class="pdf"-->
-<!--                  v-else-if="['pdf'].indexOf(file.fileType) !== -1"-->
-<!--                  @click="-->
-<!--                        downloadFile(-->
-<!--                          file.fileUrl,-->
-<!--                          file.fileName + '.' + file.fileType-->
-<!--                        )-->
-<!--                      "-->
-<!--              ></svg-icon>-->
-<!--              <svg-icon-->
-<!--                  class="fileSvg"-->
-<!--                  icon-class="ppt"-->
-<!--                  v-else-if="['ppt'].indexOf(file.fileType) !== -1"-->
-<!--                  @click="-->
-<!--                        downloadFile(-->
-<!--                          file.fileUrl,-->
-<!--                          file.fileName + '.' + file.fileType-->
-<!--                        )-->
-<!--                      "-->
-<!--              ></svg-icon>-->
-<!--              <svg-icon-->
-<!--                  class="fileSvg"-->
-<!--                  icon-class="rar"-->
-<!--                  v-else-if="['rar'].indexOf(file.fileType) !== -1"-->
-<!--                  @click="-->
-<!--                        downloadFile(-->
-<!--                          file.fileUrl,-->
-<!--                          file.fileName + '.' + file.fileType-->
-<!--                        )-->
-<!--                      "-->
-<!--              ></svg-icon>-->
-<!--              <svg-icon-->
-<!--                  class="fileSvg"-->
-<!--                  icon-class="txt"-->
-<!--                  v-else-if="['txt'].indexOf(file.fileType) !== -1"-->
-<!--                  @click="-->
-<!--                        downloadFile(-->
-<!--                          file.fileUrl,-->
-<!--                          file.fileName + '.' + file.fileType-->
-<!--                        )-->
-<!--                      "-->
-<!--              ></svg-icon>-->
-<!--              <svg-icon-->
-<!--                  class="fileSvg"-->
-<!--                  icon-class="word"-->
-<!--                  v-else-if="['docx', 'doc'].indexOf(file.fileType) !== -1"-->
-<!--                  @click="-->
-<!--                        downloadFile(-->
-<!--                          file.fileUrl,-->
-<!--                          file.fileName + '.' + file.fileType-->
-<!--                        )-->
-<!--                      "-->
-<!--              ></svg-icon>-->
-<!--              <svg-icon-->
-<!--                  class="fileSvg"-->
-<!--                  icon-class="zip"-->
-<!--                  v-else-if="['zip'].indexOf(file.fileType) !== -1"-->
-<!--                  @click="-->
-<!--                        downloadFile(-->
-<!--                          file.fileUrl,-->
-<!--                          file.fileName + '.' + file.fileType-->
-<!--                        )-->
-<!--                      "-->
-<!--              ></svg-icon>-->
-<!--              <svg-icon-->
-<!--                  class="fileSvg"-->
-<!--                  icon-class="unknownFile"-->
-<!--                  v-else-->
-<!--                  @click="-->
-<!--                        downloadFile(-->
-<!--                          file.fileUrl,-->
-<!--                          file.fileName + '.' + file.fileType-->
-<!--                        )-->
-<!--                      "-->
-<!--              ></svg-icon>-->
-<!--              <svg-icon-->
-<!--                  class="deleteFile"-->
-<!--                  icon-class="fork"-->
-<!--                  @click="removeFile"-->
-<!--              ></svg-icon>-->
-<!--            </div>-->
-<!--          </el-tooltip>-->
-<!--          <el-input-->
-<!--              class="chatInput"-->
-<!--              v-model="chatInput"-->
-<!--              :rows="2"-->
-<!--              :autosize="{ minRows: 2, maxRows: 8 }"-->
-<!--              type="textarea"-->
-<!--              resize="none"-->
-<!--              placeholder="开始你的提问吧"-->
-<!--              @keydown="longTextDialogueSubmit"-->
-<!--          />-->
-<!--        </div>-->
-<!--        <el-button class="sendButton" @click="longTextDialogueSubmit">-->
-<!--          <el-tooltip-->
-<!--              content="发送"-->
-<!--              placement="top-start"-->
-<!--              effect="light"-->
-<!--          >-->
-<!--            <svg-icon class="sendButtonIcon" icon-class="send"></svg-icon>-->
-<!--          </el-tooltip>-->
-<!--        </el-button>-->
-<!--      </div>-->
-<!--      <div v-if="!isEmpty(robots) && robots[robotActive].frontFlag === 3"-->
-<!--           style="width: 100%;height: 20px;"></div>-->
+      <!--      <div-->
+      <!--          class="inputArea1"-->
+      <!--          v-if="!isEmpty(robots) && robots[robotActive].frontFlag === 3"-->
+      <!--      >-->
+      <!--        <el-upload-->
+      <!--            class="upload-demo"-->
+      <!--            action="/api/file/uploadPicture?bucketType=1"-->
+      <!--            :show-file-list="false"-->
+      <!--            :on-remove="removeFile"-->
+      <!--            :on-success="fileUpload"-->
+      <!--        >-->
+      <!--          <el-tooltip-->
+      <!--              content="上传附件"-->
+      <!--              placement="top-start"-->
+      <!--              effect="light"-->
+      <!--          >-->
+      <!--            <el-button class="fileUploadButton" :icon="Folder" circle></el-button>-->
+      <!--          </el-tooltip>-->
+      <!--        </el-upload>-->
+      <!--        <div class="input">-->
+      <!--          &lt;!&ndash;          <el-button v-for="robots[robotsActive].p></el-button>&ndash;&gt;-->
+      <!--          <div class="prompts">-->
+      <!--            <el-button-->
+      <!--                class="prompt"-->
+      <!--                v-for="(item, value) in robots[robotActive].prompts"-->
+      <!--                @click="chatPrompts(item)"-->
+      <!--            >-->
+      <!--              {{ item }}-->
+      <!--            </el-button>-->
+      <!--          </div>-->
+      <!--          <el-tooltip-->
+      <!--              :content="file.fileName + '.' + file.fileType"-->
+      <!--              placement="top"-->
+      <!--              effect="light"-->
+      <!--              v-if="!isEmpty(file)"-->
+      <!--          >-->
+      <!--            <div class="file">-->
+      <!--              <el-image-->
+      <!--                  class="picture"-->
+      <!--                  :src="file.fileUrl"-->
+      <!--                  fit="contain"-->
+      <!--                  v-if="['jpg', 'png'].indexOf(file.fileType) !== -1"-->
+      <!--                  @click="-->
+      <!--                        downloadFile(-->
+      <!--                          file.fileUrl,-->
+      <!--                          file.fileName + '.' + file.fileType-->
+      <!--                        )-->
+      <!--                      "-->
+      <!--              ></el-image>-->
+      <!--              <svg-icon-->
+      <!--                  class="fileSvg"-->
+      <!--                  icon-class="csv"-->
+      <!--                  v-else-if="['csv'].indexOf(file.fileType) !== -1"-->
+      <!--                  @click="-->
+      <!--                        downloadFile(-->
+      <!--                          file.fileUrl,-->
+      <!--                          file.fileName + '.' + file.fileType-->
+      <!--                        )-->
+      <!--                      "-->
+      <!--              ></svg-icon>-->
+      <!--              <svg-icon-->
+      <!--                  class="fileSvg"-->
+      <!--                  icon-class="excel"-->
+      <!--                  v-else-if="['xlsx', 'xls'].indexOf(file.fileType) !== -1"-->
+      <!--                  @click="-->
+      <!--                        downloadFile(-->
+      <!--                          file.fileUrl,-->
+      <!--                          file.fileName + '.' + file.fileType-->
+      <!--                        )-->
+      <!--                      "-->
+      <!--              ></svg-icon>-->
+      <!--              <svg-icon-->
+      <!--                  class="fileSvg"-->
+      <!--                  icon-class="mp4"-->
+      <!--                  v-else-if="['mp4'].indexOf(file.fileType) !== -1"-->
+      <!--                  @click="-->
+      <!--                        downloadFile(-->
+      <!--                          file.fileUrl,-->
+      <!--                          file.fileName + '.' + file.fileType-->
+      <!--                        )-->
+      <!--                      "-->
+      <!--              ></svg-icon>-->
+      <!--              <svg-icon-->
+      <!--                  class="fileSvg"-->
+      <!--                  icon-class="pdf"-->
+      <!--                  v-else-if="['pdf'].indexOf(file.fileType) !== -1"-->
+      <!--                  @click="-->
+      <!--                        downloadFile(-->
+      <!--                          file.fileUrl,-->
+      <!--                          file.fileName + '.' + file.fileType-->
+      <!--                        )-->
+      <!--                      "-->
+      <!--              ></svg-icon>-->
+      <!--              <svg-icon-->
+      <!--                  class="fileSvg"-->
+      <!--                  icon-class="ppt"-->
+      <!--                  v-else-if="['ppt'].indexOf(file.fileType) !== -1"-->
+      <!--                  @click="-->
+      <!--                        downloadFile(-->
+      <!--                          file.fileUrl,-->
+      <!--                          file.fileName + '.' + file.fileType-->
+      <!--                        )-->
+      <!--                      "-->
+      <!--              ></svg-icon>-->
+      <!--              <svg-icon-->
+      <!--                  class="fileSvg"-->
+      <!--                  icon-class="rar"-->
+      <!--                  v-else-if="['rar'].indexOf(file.fileType) !== -1"-->
+      <!--                  @click="-->
+      <!--                        downloadFile(-->
+      <!--                          file.fileUrl,-->
+      <!--                          file.fileName + '.' + file.fileType-->
+      <!--                        )-->
+      <!--                      "-->
+      <!--              ></svg-icon>-->
+      <!--              <svg-icon-->
+      <!--                  class="fileSvg"-->
+      <!--                  icon-class="txt"-->
+      <!--                  v-else-if="['txt'].indexOf(file.fileType) !== -1"-->
+      <!--                  @click="-->
+      <!--                        downloadFile(-->
+      <!--                          file.fileUrl,-->
+      <!--                          file.fileName + '.' + file.fileType-->
+      <!--                        )-->
+      <!--                      "-->
+      <!--              ></svg-icon>-->
+      <!--              <svg-icon-->
+      <!--                  class="fileSvg"-->
+      <!--                  icon-class="word"-->
+      <!--                  v-else-if="['docx', 'doc'].indexOf(file.fileType) !== -1"-->
+      <!--                  @click="-->
+      <!--                        downloadFile(-->
+      <!--                          file.fileUrl,-->
+      <!--                          file.fileName + '.' + file.fileType-->
+      <!--                        )-->
+      <!--                      "-->
+      <!--              ></svg-icon>-->
+      <!--              <svg-icon-->
+      <!--                  class="fileSvg"-->
+      <!--                  icon-class="zip"-->
+      <!--                  v-else-if="['zip'].indexOf(file.fileType) !== -1"-->
+      <!--                  @click="-->
+      <!--                        downloadFile(-->
+      <!--                          file.fileUrl,-->
+      <!--                          file.fileName + '.' + file.fileType-->
+      <!--                        )-->
+      <!--                      "-->
+      <!--              ></svg-icon>-->
+      <!--              <svg-icon-->
+      <!--                  class="fileSvg"-->
+      <!--                  icon-class="unknownFile"-->
+      <!--                  v-else-->
+      <!--                  @click="-->
+      <!--                        downloadFile(-->
+      <!--                          file.fileUrl,-->
+      <!--                          file.fileName + '.' + file.fileType-->
+      <!--                        )-->
+      <!--                      "-->
+      <!--              ></svg-icon>-->
+      <!--              <svg-icon-->
+      <!--                  class="deleteFile"-->
+      <!--                  icon-class="fork"-->
+      <!--                  @click="removeFile"-->
+      <!--              ></svg-icon>-->
+      <!--            </div>-->
+      <!--          </el-tooltip>-->
+      <!--          <el-input-->
+      <!--              class="chatInput"-->
+      <!--              v-model="chatInput"-->
+      <!--              :rows="2"-->
+      <!--              :autosize="{ minRows: 2, maxRows: 8 }"-->
+      <!--              type="textarea"-->
+      <!--              resize="none"-->
+      <!--              placeholder="开始你的提问吧"-->
+      <!--              @keydown="longTextDialogueSubmit"-->
+      <!--          />-->
+      <!--        </div>-->
+      <!--        <el-button class="sendButton" @click="longTextDialogueSubmit">-->
+      <!--          <el-tooltip-->
+      <!--              content="发送"-->
+      <!--              placement="top-start"-->
+      <!--              effect="light"-->
+      <!--          >-->
+      <!--            <svg-icon class="sendButtonIcon" icon-class="send"></svg-icon>-->
+      <!--          </el-tooltip>-->
+      <!--        </el-button>-->
+      <!--      </div>-->
+      <!--      <div v-if="!isEmpty(robots) && robots[robotActive].frontFlag === 3"-->
+      <!--           style="width: 100%;height: 20px;"></div>-->
     </div>
 
     <el-dialog
@@ -1819,7 +1819,7 @@ export default {
       return getMessageList(this.sessions[this.sessionActive].id)
           .then((res) => {
             if (res.data.code === 200) {
-              if(this.longRobotFlag){
+              if (this.longRobotFlag) {
                 this.messages = [
                   {
                     role: "assistant",
@@ -1827,7 +1827,7 @@ export default {
                     content: this.longRobot.description,
                   },
                 ];
-              }else{
+              } else {
                 this.messages = [
                   {
                     role: "assistant",
@@ -1958,7 +1958,7 @@ export default {
               content: message.data.replaceAll("\\n", "\n")
                   .replaceAll("\\\\", "\\")
                   .replaceAll('\\"', '\"')
-                  .replaceAll("#", "\\#").replace(/\\u([0-9A-Fa-f]{4})/g, function (match, group) {
+                  .replace(/\\u([0-9A-Fa-f]{4})/g, function (match, group) {
                     return String.fromCharCode(parseInt(group, 16));
                   })
             });

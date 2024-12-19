@@ -16,8 +16,21 @@ import '@kangc/v-md-editor/lib/style/preview.css'
 import '@kangc/v-md-editor/lib/theme/style/github.css'
 
 
+import mavonEditor from 'mavon-editor'
+import 'mavon-editor/dist/css/index.css'
+import 'highlight.js/styles/atom-one-light.css' //样式
+
+import VueLatex from 'vatex'
+
+//创建v-highlight全局指令
+
 VMdPreview.use(githubTheme, {
     Hljs: hljs
 }).use(createKatexPlugin())
 
-createApp(App).use(router).use(ElementPlus).use(store).use(VMdPreview).component('svg-icon', SvgIcon).mount('#app')
+createApp(App).use(router).use(ElementPlus).use(store).use(VMdPreview).use(mavonEditor).use(VueLatex).directive('highlight', function (el) {
+    let blocks = el.querySelectorAll('pre code');
+    blocks.forEach((block) => {
+        hljs.highlightBlock(block)
+    })
+}).component('svg-icon', SvgIcon).mount('#app')

@@ -23,11 +23,11 @@ body {
   margin: 0;
 
   overflow: hidden;
-
-  font-family: 'Source Han Serif' !important;
 }
 
 #app {
+  position: fixed;
+
   width: 100%;
   height: 100%;
 }

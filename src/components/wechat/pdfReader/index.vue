@@ -18,14 +18,12 @@
 import * as PdfJs from "pdfjs-dist/legacy/build/pdf.js";
 import {getDocument} from "pdfjs-dist";
 import {isEmpty} from "@/utils/common";
-import SvgIcon from "@/components/svgIcon/index.vue";
 
 PdfJs.GlobalWorkerOptions.workerSrc = require("pdfjs-dist/build/pdf.worker.entry");
 
 let pdf = null
 export default {
   name: 'PdfReader',
-  components: {SvgIcon},
   props: {
     user: Object,
   },

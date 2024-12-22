@@ -15,14 +15,14 @@
           <!--               v-if="md != null && !isEmpty(content)  && !isEmpty(answer)"></div>-->
           <vue-latex :expression="html" display-mode/>
           <!--          <div v-html="html" />-->
-          <div class="toolBar" v-if="toolBarFlag">
+          <div class="toolBar">
             <el-tooltip
                 content="复制"
                 placement="top"
                 effect="light"
             >
-              <svg-icon class="toolIcon" icon-class="copy"
-                        @click="copy(markdownSpecialCharacterReplace(content))"></svg-icon>
+              <svg-icon id="copyButton" class="toolIcon" icon-class="copy" @click="copy"
+                        :data-clipboard-text="markdownSpecialCharacterReplace(content)"></svg-icon>
             </el-tooltip>
           </div>
         </div>
@@ -43,9 +43,9 @@ import MarkdownItKatex from 'markdown-it-katex'
 
 import FileContainer from "@/components/fileContainer/index.vue";
 
-import {isEmpty, markdownSpecialCharacterReplace} from "@/utils/common";
+import {isEmpty, latexToMarkdown, markdownSpecialCharacterReplace} from "@/utils/common";
 
-import katex from 'katex'
+import clipboard from 'clipboard';
 
 export default {
   name: 'Message',
@@ -90,12 +90,28 @@ export default {
     }
   },
   methods: {
-    copy(text) {
-      let copy = document.getElementById("copy")
-      copy.value = text
-      copy.select();
-      document.execCommand("cut")
-      this.$message.success("复制成功")
+    latexToMarkdown,
+    copy() {
+      let clipboard0 = new clipboard("#copyButton");
+
+      clipboard0.on("success", (e) => {
+        this.$message({
+          message: "复制成功!",
+          type: "success",
+          duration: 2000,
+        });
+        e.clearSelection();
+        clipboard0.destroy();
+      });
+      clipboard0.on("error", (e) => {
+        this.$message({
+          message: "复制失败!",
+          type: "error",
+          duration: 2000,
+        });
+        e.clearSelection();
+        clipboard0.destroy();
+      });
     },
 
     isEmpty,

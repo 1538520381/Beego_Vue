@@ -30,7 +30,8 @@
          @click="toWorkbench">工作台
     </div>
 
-    <svg-icon class="shareIcon" icon-class="share" @click="share"></svg-icon>
+    <svg-icon id="shareIcon" class="shareIcon" icon-class="share" @click="share"
+              data-clipboard-text="http://54.222.173.61:81/home"></svg-icon>
 
     <input type="text" id="shareLink" class="shareLink" value="http://54.222.173.61:81/home">
   </div>
@@ -42,6 +43,7 @@ import C9C9C9_Square from "@/assets/pictures/C9C9C9_Square.png";
 import F2F2F2_BottomLeftAngledTriangle from "@/assets/pictures/F2F2F2_BottomLeftAngledTriangle.png";
 import C9C9C9_TopRightAngledTriangle from "@/assets/pictures/C9C9C9_TopRightAngledTriangle.png";
 import SvgIcon from "@/components/svgIcon/index.vue";
+import clipboard from "clipboard";
 
 export default {
   name: 'ModeBar',
@@ -61,10 +63,26 @@ export default {
   },
   methods: {
     share() {
-      let shareLink = document.getElementById("shareLink")
-      shareLink.select();
-      document.execCommand("copy")
-      this.$message.success("分享链接已复制到剪切板");
+      let clipboard0 = new clipboard("#shareIcon");
+
+      clipboard0.on("success", (e) => {
+        this.$message({
+          message: "分享链接已复制到剪切板",
+          type: "success",
+          duration: 2000,
+        });
+        e.clearSelection();
+        clipboard0.destroy();
+      });
+      clipboard0.on("error", (e) => {
+        this.$message({
+          message: "复制失败!",
+          type: "error",
+          duration: 2000,
+        });
+        e.clearSelection();
+        clipboard0.destroy();
+      });
     },
 
     toLearningCornerBook() {
@@ -73,7 +91,6 @@ export default {
       }
     },
     toWorkbench() {
-      console.log(1)
       if (window.location.href.indexOf("/workbench") === -1) {
         this.$router.push("/workbench");
       }

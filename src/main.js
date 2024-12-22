@@ -33,4 +33,18 @@ createApp(App).use(router).use(ElementPlus).use(store).use(VMdPreview).use(mavon
     blocks.forEach((block) => {
         hljs.highlightBlock(block)
     })
+}).directive('copy', {
+    bind: function (el, binding) {
+        el.$copy = function () {
+            const textarea = document.createElement('textarea');
+            textarea.value = binding.value;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('Copy');
+            document.body.removeChild(textarea);
+        }
+        el.addEventListener('click', el.$copy);
+    }, unbind: function (el) {
+        el.removeEventListener('click', el.$copy);
+    }
 }).component('svg-icon', SvgIcon).mount('#app')

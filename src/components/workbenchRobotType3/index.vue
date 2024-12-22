@@ -3,7 +3,7 @@
     <WorkbenchRobotType0 :userId="userId" :userAvatar="userAvatar"
                          :userName="userName" :robot="robot" v-show="!linkRobotFlag"
                          @selectRobot="selectRobot"></WorkbenchRobotType0>
-    <WorkbenchRobotType0 :userId="userId" :userAvatar="userAvatar"
+    <WorkbenchRobotType0 ref="linkRobot" :userId="userId" :userAvatar="userAvatar"
                          :userName="userName" :robot="linkRobot" v-show="linkRobotFlag"
                          @selectRobot="selectRobot" v-if="!isEmpty(linkRobot)"></WorkbenchRobotType0>
   </div>
@@ -63,8 +63,11 @@ export default {
       });
     },
 
-    selectRobot() {
+    selectRobot(input) {
       this.linkRobotFlag = !this.linkRobotFlag
+      if (this.linkRobotFlag) {
+        this.$refs.linkRobot.setInput(input)
+      }
     }
   },
 }

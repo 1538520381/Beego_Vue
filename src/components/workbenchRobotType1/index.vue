@@ -65,16 +65,14 @@ export default {
   name: "WorkbenchRobotType1",
   components: {ModeBar, MessageContainer, WorkbenchSessionMenu},
   props: {
+    userId: Number,
     userAvatar: String,
+    userName: String,
     robot: Object
   },
   data() {
     return {
       md: null,
-
-      userId: Number,
-      userAvatar: String,
-      userName: String,
 
       file: null,
       question: null,

@@ -13,7 +13,8 @@
                         :answeringFlag="answeringFlag"
                         :answeringMessageContent="answeringMessageContent" :latexFlag="false" :toolBarFlag="true"
                         :removeFlag="true"></MessageContainer>
-      <RobotInputContainer :robotType="robot.type" :robotPrompts="robot.prompts" :refreshSessionFlag="false" @chat="chat"
+      <RobotInputContainer ref="robotInputContainer" :robotType="robot.type" :robotPrompts="robot.prompts"
+                           :refreshSessionFlag="false" @chat="chat"
                            @selectRobot="selectRobot"></RobotInputContainer>
     </div>
   </div>
@@ -59,7 +60,7 @@ export default {
       this.$refs.messageContainer.addMessage({
         role: 'user',
         content: content,
-       fileType: isEmpty(file) ? null : file.type,
+        fileType: isEmpty(file) ? null : file.type,
         fileName: isEmpty(file) ? null : file.name,
         fileUrl: isEmpty(file) ? null : file.url,
       })
@@ -116,7 +117,19 @@ export default {
     },
 
     selectRobot() {
-      this.$emit('selectRobot')
+      if (this.answeringFlag) {
+        return
+      }
+
+      if (!isEmpty(this.$refs.messageContainer.messageList)) {
+        this.$emit('selectRobot', this.$refs.messageContainer.messageList[this.$refs.messageContainer.messageList.length - 1].content)
+      } else {
+        this.$emit('selectRobot')
+      }
+    },
+
+    setInput(input) {
+      this.$refs.robotInputContainer.setInput(input)
     }
   }
 }

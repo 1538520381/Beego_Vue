@@ -133,6 +133,10 @@ export default {
       this.$emit('selectRobot')
     },
 
+    setInput(input) {
+      this.input = input
+    },
+
     isEmpty
   },
 }
